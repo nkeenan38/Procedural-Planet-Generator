@@ -16632,7 +16632,7 @@ class Geometry extends __WEBPACK_IMPORTED_MODULE_3__rendering_gl_Drawable__["a" 
         __WEBPACK_IMPORTED_MODULE_5__globals__["a" /* gl */].bufferData(__WEBPACK_IMPORTED_MODULE_5__globals__["a" /* gl */].ARRAY_BUFFER, this.colors, __WEBPACK_IMPORTED_MODULE_5__globals__["a" /* gl */].STATIC_DRAW);
     }
     readObjFromFile() {
-        let mesh = Object(__WEBPACK_IMPORTED_MODULE_5__globals__["d" /* readTextFile */])('../objs/icosahedron.obj');
+        let mesh = Object(__WEBPACK_IMPORTED_MODULE_5__globals__["d" /* readTextFile */])('src/icosahedron.obj');
         let lines = mesh.split('\n');
         for (let line of lines) {
             let list = line.split(" ");
