@@ -1,7 +1,8 @@
 # Procedural Planet Generator #
 ### Planet Geometry ###
 To create the tiled sphere, I started with an icosahedron. The plan was to subdivide this icosahedron and get the dual polyhedron from that. A dual of a polyhedron is one where the vertices of one correspond to the faces of the other and the edges between pairs of vertices of one correspond to the edges between pairs of faces of the other. The dual of an icosahedron is a dodecahedron, but the dual of higher subdivisions create tiled spheres that consist mostly of hexagons.
-![](img/icosahedron-1.png)
+
+![icosahedron](/img/icosahedron-1.png)
 
 ### Elevation ####
 ##### Tectonic Plates #####
@@ -15,6 +16,6 @@ Interplate elevation is determined by how the plates interact with each other. H
 | Continental, Oceanic     | Coastline                | Coastal Mountain      |
 | Continental, Continental | Continental Rift/Valley  | Continental Mountain  |
 
-Sliding mostly jsut causes earthquakes and no huge geological formations, so I largely ignore those. Coastal mountains are shorter than continental mountains. In the former, the oceanic crust is subducted under the continental and just pushes it up. In the former, both continental crusts push against each other and rise up in the process.
+Sliding mostly just causes earthquakes and no huge geological formations, so I largely ignore those. Coastal mountains are shorter than continental mountains. In the former, the oceanic crust is subducted under the continental and just pushes it up. In the former, both continental crusts push against each other and rise up in the process.
 ### Temperature ###
 Getting the temperature was relatively straightforward. This planet doesn't have any seasons, so I assumed the equator is closest to the sun and the northern and southern hemispheres are the same distance from the sun. Using these assumptions, the temperature is hottest at the equator and decreases as we approach the poles, as is expected.
