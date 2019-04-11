@@ -140,7 +140,7 @@ class Geometry extends Drawable
 
     readObjFromFile() : void
     {
-        let mesh = readTextFile('../objs/icosahedron.obj');
+        let mesh = readTextFile('/src/objs/icosahedron.obj');
         let lines = mesh.split('\n');
 
         for (let line of lines)
