@@ -15,7 +15,7 @@ Interplate elevation is determined by how the plates interact with each other. H
 | Continental, Oceanic     | Coastline                | Coastal Mountain      |
 | Continental, Continental | Continental Rift/Valley  | Continental Mountain  |
 
-Sliding mostly just causes earthquakes and no huge geological formations, so I largely ignore those. Coastal mountains are shorter than continental mountains. In the former, the oceanic crust is subducted under the continental and just pushes it up. In the former, both continental crusts push against each other and rise up in the process.
+Sliding mostly just causes earthquakes and no huge geological formations, so I largely ignore those. Coastal mountains are shorter than continental mountains. In the former, the oceanic crust is subducted under the continental and just pushes it up. In the former, both continental crusts push against each other and rise up in the process. Once the elevation of each tile is determined, I extrude that tile out of the sphere by an amount proportional to its elevation.
 
 ![Tectonic Plates](./img/plate-elevated.png)
 
