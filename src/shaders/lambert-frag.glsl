@@ -34,7 +34,7 @@ void main()
 
     float ambientTerm = 0.2;
 
-    float lightIntensity = diffuseTerm + ambientTerm;   //Add a small float value to the color multiplier
+    float lightIntensity = clamp(diffuseTerm + ambientTerm, 0.0, 1.0);   //Add a small float value to the color multiplier
                                                         //to simulate ambient lighting. This ensures that faces that are not
                                                         //lit by our point light are not completely black.
 

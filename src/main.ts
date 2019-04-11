@@ -14,7 +14,9 @@ let prevSharpness: number = 0.2
 // This will be referred to by dat.GUI's functions that add GUI elements.
 const controls = {
   'Load Scene': loadScene, // A function pointer, essentially
+  'Tile': 'Terrain'
 };
+let tileType = controls.Tile;
 
 let planet: Planet;
 let wPressed: boolean;
@@ -25,11 +27,18 @@ let dPressed: boolean;
 function loadScene() {
   planet = new Planet();
   planet.readObjFromFile();
-  for (let i = 0; i < 2; i++)
+  for (let i = 0; i < 4; i++)
   {
     planet.subdividePolyhedron();
   }
   planet.dualPolyhedron();
+  planet.createTectonicPlates(10);
+  planet.fixEdges();
+  planet.computePlateBoundaries();
+  planet.setElevation();
+  planet.setPlanetTemperature();
+  planet.extrudeFaces();
+  planet.setTileColors(tileType);
   planet.create();
 
   wPressed = false;
@@ -84,6 +93,8 @@ function main() {
 
   // Add controls to the gui
   const gui = new DAT.GUI();
+  gui.add(controls, 'Tile', [ 'Terrain', 'Tectonic Plates', 'Temperature', 'Precipitation' ]);
+
 
   // get canvas and webgl context
   const canvas = <HTMLCanvasElement> document.getElementById('canvas');
@@ -128,6 +139,13 @@ function main() {
 
   // This function will be called every frame
   function tick() {
+    if (tileType !== controls.Tile)
+    {
+        tileType = controls.Tile;
+        planet.setTileColors(tileType);
+        planet.destory();
+        planet.create();
+    }
     camera.update();
     stats.begin();
     gl.viewport(0, 0, window.innerWidth, window.innerHeight);

@@ -1,4 +1,5 @@
 import { vec3 } from "gl-matrix";
+import { type } from "os";
 
 export var gl: WebGL2RenderingContext;
 export function setGL(_gl: WebGL2RenderingContext) {
@@ -32,4 +33,12 @@ export function randColor(): vec3
     color[1] = Math.random();
     color[2] = Math.random();
     return color;
+}
+
+export function mix(a: vec3, b: vec3, t: number): vec3
+{
+    let result = vec3.create();
+    vec3.scale(result, a, 1 - t);
+    vec3.scaleAndAdd(result, result, b, t);
+    return result;
 }

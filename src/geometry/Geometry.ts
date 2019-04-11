@@ -517,11 +517,10 @@ class Geometry extends Drawable
         this.faces = dualFaces;
     }
 
-    extrude(face: Face): void
+    extrude(face: Face, dist: number): void
     {
         if (!face) return;
         
-        let dist: number = 1.5;
         // compute normal of face
         let halfEdge: Edge = face.edge;
         let normal: vec3 = vec3.create();
