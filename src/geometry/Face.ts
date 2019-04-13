@@ -4,15 +4,19 @@ import {gl} from '../globals';
 import Edge from './Edge';
 import TectonicPlate from '../components/TectonicPlate';
 
-enum Biome
+export enum Biome
 {
-    Grassland,
-    Ranforest,
-    Desert,
     SnowyMountain,
     RockyMountain,
+    SandDesert,
+    IceDesert,
+    Grassland,
+    Jungle,
+    Pasture,
+    Forest,
     Tundra,
-    Water
+    SnowForest,
+    Swamp
 }
 
 class Face

@@ -1,4 +1,4 @@
-import Face from "./geometry/Face";
+import Face, { Biome } from "./geometry/Face";
 import Edge from "./geometry/Edge";
 import Vertex from "./geometry/Vertex";
 import Drawable from "./rendering/gl/Drawable";
@@ -7,6 +7,7 @@ import { gl, readTextFile, randColor, mix } from "./globals";
 import Geometry from "./geometry/Geometry";
 import TectonicPlate, {Crust} from "./components/TectonicPlate";
 import Temperature from "./components/Temperature";
+import Precipitation from "./components/Precipitation";
 
 class Planet extends Geometry
 {   
@@ -15,6 +16,29 @@ class Planet extends Geometry
     constructor()
     {
         super();
+    }
+
+    determineBiomes()
+    {
+        // temperature  // precipitation    // elevation
+        for (let plate of this.tectonicPlates)
+        {
+            for (let face of plate.faces)
+            {
+                if (face.elevation > 1.1)
+                {
+                    face.biome = Biome.SnowyMountain;
+                }
+                else if (face.elevation > 0.7)
+                {
+                    face.biome = Biome.RockyMountain;
+                }
+                // else
+                // {
+                //     face.biome = Biome.Pasture;
+                // }
+            }
+        }
     }
 
     setTileColors(tileType: string)
@@ -42,6 +66,18 @@ class Planet extends Geometry
                     {
                         for (let face of plate.faces)
                         {
+                            if (face.biome == Biome.SnowyMountain)
+                            {
+                                let color = vec3.fromValues(0.9, 0.9, 0.9);
+                                face.setColor(color);
+                                continue;
+                            }
+                            else if (face.biome == Biome.RockyMountain)
+                            {
+                                let color = vec3.fromValues(150/255, 90/255, 20/255);
+                                face.setColor(color);
+                                continue;
+                            }
                             let color = vec3.fromValues(0.1, 0.9, 0.0);
                             vec3.scale(color, color, face.elevation + TectonicPlate.seaLevel);
                             face.setColor(color);
@@ -74,6 +110,13 @@ class Planet extends Geometry
             }
             case "Precipitation":
             {
+                for (let plate of this.tectonicPlates)
+                {
+                    for (let face of plate.faces)
+                    {
+                        face.setColor(mix(vec3.fromValues(1, 0, 0), vec3.fromValues(0, 0, 1), face.precipitation));
+                    }
+                }
                 break;
             }
         }
@@ -224,10 +267,6 @@ class Planet extends Geometry
         {
             pressure = -pressure;
         }
-        // let shear: vec2 = vec2.create();
-        // vec2.scale(shear, positionDiff, vec2.dot(relativeMovement, positionDiff));
-        // return { pressure: 2 / (1 + Math.exp(-pressure / 30)) - 1, shear: 2 / (1 + Math.exp(-shear / 30)) - 1 };
-        // return pressure;
         return  2 / (1 + Math.exp(-pressure)) - 1;
     }
 
@@ -236,6 +275,36 @@ class Planet extends Geometry
         for (let face of this.faces)
         {
             Temperature.setSurfaceTemperature(face);
+        }
+    }
+
+    setPrecipitation()
+    {
+        Precipitation.setPrecipitation(Array.from(this.tectonicPlates));
+    }
+
+    blendTemperatureAndPrecipitation()
+    {
+        for (let plate of this.tectonicPlates)
+        {
+            if (plate.continental())
+            {
+                for (let face of plate.faces)
+                {
+                    let precipitation = face.precipitation;
+                    let temperature = face.temperature;
+                    face.precipitation = Math.max(precipitation * Math.pow(temperature, 0.5), 0.0);
+                    face.temperature = temperature * Math.pow(1.0 - precipitation * 0.5, 0.5);
+                }
+            }
+            else
+            {
+                for (let face of plate.faces)
+                {
+                    let temperature = face.temperature;
+                    face.temperature = temperature * Math.pow(0.5, 0.5);
+                }
+            }
         }
     }
 }

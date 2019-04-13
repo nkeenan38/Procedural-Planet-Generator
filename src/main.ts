@@ -6,6 +6,7 @@ import Camera from './Camera';
 import {setGL} from './globals';
 import ShaderProgram, {Shader} from './rendering/gl/ShaderProgram';
 import Planet from './Planet';
+import Precipitation from './components/Precipitation';
 
 let prevScale: number = 5.0;
 let prevSharpness: number = 0.2
@@ -37,6 +38,9 @@ function loadScene() {
   planet.computePlateBoundaries();
   planet.setElevation();
   planet.setPlanetTemperature();
+  planet.setPrecipitation();
+  planet.blendTemperatureAndPrecipitation();
+  // planet.determineBiomes();
   planet.extrudeFaces();
   planet.setTileColors(tileType);
   planet.create();

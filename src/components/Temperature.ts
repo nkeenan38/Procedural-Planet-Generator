@@ -9,8 +9,8 @@ class Temperature
     static setSurfaceTemperature(face: Face) : void
     {
         let surface: vec3 = face.centroid();
-        face.temperature = 1.0 - Math.abs(surface[1]);
-        // face.color = mix(vec3.fromValues(0, 0, 1), vec3.fromValues(1, 0, 0), face.temperature);
+        face.temperature = Math.max(1.0 - Math.abs(surface[1]), 0);
+        face.temperature *= Math.min(1.5 - face.elevation, 1.0);
     }
 }
 
