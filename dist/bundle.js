@@ -60,7 +60,7 @@
 /******/ 	__webpack_require__.p = "dist/";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 20);
+/******/ 	return __webpack_require__(__webpack_require__.s = 21);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -69,13 +69,13 @@
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__gl_matrix_common_js__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__gl_matrix_mat2_js__ = __webpack_require__(21);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__gl_matrix_mat2d_js__ = __webpack_require__(22);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__gl_matrix_mat2_js__ = __webpack_require__(22);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__gl_matrix_mat2d_js__ = __webpack_require__(23);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__gl_matrix_mat3_js__ = __webpack_require__(5);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__gl_matrix_mat4_js__ = __webpack_require__(6);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__gl_matrix_quat_js__ = __webpack_require__(7);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__gl_matrix_quat2_js__ = __webpack_require__(23);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__gl_matrix_vec2_js__ = __webpack_require__(24);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__gl_matrix_quat2_js__ = __webpack_require__(24);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__gl_matrix_vec2_js__ = __webpack_require__(25);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__gl_matrix_vec3_js__ = __webpack_require__(8);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__gl_matrix_vec4_js__ = __webpack_require__(9);
 /* unused harmony reexport glMatrix */
@@ -5252,7 +5252,7 @@ var forEach = function () {
 
 module.exports = createFilteredVector
 
-var cubicHermite = __webpack_require__(36)
+var cubicHermite = __webpack_require__(37)
 var bsearch = __webpack_require__(11)
 
 function clamp(lo, hi, x) {
@@ -5927,17 +5927,85 @@ function determinant(a) {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return Biome; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_gl_matrix__ = __webpack_require__(0);
+
+var Biome;
+(function (Biome) {
+    Biome[Biome["SnowyMountain"] = 0] = "SnowyMountain";
+    Biome[Biome["RockyMountain"] = 1] = "RockyMountain";
+    Biome[Biome["SandDesert"] = 2] = "SandDesert";
+    Biome[Biome["IceDesert"] = 3] = "IceDesert";
+    Biome[Biome["Grassland"] = 4] = "Grassland";
+    Biome[Biome["Jungle"] = 5] = "Jungle";
+    Biome[Biome["Pasture"] = 6] = "Pasture";
+    Biome[Biome["Forest"] = 7] = "Forest";
+    Biome[Biome["Tundra"] = 8] = "Tundra";
+    Biome[Biome["SnowForest"] = 9] = "SnowForest";
+    Biome[Biome["Swamp"] = 10] = "Swamp";
+})(Biome || (Biome = {}));
+class Face {
+    constructor(color) {
+        this.elevation = 0;
+        this.temperature = 0;
+        this.precipitation = 0;
+        this.id = Face.count++;
+        if (color) {
+            this.color = color;
+        }
+    }
+    centroid() {
+        let edge = this.edge;
+        let centroid = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].create();
+        let count = 0;
+        do {
+            __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].add(centroid, centroid, edge.vertex.position);
+            count++;
+        } while ((edge = edge.next) != this.edge);
+        __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].scale(centroid, centroid, 1 / count);
+        return centroid;
+    }
+    neighbors() {
+        let edge = this.edge;
+        let neighbors = new Set();
+        do {
+            neighbors.add(edge.sym.face);
+        } while ((edge = edge.next) != this.edge);
+        return Array.from(neighbors);
+    }
+    // used for the hexagonal tiles
+    // colors the sides to be the same color
+    setColor(color) {
+        this.color = color;
+        if (!this.plate)
+            return;
+        let edge = this.edge;
+        do {
+            let side = edge.sym.face;
+            side.color = color;
+        } while ((edge = edge.next) != this.edge);
+    }
+}
+Face.count = 0;
+/* harmony default export */ __webpack_exports__["b"] = (Face);
+
+
+/***/ }),
+/* 21 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_gl_matrix__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_stats_js__ = __webpack_require__(25);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_stats_js__ = __webpack_require__(26);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_stats_js___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_stats_js__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_dat_gui__ = __webpack_require__(26);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_dat_gui__ = __webpack_require__(27);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_dat_gui___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_dat_gui__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__rendering_gl_OpenGLRenderer__ = __webpack_require__(29);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__Camera__ = __webpack_require__(30);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__rendering_gl_OpenGLRenderer__ = __webpack_require__(30);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__Camera__ = __webpack_require__(31);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__globals__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__rendering_gl_ShaderProgram__ = __webpack_require__(65);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__Planet__ = __webpack_require__(66);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__rendering_gl_ShaderProgram__ = __webpack_require__(66);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__Planet__ = __webpack_require__(67);
 
 
 
@@ -5972,6 +6040,9 @@ function loadScene() {
     planet.computePlateBoundaries();
     planet.setElevation();
     planet.setPlanetTemperature();
+    planet.setPrecipitation();
+    planet.blendTemperatureAndPrecipitation();
+    // planet.determineBiomes();
     planet.extrudeFaces();
     planet.setTileColors(tileType);
     planet.create();
@@ -6040,8 +6111,8 @@ function main() {
     renderer.setClearColor(164.0 / 255.0, 233.0 / 255.0, 1.0, 1);
     gl.enable(gl.DEPTH_TEST);
     const lambert = new __WEBPACK_IMPORTED_MODULE_6__rendering_gl_ShaderProgram__["b" /* default */]([
-        new __WEBPACK_IMPORTED_MODULE_6__rendering_gl_ShaderProgram__["a" /* Shader */](gl.VERTEX_SHADER, __webpack_require__(74)),
-        new __WEBPACK_IMPORTED_MODULE_6__rendering_gl_ShaderProgram__["a" /* Shader */](gl.FRAGMENT_SHADER, __webpack_require__(75)),
+        new __WEBPACK_IMPORTED_MODULE_6__rendering_gl_ShaderProgram__["a" /* Shader */](gl.VERTEX_SHADER, __webpack_require__(75)),
+        new __WEBPACK_IMPORTED_MODULE_6__rendering_gl_ShaderProgram__["a" /* Shader */](gl.FRAGMENT_SHADER, __webpack_require__(76)),
     ]);
     function processKeyPresses() {
         let velocity = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].fromValues(0, 0, 0);
@@ -6094,7 +6165,7 @@ main();
 
 
 /***/ }),
-/* 21 */
+/* 22 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -6561,7 +6632,7 @@ var mul = multiply;
 var sub = subtract;
 
 /***/ }),
-/* 22 */
+/* 23 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -7077,7 +7148,7 @@ var mul = multiply;
 var sub = subtract;
 
 /***/ }),
-/* 23 */
+/* 24 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -7969,7 +8040,7 @@ function equals(a, b) {
 }
 
 /***/ }),
-/* 24 */
+/* 25 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -8646,21 +8717,21 @@ var forEach = function () {
 }();
 
 /***/ }),
-/* 25 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 !function(e,t){ true?module.exports=t():"function"==typeof define&&define.amd?define(t):e.Stats=t()}(this,function(){"use strict";var c=function(){var n=0,l=document.createElement("div");function e(e){return l.appendChild(e.dom),e}function t(e){for(var t=0;t<l.children.length;t++)l.children[t].style.display=t===e?"block":"none";n=e}l.style.cssText="position:fixed;top:0;left:0;cursor:pointer;opacity:0.9;z-index:10000",l.addEventListener("click",function(e){e.preventDefault(),t(++n%l.children.length)},!1);var i=(performance||Date).now(),a=i,o=0,f=e(new c.Panel("FPS","#0ff","#002")),r=e(new c.Panel("MS","#0f0","#020"));if(self.performance&&self.performance.memory)var d=e(new c.Panel("MB","#f08","#201"));return t(0),{REVISION:16,dom:l,addPanel:e,showPanel:t,begin:function(){i=(performance||Date).now()},end:function(){o++;var e=(performance||Date).now();if(r.update(e-i,200),a+1e3<=e&&(f.update(1e3*o/(e-a),100),a=e,o=0,d)){var t=performance.memory;d.update(t.usedJSHeapSize/1048576,t.jsHeapSizeLimit/1048576)}return e},update:function(){i=this.end()},domElement:l,setMode:t}};return c.Panel=function(n,l,i){var a=1/0,o=0,f=Math.round,r=f(window.devicePixelRatio||1),d=80*r,e=48*r,c=3*r,p=2*r,u=3*r,s=15*r,m=74*r,h=30*r,y=document.createElement("canvas");y.width=d,y.height=e,y.style.cssText="width:80px;height:48px";var v=y.getContext("2d");return v.font="bold "+9*r+"px Helvetica,Arial,sans-serif",v.textBaseline="top",v.fillStyle=i,v.fillRect(0,0,d,e),v.fillStyle=l,v.fillText(n,c,p),v.fillRect(u,s,m,h),v.fillStyle=i,v.globalAlpha=.9,v.fillRect(u,s,m,h),{dom:y,update:function(e,t){a=Math.min(a,e),o=Math.max(o,e),v.fillStyle=i,v.globalAlpha=1,v.fillRect(0,0,d,s),v.fillStyle=l,v.fillText(f(e)+" "+n+" ("+f(a)+"-"+f(o)+")",c,p),v.drawImage(y,u+r,s,m-r,h,u,s,m-r,h),v.fillRect(u+m-r,s,r,h),v.fillStyle=i,v.globalAlpha=.9,v.fillRect(u+m-r,s,r,f((1-e/t)*h))}}},c});
 
 
 /***/ }),
-/* 26 */
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(27)
-module.exports.color = __webpack_require__(28)
+module.exports = __webpack_require__(28)
+module.exports.color = __webpack_require__(29)
 
 /***/ }),
-/* 27 */
+/* 28 */
 /***/ (function(module, exports) {
 
 /**
@@ -12325,7 +12396,7 @@ dat.dom.dom,
 dat.utils.common);
 
 /***/ }),
-/* 28 */
+/* 29 */
 /***/ (function(module, exports) {
 
 /**
@@ -13085,7 +13156,7 @@ dat.color.toString,
 dat.utils.common);
 
 /***/ }),
-/* 29 */
+/* 30 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -13125,12 +13196,12 @@ class OpenGLRenderer {
 
 
 /***/ }),
-/* 30 */
+/* 31 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_gl_matrix__ = __webpack_require__(0);
-var CameraControls = __webpack_require__(31);
+var CameraControls = __webpack_require__(32);
 
 class Camera {
     constructor(position, target) {
@@ -13168,7 +13239,7 @@ class Camera {
 
 
 /***/ }),
-/* 31 */
+/* 32 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -13176,12 +13247,12 @@ class Camera {
 
 module.exports = createCamera
 
-var now         = __webpack_require__(32)
-var createView  = __webpack_require__(34)
-var mouseChange = __webpack_require__(57)
-var mouseWheel  = __webpack_require__(59)
-var mouseOffset = __webpack_require__(62)
-var hasPassive  = __webpack_require__(63)
+var now         = __webpack_require__(33)
+var createView  = __webpack_require__(35)
+var mouseChange = __webpack_require__(58)
+var mouseWheel  = __webpack_require__(60)
+var mouseOffset = __webpack_require__(63)
+var hasPassive  = __webpack_require__(64)
 
 function createCamera(element, options) {
   element = element || document.body
@@ -13411,7 +13482,7 @@ function createCamera(element, options) {
 
 
 /***/ }),
-/* 32 */
+/* 33 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global) {module.exports =
@@ -13422,10 +13493,10 @@ function createCamera(element, options) {
     return +new Date
   }
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(33)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(34)))
 
 /***/ }),
-/* 33 */
+/* 34 */
 /***/ (function(module, exports) {
 
 var g;
@@ -13452,7 +13523,7 @@ module.exports = g;
 
 
 /***/ }),
-/* 34 */
+/* 35 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -13460,9 +13531,9 @@ module.exports = g;
 
 module.exports = createViewController
 
-var createTurntable = __webpack_require__(35)
-var createOrbit     = __webpack_require__(38)
-var createMatrix    = __webpack_require__(41)
+var createTurntable = __webpack_require__(36)
+var createOrbit     = __webpack_require__(39)
+var createMatrix    = __webpack_require__(42)
 
 function ViewController(controllers, mode) {
   this._controllerNames = Object.keys(controllers)
@@ -13580,7 +13651,7 @@ function createViewController(options) {
 }
 
 /***/ }),
-/* 35 */
+/* 36 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -13590,7 +13661,7 @@ module.exports = createTurntableController
 
 var filterVector = __webpack_require__(10)
 var invert44     = __webpack_require__(3)
-var rotateM      = __webpack_require__(37)
+var rotateM      = __webpack_require__(38)
 var cross        = __webpack_require__(12)
 var normalize3   = __webpack_require__(4)
 var dot3         = __webpack_require__(13)
@@ -14158,7 +14229,7 @@ function createTurntableController(options) {
 }
 
 /***/ }),
-/* 36 */
+/* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -14203,7 +14274,7 @@ module.exports = cubicHermite
 module.exports.derivative = dcubicHermite
 
 /***/ }),
-/* 37 */
+/* 38 */
 /***/ (function(module, exports) {
 
 module.exports = rotate;
@@ -14272,7 +14343,7 @@ function rotate(out, a, rad, axis) {
 };
 
 /***/ }),
-/* 38 */
+/* 39 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -14282,9 +14353,9 @@ module.exports = createOrbitController
 
 var filterVector  = __webpack_require__(10)
 var lookAt        = __webpack_require__(14)
-var mat4FromQuat  = __webpack_require__(39)
+var mat4FromQuat  = __webpack_require__(40)
 var invert44      = __webpack_require__(3)
-var quatFromFrame = __webpack_require__(40)
+var quatFromFrame = __webpack_require__(41)
 
 function len3(x,y,z) {
   return Math.sqrt(Math.pow(x,2) + Math.pow(y,2) + Math.pow(z,2))
@@ -14671,7 +14742,7 @@ function createOrbitController(options) {
 }
 
 /***/ }),
-/* 39 */
+/* 40 */
 /***/ (function(module, exports) {
 
 module.exports = fromQuat;
@@ -14723,7 +14794,7 @@ function fromQuat(out, q) {
 };
 
 /***/ }),
-/* 40 */
+/* 41 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -14770,18 +14841,18 @@ function quatFromFrame(
 }
 
 /***/ }),
-/* 41 */
+/* 42 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
 var bsearch   = __webpack_require__(11)
-var m4interp  = __webpack_require__(42)
+var m4interp  = __webpack_require__(43)
 var invert44  = __webpack_require__(3)
-var rotateX   = __webpack_require__(54)
-var rotateY   = __webpack_require__(55)
-var rotateZ   = __webpack_require__(56)
+var rotateX   = __webpack_require__(55)
+var rotateY   = __webpack_require__(56)
+var rotateZ   = __webpack_require__(57)
 var lookAt    = __webpack_require__(14)
 var translate = __webpack_require__(16)
 var scale     = __webpack_require__(18)
@@ -14975,15 +15046,15 @@ function createMatrixCameraController(options) {
 
 
 /***/ }),
-/* 42 */
+/* 43 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var lerp = __webpack_require__(43)
+var lerp = __webpack_require__(44)
 
-var recompose = __webpack_require__(44)
-var decompose = __webpack_require__(47)
+var recompose = __webpack_require__(45)
+var decompose = __webpack_require__(48)
 var determinant = __webpack_require__(19)
-var slerp = __webpack_require__(52)
+var slerp = __webpack_require__(53)
 
 var state0 = state()
 var state1 = state()
@@ -15032,7 +15103,7 @@ function vec4() {
 }
 
 /***/ }),
-/* 43 */
+/* 44 */
 /***/ (function(module, exports) {
 
 module.exports = lerp;
@@ -15057,7 +15128,7 @@ function lerp(out, a, b, t) {
 }
 
 /***/ }),
-/* 44 */
+/* 45 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -15074,10 +15145,10 @@ From: http://www.w3.org/TR/css3-transforms/#recomposing-to-a-3d-matrix
 var mat4 = {
     identity: __webpack_require__(15),
     translate: __webpack_require__(16),
-    multiply: __webpack_require__(45),
+    multiply: __webpack_require__(46),
     create: __webpack_require__(17),
     scale: __webpack_require__(18),
-    fromRotationTranslation: __webpack_require__(46)
+    fromRotationTranslation: __webpack_require__(47)
 }
 
 var rotationMatrix = mat4.create()
@@ -15122,7 +15193,7 @@ module.exports = function recomposeMat4(matrix, translation, scale, skew, perspe
 }
 
 /***/ }),
-/* 45 */
+/* 46 */
 /***/ (function(module, exports) {
 
 module.exports = multiply;
@@ -15169,7 +15240,7 @@ function multiply(out, a, b) {
 };
 
 /***/ }),
-/* 46 */
+/* 47 */
 /***/ (function(module, exports) {
 
 module.exports = fromRotationTranslation;
@@ -15227,7 +15298,7 @@ function fromRotationTranslation(out, q, v) {
 };
 
 /***/ }),
-/* 47 */
+/* 48 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*jshint unused:true*/
@@ -15247,15 +15318,15 @@ https://github.com/ChromiumWebApps/chromium/blob/master/ui/gfx/transform_util.cc
 http://www.w3.org/TR/css3-transforms/#decomposing-a-3d-matrix
 */
 
-var normalize = __webpack_require__(48)
+var normalize = __webpack_require__(49)
 
 var create = __webpack_require__(17)
-var clone = __webpack_require__(49)
+var clone = __webpack_require__(50)
 var determinant = __webpack_require__(19)
 var invert = __webpack_require__(3)
-var transpose = __webpack_require__(50)
+var transpose = __webpack_require__(51)
 var vec3 = {
-    length: __webpack_require__(51),
+    length: __webpack_require__(52),
     normalize: __webpack_require__(4),
     dot: __webpack_require__(13),
     cross: __webpack_require__(12)
@@ -15411,7 +15482,7 @@ function combine(out, a, b, scale1, scale2) {
 }
 
 /***/ }),
-/* 48 */
+/* 49 */
 /***/ (function(module, exports) {
 
 module.exports = function normalize(out, mat) {
@@ -15426,7 +15497,7 @@ module.exports = function normalize(out, mat) {
 }
 
 /***/ }),
-/* 49 */
+/* 50 */
 /***/ (function(module, exports) {
 
 module.exports = clone;
@@ -15459,7 +15530,7 @@ function clone(a) {
 };
 
 /***/ }),
-/* 50 */
+/* 51 */
 /***/ (function(module, exports) {
 
 module.exports = transpose;
@@ -15513,7 +15584,7 @@ function transpose(out, a) {
 };
 
 /***/ }),
-/* 51 */
+/* 52 */
 /***/ (function(module, exports) {
 
 module.exports = length;
@@ -15532,13 +15603,13 @@ function length(a) {
 }
 
 /***/ }),
-/* 52 */
+/* 53 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(53)
+module.exports = __webpack_require__(54)
 
 /***/ }),
-/* 53 */
+/* 54 */
 /***/ (function(module, exports) {
 
 module.exports = slerp
@@ -15595,7 +15666,7 @@ function slerp (out, a, b, t) {
 
 
 /***/ }),
-/* 54 */
+/* 55 */
 /***/ (function(module, exports) {
 
 module.exports = rotateX;
@@ -15644,7 +15715,7 @@ function rotateX(out, a, rad) {
 };
 
 /***/ }),
-/* 55 */
+/* 56 */
 /***/ (function(module, exports) {
 
 module.exports = rotateY;
@@ -15693,7 +15764,7 @@ function rotateY(out, a, rad) {
 };
 
 /***/ }),
-/* 56 */
+/* 57 */
 /***/ (function(module, exports) {
 
 module.exports = rotateZ;
@@ -15742,7 +15813,7 @@ function rotateZ(out, a, rad) {
 };
 
 /***/ }),
-/* 57 */
+/* 58 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -15750,7 +15821,7 @@ function rotateZ(out, a, rad) {
 
 module.exports = mouseListen
 
-var mouse = __webpack_require__(58)
+var mouse = __webpack_require__(59)
 
 function mouseListen (element, callback) {
   if (!callback) {
@@ -15954,7 +16025,7 @@ function mouseListen (element, callback) {
 
 
 /***/ }),
-/* 58 */
+/* 59 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -16021,13 +16092,13 @@ exports.y = mouseRelativeY
 
 
 /***/ }),
-/* 59 */
+/* 60 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var toPX = __webpack_require__(60)
+var toPX = __webpack_require__(61)
 
 module.exports = mouseWheelListen
 
@@ -16068,13 +16139,13 @@ function mouseWheelListen(element, callback, noScroll) {
 
 
 /***/ }),
-/* 60 */
+/* 61 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var parseUnit = __webpack_require__(61)
+var parseUnit = __webpack_require__(62)
 
 module.exports = toPX
 
@@ -16149,7 +16220,7 @@ function toPX(str, element) {
 
 
 /***/ }),
-/* 61 */
+/* 62 */
 /***/ (function(module, exports) {
 
 module.exports = function parseUnit(str, out) {
@@ -16164,7 +16235,7 @@ module.exports = function parseUnit(str, out) {
 }
 
 /***/ }),
-/* 62 */
+/* 63 */
 /***/ (function(module, exports) {
 
 var rootPosition = { left: 0, top: 0 }
@@ -16195,13 +16266,13 @@ function getBoundingClientOffset (element) {
 
 
 /***/ }),
-/* 63 */
+/* 64 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var isBrowser = __webpack_require__(64)
+var isBrowser = __webpack_require__(65)
 
 function detect() {
 	var supported = false
@@ -16226,13 +16297,13 @@ module.exports = isBrowser && detect()
 
 
 /***/ }),
-/* 64 */
+/* 65 */
 /***/ (function(module, exports) {
 
 module.exports = true;
 
 /***/ }),
-/* 65 */
+/* 66 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -16325,24 +16396,45 @@ class ShaderProgram {
 
 
 /***/ }),
-/* 66 */
+/* 67 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_gl_matrix__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__globals__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__geometry_Geometry__ = __webpack_require__(67);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__components_TectonicPlate__ = __webpack_require__(72);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__components_Temperature__ = __webpack_require__(73);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__geometry_Face__ = __webpack_require__(20);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_gl_matrix__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__globals__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__geometry_Geometry__ = __webpack_require__(68);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__components_TectonicPlate__ = __webpack_require__(72);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__components_Temperature__ = __webpack_require__(73);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__components_Precipitation__ = __webpack_require__(74);
 
 
 
 
 
-class Planet extends __WEBPACK_IMPORTED_MODULE_2__geometry_Geometry__["a" /* default */] {
+
+
+class Planet extends __WEBPACK_IMPORTED_MODULE_3__geometry_Geometry__["a" /* default */] {
     constructor() {
         super();
         this.tectonicPlates = new Set();
+    }
+    determineBiomes() {
+        // temperature  // precipitation    // elevation
+        for (let plate of this.tectonicPlates) {
+            for (let face of plate.faces) {
+                if (face.elevation > 1.1) {
+                    face.biome = __WEBPACK_IMPORTED_MODULE_0__geometry_Face__["a" /* Biome */].SnowyMountain;
+                }
+                else if (face.elevation > 0.7) {
+                    face.biome = __WEBPACK_IMPORTED_MODULE_0__geometry_Face__["a" /* Biome */].RockyMountain;
+                }
+                // else
+                // {
+                //     face.biome = Biome.Pasture;
+                // }
+            }
+        }
     }
     setTileColors(tileType) {
         switch (tileType) {
@@ -16352,18 +16444,28 @@ class Planet extends __WEBPACK_IMPORTED_MODULE_2__geometry_Geometry__["a" /* def
                         if (plate.oceanic()) {
                             for (let face of plate.faces) {
                                 if (face.elevation > 0)
-                                    face.setColor(__WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].fromValues(200 / 255, 200 / 255, 100 / 255));
+                                    face.setColor(__WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].fromValues(200 / 255, 200 / 255, 100 / 255));
                                 else {
-                                    let color = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].fromValues(0, 0.1, 0.9);
-                                    __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].scale(color, color, face.elevation + __WEBPACK_IMPORTED_MODULE_3__components_TectonicPlate__["a" /* default */].seaLevel);
+                                    let color = __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].fromValues(0, 0.1, 0.9);
+                                    __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].scale(color, color, face.elevation + __WEBPACK_IMPORTED_MODULE_4__components_TectonicPlate__["a" /* default */].seaLevel);
                                     face.setColor(color);
                                 }
                             }
                         }
                         else {
                             for (let face of plate.faces) {
-                                let color = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].fromValues(0.1, 0.9, 0.0);
-                                __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].scale(color, color, face.elevation + __WEBPACK_IMPORTED_MODULE_3__components_TectonicPlate__["a" /* default */].seaLevel);
+                                if (face.biome == __WEBPACK_IMPORTED_MODULE_0__geometry_Face__["a" /* Biome */].SnowyMountain) {
+                                    let color = __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].fromValues(0.9, 0.9, 0.9);
+                                    face.setColor(color);
+                                    continue;
+                                }
+                                else if (face.biome == __WEBPACK_IMPORTED_MODULE_0__geometry_Face__["a" /* Biome */].RockyMountain) {
+                                    let color = __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].fromValues(150 / 255, 90 / 255, 20 / 255);
+                                    face.setColor(color);
+                                    continue;
+                                }
+                                let color = __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].fromValues(0.1, 0.9, 0.0);
+                                __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].scale(color, color, face.elevation + __WEBPACK_IMPORTED_MODULE_4__components_TectonicPlate__["a" /* default */].seaLevel);
                                 face.setColor(color);
                             }
                         }
@@ -16383,13 +16485,18 @@ class Planet extends __WEBPACK_IMPORTED_MODULE_2__geometry_Geometry__["a" /* def
                 {
                     for (let plate of this.tectonicPlates) {
                         for (let face of plate.faces) {
-                            face.setColor(Object(__WEBPACK_IMPORTED_MODULE_1__globals__["b" /* mix */])(__WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].fromValues(0, 0, 1), __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].fromValues(1, 0, 0), face.temperature));
+                            face.setColor(Object(__WEBPACK_IMPORTED_MODULE_2__globals__["b" /* mix */])(__WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].fromValues(0, 0, 1), __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].fromValues(1, 0, 0), face.temperature));
                         }
                     }
                     break;
                 }
             case "Precipitation":
                 {
+                    for (let plate of this.tectonicPlates) {
+                        for (let face of plate.faces) {
+                            face.setColor(Object(__WEBPACK_IMPORTED_MODULE_2__globals__["b" /* mix */])(__WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].fromValues(1, 0, 0), __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].fromValues(0, 0, 1), face.precipitation));
+                        }
+                    }
                     break;
                 }
         }
@@ -16401,7 +16508,7 @@ class Planet extends __WEBPACK_IMPORTED_MODULE_2__geometry_Geometry__["a" /* def
             let face = this.faces[index];
             if (!origins.has(face)) {
                 origins.add(face);
-                let plate = new __WEBPACK_IMPORTED_MODULE_3__components_TectonicPlate__["a" /* default */]();
+                let plate = new __WEBPACK_IMPORTED_MODULE_4__components_TectonicPlate__["a" /* default */]();
                 this.tectonicPlates.add(plate);
                 plate.addFace(face);
             }
@@ -16457,10 +16564,10 @@ class Planet extends __WEBPACK_IMPORTED_MODULE_2__geometry_Geometry__["a" /* def
                     otherPlate = neighbor.plate;
                     let p2 = neighbor.centroid();
                     let v2 = neighbor.plate.velocity;
-                    let posDiff = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["b" /* vec2 */].create();
-                    __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["b" /* vec2 */].subtract(posDiff, __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["b" /* vec2 */].fromValues(p1[0], p1[1]), __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["b" /* vec2 */].fromValues(p2[0], p2[1]));
-                    let posNorm = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["b" /* vec2 */].create();
-                    __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["b" /* vec2 */].normalize(posNorm, posDiff);
+                    let posDiff = __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["b" /* vec2 */].create();
+                    __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["b" /* vec2 */].subtract(posDiff, __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["b" /* vec2 */].fromValues(p1[0], p1[1]), __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["b" /* vec2 */].fromValues(p2[0], p2[1]));
+                    let posNorm = __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["b" /* vec2 */].create();
+                    __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["b" /* vec2 */].normalize(posNorm, posDiff);
                     pressure += this.calculateStress(v1, v2, posDiff, posNorm);
                     count++;
                 }
@@ -16488,7 +16595,7 @@ class Planet extends __WEBPACK_IMPORTED_MODULE_2__geometry_Geometry__["a" /* def
                 else {
                     elevation = (plate.elevation + otherPlate.elevation) / 2;
                 }
-                elevation = Math.max(elevation, plate.continental() ? __WEBPACK_IMPORTED_MODULE_3__components_TectonicPlate__["a" /* default */].seaLevel * 1.1 : 0.0);
+                elevation = Math.max(elevation, plate.continental() ? __WEBPACK_IMPORTED_MODULE_4__components_TectonicPlate__["a" /* default */].seaLevel * 1.1 : 0.0);
                 face.elevation = elevation;
             }
         }
@@ -16497,28 +16604,45 @@ class Planet extends __WEBPACK_IMPORTED_MODULE_2__geometry_Geometry__["a" /* def
         for (let plate of this.tectonicPlates) {
             plate.setElevations();
             for (let face of plate.faces) {
-                face.elevation -= __WEBPACK_IMPORTED_MODULE_3__components_TectonicPlate__["a" /* default */].seaLevel;
+                face.elevation -= __WEBPACK_IMPORTED_MODULE_4__components_TectonicPlate__["a" /* default */].seaLevel;
             }
         }
     }
     calculateStress(thisVelocity, thatVelocity, positionDiff, positionNormal) {
-        let relativeMovement = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["b" /* vec2 */].create();
-        __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["b" /* vec2 */].subtract(relativeMovement, thisVelocity, thatVelocity);
-        let pressureVector = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["b" /* vec2 */].create();
-        __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["b" /* vec2 */].scale(pressureVector, positionNormal, __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["b" /* vec2 */].dot(relativeMovement, positionNormal));
-        let pressure = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["b" /* vec2 */].length(pressureVector);
-        if (__WEBPACK_IMPORTED_MODULE_0_gl_matrix__["b" /* vec2 */].dot(pressureVector, positionNormal) > 0) {
+        let relativeMovement = __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["b" /* vec2 */].create();
+        __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["b" /* vec2 */].subtract(relativeMovement, thisVelocity, thatVelocity);
+        let pressureVector = __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["b" /* vec2 */].create();
+        __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["b" /* vec2 */].scale(pressureVector, positionNormal, __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["b" /* vec2 */].dot(relativeMovement, positionNormal));
+        let pressure = __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["b" /* vec2 */].length(pressureVector);
+        if (__WEBPACK_IMPORTED_MODULE_1_gl_matrix__["b" /* vec2 */].dot(pressureVector, positionNormal) > 0) {
             pressure = -pressure;
         }
-        // let shear: vec2 = vec2.create();
-        // vec2.scale(shear, positionDiff, vec2.dot(relativeMovement, positionDiff));
-        // return { pressure: 2 / (1 + Math.exp(-pressure / 30)) - 1, shear: 2 / (1 + Math.exp(-shear / 30)) - 1 };
-        // return pressure;
         return 2 / (1 + Math.exp(-pressure)) - 1;
     }
     setPlanetTemperature() {
         for (let face of this.faces) {
-            __WEBPACK_IMPORTED_MODULE_4__components_Temperature__["a" /* default */].setSurfaceTemperature(face);
+            __WEBPACK_IMPORTED_MODULE_5__components_Temperature__["a" /* default */].setSurfaceTemperature(face);
+        }
+    }
+    setPrecipitation() {
+        __WEBPACK_IMPORTED_MODULE_6__components_Precipitation__["a" /* default */].setPrecipitation(Array.from(this.tectonicPlates));
+    }
+    blendTemperatureAndPrecipitation() {
+        for (let plate of this.tectonicPlates) {
+            if (plate.continental()) {
+                for (let face of plate.faces) {
+                    let precipitation = face.precipitation;
+                    let temperature = face.temperature;
+                    face.precipitation = Math.max(precipitation * Math.pow(temperature, 0.5), 0.0);
+                    face.temperature = temperature * Math.pow(1.0 - precipitation * 0.5, 0.5);
+                }
+            }
+            else {
+                for (let face of plate.faces) {
+                    let temperature = face.temperature;
+                    face.temperature = temperature * Math.pow(0.5, 0.5);
+                }
+            }
         }
     }
 }
@@ -16526,11 +16650,11 @@ class Planet extends __WEBPACK_IMPORTED_MODULE_2__geometry_Geometry__["a" /* def
 
 
 /***/ }),
-/* 67 */
+/* 68 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__Face__ = __webpack_require__(68);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__Face__ = __webpack_require__(20);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__Edge__ = __webpack_require__(69);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__Vertex__ = __webpack_require__(70);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__rendering_gl_Drawable__ = __webpack_require__(71);
@@ -16647,7 +16771,7 @@ class Geometry extends __WEBPACK_IMPORTED_MODULE_3__rendering_gl_Drawable__["a" 
             }
             else if (list[0] == "f") {
                 let color = Object(__WEBPACK_IMPORTED_MODULE_5__globals__["c" /* randColor */])();
-                let face = new __WEBPACK_IMPORTED_MODULE_0__Face__["a" /* default */](color);
+                let face = new __WEBPACK_IMPORTED_MODULE_0__Face__["b" /* default */](color);
                 let index = +list[1].split("/")[0];
                 let vertex = this.vertexes[index - 1];
                 let prevedge = new __WEBPACK_IMPORTED_MODULE_1__Edge__["a" /* default */](face, vertex);
@@ -16769,9 +16893,9 @@ class Geometry extends __WEBPACK_IMPORTED_MODULE_3__rendering_gl_Drawable__["a" 
     // face's first half edge must point to a midpoint
     subdivideFace(face) {
         // create the three new faces
-        let faceA = new __WEBPACK_IMPORTED_MODULE_0__Face__["a" /* default */](Object(__WEBPACK_IMPORTED_MODULE_5__globals__["c" /* randColor */])());
-        let faceB = new __WEBPACK_IMPORTED_MODULE_0__Face__["a" /* default */](Object(__WEBPACK_IMPORTED_MODULE_5__globals__["c" /* randColor */])());
-        let faceC = new __WEBPACK_IMPORTED_MODULE_0__Face__["a" /* default */](Object(__WEBPACK_IMPORTED_MODULE_5__globals__["c" /* randColor */])());
+        let faceA = new __WEBPACK_IMPORTED_MODULE_0__Face__["b" /* default */](Object(__WEBPACK_IMPORTED_MODULE_5__globals__["c" /* randColor */])());
+        let faceB = new __WEBPACK_IMPORTED_MODULE_0__Face__["b" /* default */](Object(__WEBPACK_IMPORTED_MODULE_5__globals__["c" /* randColor */])());
+        let faceC = new __WEBPACK_IMPORTED_MODULE_0__Face__["b" /* default */](Object(__WEBPACK_IMPORTED_MODULE_5__globals__["c" /* randColor */])());
         this.faces.push(faceA);
         this.faces.push(faceB);
         this.faces.push(faceC);
@@ -16948,7 +17072,7 @@ class Geometry extends __WEBPACK_IMPORTED_MODULE_3__rendering_gl_Drawable__["a" 
         // fill in faces
         for (let he of dualHalfEdges) {
             if (he.face == null) {
-                let face = new __WEBPACK_IMPORTED_MODULE_0__Face__["a" /* default */](Object(__WEBPACK_IMPORTED_MODULE_5__globals__["c" /* randColor */])());
+                let face = new __WEBPACK_IMPORTED_MODULE_0__Face__["b" /* default */](Object(__WEBPACK_IMPORTED_MODULE_5__globals__["c" /* randColor */])());
                 face.edge = he;
                 dualFaces.push(face);
                 let curr = he;
@@ -16964,22 +17088,6 @@ class Geometry extends __WEBPACK_IMPORTED_MODULE_3__rendering_gl_Drawable__["a" 
     extrude(face, dist) {
         if (!face)
             return;
-        // compute normal of face
-        let halfEdge = face.edge;
-        let normal = __WEBPACK_IMPORTED_MODULE_4_gl_matrix__["c" /* vec3 */].create();
-        do {
-            let edge1 = __WEBPACK_IMPORTED_MODULE_4_gl_matrix__["c" /* vec3 */].create();
-            __WEBPACK_IMPORTED_MODULE_4_gl_matrix__["c" /* vec3 */].subtract(edge1, halfEdge.next.vertex.position, halfEdge.vertex.position);
-            let edge2 = __WEBPACK_IMPORTED_MODULE_4_gl_matrix__["c" /* vec3 */].create();
-            __WEBPACK_IMPORTED_MODULE_4_gl_matrix__["c" /* vec3 */].subtract(edge2, halfEdge.next.next.vertex.position, halfEdge.vertex.position);
-            let crossProd = __WEBPACK_IMPORTED_MODULE_4_gl_matrix__["c" /* vec3 */].create();
-            __WEBPACK_IMPORTED_MODULE_4_gl_matrix__["c" /* vec3 */].cross(crossProd, edge1, edge2);
-            if (crossProd == __WEBPACK_IMPORTED_MODULE_4_gl_matrix__["c" /* vec3 */].fromValues(0, 0, 0)) {
-                continue;
-            }
-            normal = __WEBPACK_IMPORTED_MODULE_4_gl_matrix__["c" /* vec3 */].normalize(crossProd, crossProd);
-            break;
-        } while ((halfEdge = halfEdge.next) != face.edge);
         // extrude the face
         let heA = face.edge;
         let heB = heA.sym;
@@ -16988,6 +17096,8 @@ class Geometry extends __WEBPACK_IMPORTED_MODULE_3__rendering_gl_Drawable__["a" 
         let v2 = heB.vertex;
         let v3;
         let position = __WEBPACK_IMPORTED_MODULE_4_gl_matrix__["c" /* vec3 */].create();
+        let normal = __WEBPACK_IMPORTED_MODULE_4_gl_matrix__["c" /* vec3 */].create();
+        normal = __WEBPACK_IMPORTED_MODULE_4_gl_matrix__["c" /* vec3 */].normalize(normal, v2.position); // face grows in direction of vector
         __WEBPACK_IMPORTED_MODULE_4_gl_matrix__["c" /* vec3 */].scaleAndAdd(position, v2.position, normal, dist);
         let v4 = new __WEBPACK_IMPORTED_MODULE_2__Vertex__["a" /* default */]();
         v4.position = __WEBPACK_IMPORTED_MODULE_4_gl_matrix__["c" /* vec3 */].clone(position);
@@ -16995,13 +17105,14 @@ class Geometry extends __WEBPACK_IMPORTED_MODULE_3__rendering_gl_Drawable__["a" 
         let newFace;
         do {
             heB = heA.sym;
-            newFace = new __WEBPACK_IMPORTED_MODULE_0__Face__["a" /* default */](face.color);
+            newFace = new __WEBPACK_IMPORTED_MODULE_0__Face__["b" /* default */](face.color);
             heC = new __WEBPACK_IMPORTED_MODULE_1__Edge__["a" /* default */]();
             heD = new __WEBPACK_IMPORTED_MODULE_1__Edge__["a" /* default */]();
             heE = new __WEBPACK_IMPORTED_MODULE_1__Edge__["a" /* default */]();
             heF = new __WEBPACK_IMPORTED_MODULE_1__Edge__["a" /* default */]();
             v1 = heA.vertex;
             v2 = heB.vertex;
+            normal = __WEBPACK_IMPORTED_MODULE_4_gl_matrix__["c" /* vec3 */].normalize(normal, v1.position); // face grows in direction of vector
             __WEBPACK_IMPORTED_MODULE_4_gl_matrix__["c" /* vec3 */].scaleAndAdd(position, v1.position, normal, dist);
             v3 = new __WEBPACK_IMPORTED_MODULE_2__Vertex__["a" /* default */]();
             v3.position = __WEBPACK_IMPORTED_MODULE_4_gl_matrix__["c" /* vec3 */].clone(position);
@@ -17046,7 +17157,7 @@ class Geometry extends __WEBPACK_IMPORTED_MODULE_3__rendering_gl_Drawable__["a" 
         } while (heA.next != face.edge);
         // connect last side
         heB = heA.sym;
-        newFace = new __WEBPACK_IMPORTED_MODULE_0__Face__["a" /* default */](face.color);
+        newFace = new __WEBPACK_IMPORTED_MODULE_0__Face__["b" /* default */](face.color);
         heC = new __WEBPACK_IMPORTED_MODULE_1__Edge__["a" /* default */]();
         heD = new __WEBPACK_IMPORTED_MODULE_1__Edge__["a" /* default */]();
         heE = new __WEBPACK_IMPORTED_MODULE_1__Edge__["a" /* default */]();
@@ -17114,69 +17225,6 @@ class Geometry extends __WEBPACK_IMPORTED_MODULE_3__rendering_gl_Drawable__["a" 
     }
 }
 /* harmony default export */ __webpack_exports__["a"] = (Geometry);
-
-
-/***/ }),
-/* 68 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_gl_matrix__ = __webpack_require__(0);
-
-var Biome;
-(function (Biome) {
-    Biome[Biome["Grassland"] = 0] = "Grassland";
-    Biome[Biome["Ranforest"] = 1] = "Ranforest";
-    Biome[Biome["Desert"] = 2] = "Desert";
-    Biome[Biome["SnowyMountain"] = 3] = "SnowyMountain";
-    Biome[Biome["RockyMountain"] = 4] = "RockyMountain";
-    Biome[Biome["Tundra"] = 5] = "Tundra";
-    Biome[Biome["Water"] = 6] = "Water";
-})(Biome || (Biome = {}));
-class Face {
-    constructor(color) {
-        this.elevation = 0;
-        this.temperature = 0;
-        this.precipitation = 0;
-        this.id = Face.count++;
-        if (color) {
-            this.color = color;
-        }
-    }
-    centroid() {
-        let edge = this.edge;
-        let centroid = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].create();
-        let count = 0;
-        do {
-            __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].add(centroid, centroid, edge.vertex.position);
-            count++;
-        } while ((edge = edge.next) != this.edge);
-        __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].scale(centroid, centroid, 1 / count);
-        return centroid;
-    }
-    neighbors() {
-        let edge = this.edge;
-        let neighbors = new Set();
-        do {
-            neighbors.add(edge.sym.face);
-        } while ((edge = edge.next) != this.edge);
-        return Array.from(neighbors);
-    }
-    // used for the hexagonal tiles
-    // colors the sides to be the same color
-    setColor(color) {
-        this.color = color;
-        if (!this.plate)
-            return;
-        let edge = this.edge;
-        do {
-            let side = edge.sym.face;
-            side.color = color;
-        } while ((edge = edge.next) != this.edge);
-    }
-}
-Face.count = 0;
-/* harmony default export */ __webpack_exports__["a"] = (Face);
 
 
 /***/ }),
@@ -17380,7 +17428,7 @@ class TectonicPlate {
                             toAdd.push(neighbor);
                         }
                     }
-                    face.elevation = 0.75 * face.elevation + 0.25 * (elevation / count);
+                    face.elevation = 0.8 * face.elevation + 0.2 * (elevation / count);
                 }
                 for (let face of queue) {
                     visited.add(face);
@@ -17419,8 +17467,8 @@ TectonicPlate.seaLevel = 0.5;
 class Temperature {
     static setSurfaceTemperature(face) {
         let surface = face.centroid();
-        face.temperature = 1.0 - Math.abs(surface[1]);
-        // face.color = mix(vec3.fromValues(0, 0, 1), vec3.fromValues(1, 0, 0), face.temperature);
+        face.temperature = Math.max(1.0 - Math.abs(surface[1]), 0);
+        face.temperature *= Math.min(1.5 - face.elevation, 1.0);
     }
 }
 Temperature.sun = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].fromValues(0, 0, 150);
@@ -17429,12 +17477,51 @@ Temperature.sun = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].fromVa
 
 /***/ }),
 /* 74 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+class Precipitation {
+    static setPrecipitation(tectonicPlates) {
+        for (let plate of tectonicPlates.filter(p => p.oceanic())) {
+            for (let face of plate.faces) {
+                face.precipitation = 1.0;
+            }
+            for (let boundary of plate.boundary()) {
+                let queue = boundary.neighbors().filter(n => n.plate !== plate && n.plate.continental());
+                let precipitation = 1.0;
+                let visited = new Set();
+                let toAdd = [];
+                while (queue.length > 0) {
+                    let face = queue.pop();
+                    visited.add(face);
+                    if (precipitation > face.precipitation) {
+                        face.precipitation = precipitation;
+                        if (face.elevation <= 0.8)
+                            toAdd = toAdd.concat(face.neighbors().filter(n => n.plate.continental() && !visited.has(n)));
+                    }
+                    if (queue.length == 0) {
+                        precipitation -= .05;
+                        if (precipitation <= 0)
+                            break;
+                        queue = toAdd;
+                        toAdd = [];
+                    }
+                }
+            }
+        }
+    }
+}
+/* harmony default export */ __webpack_exports__["a"] = (Precipitation);
+
+
+/***/ }),
+/* 75 */
 /***/ (function(module, exports) {
 
 module.exports = "# version 300 es\nprecision highp float;\n\n//This is a vertex shader. While it is called a \"shader\" due to outdated conventions, this file\n//is used to apply matrix transformations to the arrays of vertex data passed to it.\n//Since this code is run on your GPU, each vertex is transformed simultaneously.\n//If it were run on your CPU, each vertex would have to be processed in a FOR loop, one at a time.\n//This simultaneous transformation allows your program to run much faster, especially when rendering\n//geometry with millions of vertices.\n\nuniform mat4 u_Model;       // The matrix that defines the transformation of the\n                            // object we're rendering. In this assignment,\n                            // this will be the result of traversing your scene graph.\n\nuniform mat4 u_ModelInvTr;  // The inverse transpose of the model matrix.\n                            // This allows us to transform the object's normals properly\n                            // if the object has been non-uniformly scaled.\n\nuniform mat4 u_ViewProj;    // The matrix that defines the camera's transformation.\n                            // We've written a static matrix for you to use for HW2,\n                            // but in HW3 you'll have to generate one yourself\n\nin vec4 vs_Pos;             // The array of vertex positions passed to the shader\n\nin vec4 vs_Nor;             // The array of vertex normals passed to the shader\n\nin vec4 vs_Col;             // The array of vertex colors passed to the shader.\n\nout vec4 fs_Nor;            // The array of normals that has been transformed by u_ModelInvTr. This is implicitly passed to the fragment shader.\nout vec4 fs_LightVec;       // The direction in which our virtual light lies, relative to each vertex. This is implicitly passed to the fragment shader.\nout vec4 fs_Col;            // The color of each vertex. This is implicitly passed to the fragment shader.\n\nconst vec4 lightPos = vec4(0.0, 0.0, 10000000.0, 1.0); //The position of our virtual light, which is used to compute the shading of\n                                        //the geometry in the fragment shader.\n\nvoid main()\n{\n    fs_Col = vs_Col;                         // Pass the vertex colors to the fragment shader for interpolation\n\n    mat3 invTranspose = mat3(u_ModelInvTr);\n    fs_Nor = vec4(invTranspose * vec3(vs_Nor), 0.0);          // Pass the vertex normals to the fragment shader for interpolation.\n                                                            // Transform the geometry's normals by the inverse transpose of the\n                                                            // model matrix. This is necessary to ensure the normals remain\n                                                            // perpendicular to the surface after the surface is transformed by\n                                                            // the model matrix.\n\n\n    vec4 modelposition = u_Model * vs_Pos;   // Temporarily store the transformed vertex positions for use below\n\n    fs_LightVec = modelposition;  // Compute the direction in which the light source lies\n\n    gl_Position = u_ViewProj * modelposition;// gl_Position is a built-in variable of OpenGL which is\n                                             // used to render the final positions of the geometry's vertices\n}\n"
 
 /***/ }),
-/* 75 */
+/* 76 */
 /***/ (function(module, exports) {
 
 module.exports = "# version 300 es\nprecision highp float;\n\n// This is a fragment shader. If you've opened this file first, please\n// open and read lambert.vert.glsl before reading on.\n// Unlike the vertex shader, the fragment shader actually does compute\n// the shading of geometry. For every pixel in your program's output\n// screen, the fragment shader is run for every bit of geometry that\n// particular pixel overlaps. By implicitly interpolating the position\n// data passed into the fragment shader by the vertex shader, the fragment shader\n// can compute what color to apply to its pixel based on things like vertex\n// position, light position, and vertex color.\n\nuniform vec4 u_Color; // The color with which to render this instance of geometry.\n\n// These are the interpolated values out of the rasterizer, so you can't know\n// their specific values without knowing the vertices that contributed to them\nin vec4 fs_Nor;\nin vec4 fs_LightVec;\nin vec4 fs_Col;\n\nout vec4 out_Col; // This is the final output color that you will see on your\n                  // screen for the pixel that is currently being processed.\n\nvoid main()\n{\n    // Material base color (before shading)\n    vec4 diffuseColor = fs_Col;\n\n    // Calculate the diffuse term for Lambert shading\n    float diffuseTerm = dot(normalize(fs_Nor), normalize(fs_LightVec));\n    // Avoid negative lighting values\n    diffuseTerm = clamp(diffuseTerm, 0.0, 1.0);\n\n    float ambientTerm = 0.2;\n\n    float lightIntensity = clamp(diffuseTerm + ambientTerm, 0.0, 1.0);   //Add a small float value to the color multiplier\n                                                        //to simulate ambient lighting. This ensures that faces that are not\n                                                        //lit by our point light are not completely black.\n\n    // Compute final shaded color\n    out_Col = vec4(diffuseColor.rgb * lightIntensity, diffuseColor.a);\n}\n"
