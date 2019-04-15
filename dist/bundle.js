@@ -71,13 +71,13 @@
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__gl_matrix_common_js__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__gl_matrix_mat2_js__ = __webpack_require__(22);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__gl_matrix_mat2d_js__ = __webpack_require__(23);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__gl_matrix_mat3_js__ = __webpack_require__(5);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__gl_matrix_mat4_js__ = __webpack_require__(6);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__gl_matrix_quat_js__ = __webpack_require__(7);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__gl_matrix_mat3_js__ = __webpack_require__(6);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__gl_matrix_mat4_js__ = __webpack_require__(7);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__gl_matrix_quat_js__ = __webpack_require__(8);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__gl_matrix_quat2_js__ = __webpack_require__(24);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__gl_matrix_vec2_js__ = __webpack_require__(25);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__gl_matrix_vec3_js__ = __webpack_require__(8);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__gl_matrix_vec4_js__ = __webpack_require__(9);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__gl_matrix_vec3_js__ = __webpack_require__(9);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__gl_matrix_vec4_js__ = __webpack_require__(10);
 /* unused harmony reexport glMatrix */
 /* unused harmony reexport mat2 */
 /* unused harmony reexport mat2d */
@@ -263,6 +263,77 @@ function invert(out, a) {
 
 /***/ }),
 /* 4 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return Biome; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_gl_matrix__ = __webpack_require__(0);
+
+var Biome;
+(function (Biome) {
+    Biome[Biome["SnowyMountain"] = 0] = "SnowyMountain";
+    Biome[Biome["RockyMountain"] = 1] = "RockyMountain";
+    Biome[Biome["Desert"] = 2] = "Desert";
+    Biome[Biome["Tundra"] = 3] = "Tundra";
+    Biome[Biome["Grassland"] = 4] = "Grassland";
+    Biome[Biome["Jungle"] = 5] = "Jungle";
+    Biome[Biome["Forest"] = 6] = "Forest";
+    Biome[Biome["Lake"] = 7] = "Lake";
+    Biome[Biome["Ocean"] = 8] = "Ocean";
+    Biome[Biome["Island"] = 9] = "Island";
+    Biome[Biome["Coast"] = 10] = "Coast";
+})(Biome || (Biome = {}));
+class Face {
+    constructor(color) {
+        this.elevation = 0;
+        this.temperature = 0;
+        this.precipitation = 0;
+        this.id = Face.count++;
+        if (color) {
+            this.color = color;
+        }
+    }
+    centroid() {
+        let edge = this.edge;
+        let centroid = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].create();
+        let count = 0;
+        do {
+            __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].add(centroid, centroid, edge.vertex.position);
+            count++;
+        } while ((edge = edge.next) != this.edge);
+        __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].scale(centroid, centroid, 1 / count);
+        return centroid;
+    }
+    neighbors() {
+        let edge = this.edge;
+        let neighbors = new Set();
+        do {
+            neighbors.add(edge.sym.face);
+        } while ((edge = edge.next) != this.edge);
+        return Array.from(neighbors);
+    }
+    // used for the hexagonal tiles
+    // colors the sides to be the same color
+    setColor(top, sides) {
+        this.color = top;
+        if (!sides)
+            sides = top;
+        if (!this.plate)
+            return;
+        let edge = this.edge;
+        do {
+            let side = edge.sym.face;
+            side.color = sides;
+            side.biome = this.biome;
+        } while ((edge = edge.next) != this.edge);
+    }
+}
+Face.count = 0;
+/* harmony default export */ __webpack_exports__["b"] = (Face);
+
+
+/***/ }),
+/* 5 */
 /***/ (function(module, exports) {
 
 module.exports = normalize;
@@ -290,7 +361,7 @@ function normalize(out, a) {
 }
 
 /***/ }),
-/* 5 */
+/* 6 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -1139,7 +1210,7 @@ var mul = multiply;
 var sub = subtract;
 
 /***/ }),
-/* 6 */
+/* 7 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -3035,7 +3106,7 @@ var mul = multiply;
 var sub = subtract;
 
 /***/ }),
-/* 7 */
+/* 8 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -3075,9 +3146,9 @@ var sub = subtract;
 /* unused harmony export sqlerp */
 /* unused harmony export setAxes */
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_js__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__mat3_js__ = __webpack_require__(5);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__vec3_js__ = __webpack_require__(8);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__vec4_js__ = __webpack_require__(9);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__mat3_js__ = __webpack_require__(6);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__vec3_js__ = __webpack_require__(9);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__vec4_js__ = __webpack_require__(10);
 
 
 
@@ -3741,7 +3812,7 @@ var setAxes = function () {
 }();
 
 /***/ }),
-/* 8 */
+/* 9 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -4583,7 +4654,7 @@ var forEach = function () {
 }();
 
 /***/ }),
-/* 9 */
+/* 10 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -5244,7 +5315,7 @@ var forEach = function () {
 }();
 
 /***/ }),
-/* 10 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5253,7 +5324,7 @@ var forEach = function () {
 module.exports = createFilteredVector
 
 var cubicHermite = __webpack_require__(37)
-var bsearch = __webpack_require__(11)
+var bsearch = __webpack_require__(12)
 
 function clamp(lo, hi, x) {
   return Math.min(hi, Math.max(lo, x))
@@ -5542,7 +5613,7 @@ function createFilteredVector(initState, initVelocity, initTime) {
 
 
 /***/ }),
-/* 11 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5609,7 +5680,7 @@ module.exports = {
 
 
 /***/ }),
-/* 12 */
+/* 13 */
 /***/ (function(module, exports) {
 
 module.exports = cross;
@@ -5633,7 +5704,7 @@ function cross(out, a, b) {
 }
 
 /***/ }),
-/* 13 */
+/* 14 */
 /***/ (function(module, exports) {
 
 module.exports = dot;
@@ -5650,10 +5721,10 @@ function dot(a, b) {
 }
 
 /***/ }),
-/* 14 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var identity = __webpack_require__(15);
+var identity = __webpack_require__(16);
 
 module.exports = lookAt;
 
@@ -5745,7 +5816,7 @@ function lookAt(out, eye, center, up) {
 };
 
 /***/ }),
-/* 15 */
+/* 16 */
 /***/ (function(module, exports) {
 
 module.exports = identity;
@@ -5777,7 +5848,7 @@ function identity(out) {
 };
 
 /***/ }),
-/* 16 */
+/* 17 */
 /***/ (function(module, exports) {
 
 module.exports = translate;
@@ -5820,7 +5891,7 @@ function translate(out, a, v) {
 };
 
 /***/ }),
-/* 17 */
+/* 18 */
 /***/ (function(module, exports) {
 
 module.exports = create;
@@ -5852,7 +5923,7 @@ function create() {
 };
 
 /***/ }),
-/* 18 */
+/* 19 */
 /***/ (function(module, exports) {
 
 module.exports = scale;
@@ -5888,7 +5959,7 @@ function scale(out, a, v) {
 };
 
 /***/ }),
-/* 19 */
+/* 20 */
 /***/ (function(module, exports) {
 
 module.exports = determinant;
@@ -5923,74 +5994,6 @@ function determinant(a) {
 };
 
 /***/ }),
-/* 20 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return Biome; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_gl_matrix__ = __webpack_require__(0);
-
-var Biome;
-(function (Biome) {
-    Biome[Biome["SnowyMountain"] = 0] = "SnowyMountain";
-    Biome[Biome["RockyMountain"] = 1] = "RockyMountain";
-    Biome[Biome["SandDesert"] = 2] = "SandDesert";
-    Biome[Biome["IceDesert"] = 3] = "IceDesert";
-    Biome[Biome["Grassland"] = 4] = "Grassland";
-    Biome[Biome["Jungle"] = 5] = "Jungle";
-    Biome[Biome["Pasture"] = 6] = "Pasture";
-    Biome[Biome["Forest"] = 7] = "Forest";
-    Biome[Biome["Tundra"] = 8] = "Tundra";
-    Biome[Biome["SnowForest"] = 9] = "SnowForest";
-    Biome[Biome["Swamp"] = 10] = "Swamp";
-})(Biome || (Biome = {}));
-class Face {
-    constructor(color) {
-        this.elevation = 0;
-        this.temperature = 0;
-        this.precipitation = 0;
-        this.id = Face.count++;
-        if (color) {
-            this.color = color;
-        }
-    }
-    centroid() {
-        let edge = this.edge;
-        let centroid = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].create();
-        let count = 0;
-        do {
-            __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].add(centroid, centroid, edge.vertex.position);
-            count++;
-        } while ((edge = edge.next) != this.edge);
-        __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].scale(centroid, centroid, 1 / count);
-        return centroid;
-    }
-    neighbors() {
-        let edge = this.edge;
-        let neighbors = new Set();
-        do {
-            neighbors.add(edge.sym.face);
-        } while ((edge = edge.next) != this.edge);
-        return Array.from(neighbors);
-    }
-    // used for the hexagonal tiles
-    // colors the sides to be the same color
-    setColor(color) {
-        this.color = color;
-        if (!this.plate)
-            return;
-        let edge = this.edge;
-        do {
-            let side = edge.sym.face;
-            side.color = color;
-        } while ((edge = edge.next) != this.edge);
-    }
-}
-Face.count = 0;
-/* harmony default export */ __webpack_exports__["b"] = (Face);
-
-
-/***/ }),
 /* 21 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -6020,9 +6023,13 @@ let prevSharpness = 0.2;
 // This will be referred to by dat.GUI's functions that add GUI elements.
 const controls = {
     'Load Scene': loadScene,
+    'Subdivsions': 4,
+    'Plates': 10,
     'Tile': 'Terrain'
 };
 let tileType = controls.Tile;
+let subdivisions = controls.Subdivsions;
+let plateCount = controls.Plates;
 let planet;
 let wPressed;
 let aPressed;
@@ -6031,19 +6038,19 @@ let dPressed;
 function loadScene() {
     planet = new __WEBPACK_IMPORTED_MODULE_7__Planet__["a" /* default */]();
     planet.readObjFromFile();
-    for (let i = 0; i < 4; i++) {
+    for (let i = 0; i < subdivisions; i++) {
         planet.subdividePolyhedron();
     }
     planet.dualPolyhedron();
-    planet.createTectonicPlates(10);
+    planet.createTectonicPlates(plateCount);
     planet.fixEdges();
     planet.computePlateBoundaries();
     planet.setElevation();
     planet.setPlanetTemperature();
     planet.setPrecipitation();
     planet.blendTemperatureAndPrecipitation();
-    // planet.determineBiomes();
     planet.extrudeFaces();
+    planet.determineBiomes();
     planet.setTileColors(tileType);
     planet.create();
     wPressed = false;
@@ -6094,6 +6101,9 @@ function main() {
     document.body.appendChild(stats.domElement);
     // Add controls to the gui
     const gui = new __WEBPACK_IMPORTED_MODULE_2_dat_gui__["GUI"]();
+    gui.add(controls, 'Load Scene');
+    gui.add(controls, 'Subdivsions', 3, 5).step(1);
+    gui.add(controls, 'Plates', 4, 20).step(1);
     gui.add(controls, 'Tile', ['Terrain', 'Tectonic Plates', 'Temperature', 'Precipitation']);
     // get canvas and webgl context
     const canvas = document.getElementById('canvas');
@@ -6137,6 +6147,12 @@ function main() {
             planet.setTileColors(tileType);
             planet.destory();
             planet.create();
+        }
+        if (subdivisions !== controls.Subdivsions) {
+            subdivisions = controls.Subdivsions;
+        }
+        if (plateCount !== controls.Plates) {
+            plateCount = controls.Plates;
         }
         camera.update();
         stats.begin();
@@ -7192,8 +7208,8 @@ var sub = subtract;
 /* unused harmony export exactEquals */
 /* unused harmony export equals */
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_js__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__quat_js__ = __webpack_require__(7);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__mat4_js__ = __webpack_require__(6);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__quat_js__ = __webpack_require__(8);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__mat4_js__ = __webpack_require__(7);
 
 
 
@@ -13659,12 +13675,12 @@ function createViewController(options) {
 
 module.exports = createTurntableController
 
-var filterVector = __webpack_require__(10)
+var filterVector = __webpack_require__(11)
 var invert44     = __webpack_require__(3)
 var rotateM      = __webpack_require__(38)
-var cross        = __webpack_require__(12)
-var normalize3   = __webpack_require__(4)
-var dot3         = __webpack_require__(13)
+var cross        = __webpack_require__(13)
+var normalize3   = __webpack_require__(5)
+var dot3         = __webpack_require__(14)
 
 function len3(x, y, z) {
   return Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2) + Math.pow(z, 2))
@@ -14351,8 +14367,8 @@ function rotate(out, a, rad, axis) {
 
 module.exports = createOrbitController
 
-var filterVector  = __webpack_require__(10)
-var lookAt        = __webpack_require__(14)
+var filterVector  = __webpack_require__(11)
+var lookAt        = __webpack_require__(15)
 var mat4FromQuat  = __webpack_require__(40)
 var invert44      = __webpack_require__(3)
 var quatFromFrame = __webpack_require__(41)
@@ -14847,16 +14863,16 @@ function quatFromFrame(
 "use strict";
 
 
-var bsearch   = __webpack_require__(11)
+var bsearch   = __webpack_require__(12)
 var m4interp  = __webpack_require__(43)
 var invert44  = __webpack_require__(3)
 var rotateX   = __webpack_require__(55)
 var rotateY   = __webpack_require__(56)
 var rotateZ   = __webpack_require__(57)
-var lookAt    = __webpack_require__(14)
-var translate = __webpack_require__(16)
-var scale     = __webpack_require__(18)
-var normalize = __webpack_require__(4)
+var lookAt    = __webpack_require__(15)
+var translate = __webpack_require__(17)
+var scale     = __webpack_require__(19)
+var normalize = __webpack_require__(5)
 
 var DEFAULT_CENTER = [0,0,0]
 
@@ -15053,7 +15069,7 @@ var lerp = __webpack_require__(44)
 
 var recompose = __webpack_require__(45)
 var decompose = __webpack_require__(48)
-var determinant = __webpack_require__(19)
+var determinant = __webpack_require__(20)
 var slerp = __webpack_require__(53)
 
 var state0 = state()
@@ -15143,11 +15159,11 @@ From: http://www.w3.org/TR/css3-transforms/#recomposing-to-a-3d-matrix
 */
 
 var mat4 = {
-    identity: __webpack_require__(15),
-    translate: __webpack_require__(16),
+    identity: __webpack_require__(16),
+    translate: __webpack_require__(17),
     multiply: __webpack_require__(46),
-    create: __webpack_require__(17),
-    scale: __webpack_require__(18),
+    create: __webpack_require__(18),
+    scale: __webpack_require__(19),
     fromRotationTranslation: __webpack_require__(47)
 }
 
@@ -15320,16 +15336,16 @@ http://www.w3.org/TR/css3-transforms/#decomposing-a-3d-matrix
 
 var normalize = __webpack_require__(49)
 
-var create = __webpack_require__(17)
+var create = __webpack_require__(18)
 var clone = __webpack_require__(50)
-var determinant = __webpack_require__(19)
+var determinant = __webpack_require__(20)
 var invert = __webpack_require__(3)
 var transpose = __webpack_require__(51)
 var vec3 = {
     length: __webpack_require__(52),
-    normalize: __webpack_require__(4),
-    dot: __webpack_require__(13),
-    cross: __webpack_require__(12)
+    normalize: __webpack_require__(5),
+    dot: __webpack_require__(14),
+    cross: __webpack_require__(13)
 }
 
 var tmp = create()
@@ -16339,6 +16355,7 @@ class ShaderProgram {
         this.attrPos = __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].getAttribLocation(this.prog, "vs_Pos");
         this.attrNor = __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].getAttribLocation(this.prog, "vs_Nor");
         this.attrCol = __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].getAttribLocation(this.prog, "vs_Col");
+        this.attrBiome = __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].getAttribLocation(this.prog, "vs_Biome");
         this.unifModel = __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].getUniformLocation(this.prog, "u_Model");
         this.unifModelInvTr = __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].getUniformLocation(this.prog, "u_ModelInvTr");
         this.unifViewProj = __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].getUniformLocation(this.prog, "u_ViewProj");
@@ -16371,24 +16388,32 @@ class ShaderProgram {
     }
     draw(d) {
         this.use();
-        if (this.attrPos != -1 && d.bindPos()) {
+        if (this.attrPos !== -1 && d.bindPos()) {
             __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].enableVertexAttribArray(this.attrPos);
             __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].vertexAttribPointer(this.attrPos, 4, __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].FLOAT, false, 0, 0);
         }
-        if (this.attrNor != -1 && d.bindNor()) {
+        if (this.attrNor !== -1 && d.bindNor()) {
             __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].enableVertexAttribArray(this.attrNor);
             __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].vertexAttribPointer(this.attrNor, 4, __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].FLOAT, false, 0, 0);
         }
-        if (this.attrCol != -1 && d.bindCol()) {
+        if (this.attrCol !== -1 && d.bindCol()) {
             __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].enableVertexAttribArray(this.attrCol);
             __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].vertexAttribPointer(this.attrCol, 4, __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].FLOAT, false, 0, 0);
         }
+        if (this.attrBiome !== -1 && d.bindBiome()) {
+            __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].enableVertexAttribArray(this.attrBiome);
+            __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].vertexAttribIPointer(this.attrBiome, 1, __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].UNSIGNED_INT, 0, 0);
+        }
         d.bindIdx();
         __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].drawElements(d.drawMode(), d.elemCount(), __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].UNSIGNED_INT, 0);
-        if (this.attrPos != -1)
+        if (this.attrPos !== -1)
             __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].disableVertexAttribArray(this.attrPos);
-        if (this.attrNor != -1)
+        if (this.attrNor !== -1)
             __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].disableVertexAttribArray(this.attrNor);
+        if (this.attrCol !== -1)
+            __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].disableVertexAttribArray(this.attrCol);
+        if (this.attrBiome !== -1)
+            __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].disableVertexAttribArray(this.attrBiome);
     }
 }
 ;
@@ -16400,7 +16425,7 @@ class ShaderProgram {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__geometry_Face__ = __webpack_require__(20);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__geometry_Face__ = __webpack_require__(4);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_gl_matrix__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__globals__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__geometry_Geometry__ = __webpack_require__(68);
@@ -16422,17 +16447,29 @@ class Planet extends __WEBPACK_IMPORTED_MODULE_3__geometry_Geometry__["a" /* def
     determineBiomes() {
         // temperature  // precipitation    // elevation
         for (let plate of this.tectonicPlates) {
-            for (let face of plate.faces) {
-                if (face.elevation > 1.1) {
-                    face.biome = __WEBPACK_IMPORTED_MODULE_0__geometry_Face__["a" /* Biome */].SnowyMountain;
+            for (let face of plate.faces.filter(f => !f.biome)) {
+                if (face.elevation > 0.75) {
+                    if (face.temperature < 0.25)
+                        face.biome = __WEBPACK_IMPORTED_MODULE_0__geometry_Face__["a" /* Biome */].SnowyMountain;
+                    else
+                        face.biome = __WEBPACK_IMPORTED_MODULE_0__geometry_Face__["a" /* Biome */].RockyMountain;
                 }
-                else if (face.elevation > 0.7) {
-                    face.biome = __WEBPACK_IMPORTED_MODULE_0__geometry_Face__["a" /* Biome */].RockyMountain;
+                else {
+                    if (face.precipitation < 0.1) {
+                        face.biome = __WEBPACK_IMPORTED_MODULE_0__geometry_Face__["a" /* Biome */].Desert;
+                    }
+                    else if (face.precipitation < 0.6) {
+                        face.biome = __WEBPACK_IMPORTED_MODULE_0__geometry_Face__["a" /* Biome */].Grassland;
+                    }
+                    else {
+                        if (face.temperature > 0.7) {
+                            face.biome = __WEBPACK_IMPORTED_MODULE_0__geometry_Face__["a" /* Biome */].Jungle;
+                        }
+                        else {
+                            face.biome = __WEBPACK_IMPORTED_MODULE_0__geometry_Face__["a" /* Biome */].Forest;
+                        }
+                    }
                 }
-                // else
-                // {
-                //     face.biome = Biome.Pasture;
-                // }
             }
         }
     }
@@ -16454,19 +16491,70 @@ class Planet extends __WEBPACK_IMPORTED_MODULE_3__geometry_Geometry__["a" /* def
                         }
                         else {
                             for (let face of plate.faces) {
-                                if (face.biome == __WEBPACK_IMPORTED_MODULE_0__geometry_Face__["a" /* Biome */].SnowyMountain) {
-                                    let color = __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].fromValues(0.9, 0.9, 0.9);
-                                    face.setColor(color);
-                                    continue;
+                                switch (face.biome) {
+                                    case __WEBPACK_IMPORTED_MODULE_0__geometry_Face__["a" /* Biome */].SnowyMountain:
+                                        {
+                                            let color = __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].fromValues(0.9, 0.9, 0.9);
+                                            __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].scale(color, color, face.elevation + __WEBPACK_IMPORTED_MODULE_4__components_TectonicPlate__["a" /* default */].seaLevel);
+                                            face.setColor(color);
+                                            break;
+                                        }
+                                    case __WEBPACK_IMPORTED_MODULE_0__geometry_Face__["a" /* Biome */].RockyMountain:
+                                        {
+                                            let color = __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].fromValues(150 / 255, 90 / 255, 20 / 255);
+                                            __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].scale(color, color, face.elevation + __WEBPACK_IMPORTED_MODULE_4__components_TectonicPlate__["a" /* default */].seaLevel);
+                                            face.setColor(color);
+                                            break;
+                                        }
+                                    case __WEBPACK_IMPORTED_MODULE_0__geometry_Face__["a" /* Biome */].Lake:
+                                        {
+                                            let color = __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].fromValues(0, .2, .8);
+                                            __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].scale(color, color, face.elevation + __WEBPACK_IMPORTED_MODULE_4__components_TectonicPlate__["a" /* default */].seaLevel);
+                                            face.setColor(color);
+                                            break;
+                                        }
+                                    case __WEBPACK_IMPORTED_MODULE_0__geometry_Face__["a" /* Biome */].Desert:
+                                        {
+                                            let color = __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].fromValues(250 / 255, 200 / 255, 50 / 255);
+                                            __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].scale(color, color, face.elevation + __WEBPACK_IMPORTED_MODULE_4__components_TectonicPlate__["a" /* default */].seaLevel);
+                                            face.setColor(color);
+                                            break;
+                                        }
+                                    case __WEBPACK_IMPORTED_MODULE_0__geometry_Face__["a" /* Biome */].Tundra:
+                                        {
+                                            let color = __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].fromValues(255 / 255, 250 / 255, 230 / 255);
+                                            __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].scale(color, color, face.elevation + __WEBPACK_IMPORTED_MODULE_4__components_TectonicPlate__["a" /* default */].seaLevel);
+                                            face.setColor(color);
+                                            break;
+                                        }
+                                    case __WEBPACK_IMPORTED_MODULE_0__geometry_Face__["a" /* Biome */].Forest:
+                                        {
+                                            let color = __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].fromValues(40 / 255, 160 / 255, 0);
+                                            __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].scale(color, color, face.elevation + __WEBPACK_IMPORTED_MODULE_4__components_TectonicPlate__["a" /* default */].seaLevel);
+                                            face.setColor(color);
+                                            break;
+                                        }
+                                    case __WEBPACK_IMPORTED_MODULE_0__geometry_Face__["a" /* Biome */].Jungle:
+                                        {
+                                            let color = __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].fromValues(20 / 255, 120 / 255, 0);
+                                            __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].scale(color, color, face.elevation + __WEBPACK_IMPORTED_MODULE_4__components_TectonicPlate__["a" /* default */].seaLevel);
+                                            face.setColor(color);
+                                            break;
+                                        }
+                                    case __WEBPACK_IMPORTED_MODULE_0__geometry_Face__["a" /* Biome */].Grassland:
+                                        {
+                                            let color = __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].fromValues(0.1, 0.9, 0.0);
+                                            __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].scale(color, color, face.elevation + __WEBPACK_IMPORTED_MODULE_4__components_TectonicPlate__["a" /* default */].seaLevel);
+                                            face.setColor(color);
+                                            break;
+                                        }
+                                    default:
+                                        {
+                                            let color = __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].fromValues(1, 0, 0);
+                                            __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].scale(color, color, face.elevation + __WEBPACK_IMPORTED_MODULE_4__components_TectonicPlate__["a" /* default */].seaLevel);
+                                            face.setColor(color);
+                                        }
                                 }
-                                else if (face.biome == __WEBPACK_IMPORTED_MODULE_0__geometry_Face__["a" /* Biome */].RockyMountain) {
-                                    let color = __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].fromValues(150 / 255, 90 / 255, 20 / 255);
-                                    face.setColor(color);
-                                    continue;
-                                }
-                                let color = __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].fromValues(0.1, 0.9, 0.0);
-                                __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].scale(color, color, face.elevation + __WEBPACK_IMPORTED_MODULE_4__components_TectonicPlate__["a" /* default */].seaLevel);
-                                face.setColor(color);
                             }
                         }
                     }
@@ -16543,9 +16631,10 @@ class Planet extends __WEBPACK_IMPORTED_MODULE_3__geometry_Geometry__["a" /* def
         }
     }
     extrudeFaces() {
-        let existing = Array.from(this.faces);
-        for (let face of existing) {
-            this.extrude(face, face.elevation * 0.1);
+        for (let plate of this.tectonicPlates) {
+            for (let face of plate.faces) {
+                this.extrude(face, face.elevation * 0.1);
+            }
         }
     }
     computePlateBoundaries() {
@@ -16553,7 +16642,7 @@ class Planet extends __WEBPACK_IMPORTED_MODULE_3__geometry_Geometry__["a" /* def
             let v1 = plate.velocity;
             for (let face of plate.boundary()) {
                 let p1 = face.centroid();
-                // the collisions aren't always consistent dur othe geometry, so juse use the most common one
+                // the collisions aren't always consistent due to the geometry, so juse use the most common one
                 // sliding: 0, diverge: 1, land->land: 2, ocean->land: 3, ocean->ocean: 4, 
                 let pressure = 0;
                 let count = 0;
@@ -16591,10 +16680,13 @@ class Planet extends __WEBPACK_IMPORTED_MODULE_3__geometry_Geometry__["a" /* def
                 }
                 else if (pressure < -0.3) {
                     elevation = Math.max(plate.elevation, otherPlate.elevation) - Math.exp(pressure / 4);
+                    if (plate.continental() && otherPlate.continental())
+                        face.biome = __WEBPACK_IMPORTED_MODULE_0__geometry_Face__["a" /* Biome */].Lake;
                 }
                 else {
                     elevation = (plate.elevation + otherPlate.elevation) / 2;
                 }
+                elevation *= ((Math.random()) * .1) + 0.95;
                 elevation = Math.max(elevation, plate.continental() ? __WEBPACK_IMPORTED_MODULE_4__components_TectonicPlate__["a" /* default */].seaLevel * 1.1 : 0.0);
                 face.elevation = elevation;
             }
@@ -16631,10 +16723,16 @@ class Planet extends __WEBPACK_IMPORTED_MODULE_3__geometry_Geometry__["a" /* def
         for (let plate of this.tectonicPlates) {
             if (plate.continental()) {
                 for (let face of plate.faces) {
-                    let precipitation = face.precipitation;
-                    let temperature = face.temperature;
-                    face.precipitation = Math.max(precipitation * Math.pow(temperature, 0.5), 0.0);
-                    face.temperature = temperature * Math.pow(1.0 - precipitation * 0.5, 0.5);
+                    if (face.biome == __WEBPACK_IMPORTED_MODULE_0__geometry_Face__["a" /* Biome */].Lake) {
+                        let temperature = face.temperature;
+                        face.temperature = temperature * Math.pow(0.5, 0.5);
+                    }
+                    else {
+                        let precipitation = face.precipitation;
+                        let temperature = face.temperature;
+                        face.precipitation = Math.max(precipitation * Math.pow(temperature, 0.5), 0.0);
+                        face.temperature = Math.max(temperature * Math.pow(1.0 - precipitation * 0.5, 0.5), 0.0);
+                    }
                 }
             }
             else {
@@ -16654,7 +16752,7 @@ class Planet extends __WEBPACK_IMPORTED_MODULE_3__geometry_Geometry__["a" /* def
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__Face__ = __webpack_require__(20);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__Face__ = __webpack_require__(4);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__Edge__ = __webpack_require__(69);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__Vertex__ = __webpack_require__(70);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__rendering_gl_Drawable__ = __webpack_require__(71);
@@ -16678,6 +16776,7 @@ class Geometry extends __WEBPACK_IMPORTED_MODULE_3__rendering_gl_Drawable__["a" 
         let vertPos = [];
         let vertNorm = [];
         let vertCol = [];
+        let vertBiome = [];
         for (let face of this.faces) {
             let edge = face.edge;
             let normal = __WEBPACK_IMPORTED_MODULE_4_gl_matrix__["d" /* vec4 */].create();
@@ -16706,9 +16805,11 @@ class Geometry extends __WEBPACK_IMPORTED_MODULE_3__rendering_gl_Drawable__["a" 
             vertPos.push(firstPos);
             vertNorm.push(normal);
             vertCol.push(meshColor);
+            vertBiome.push(face.biome);
             vertPos.push(currentPos);
             vertNorm.push(normal);
             vertCol.push(meshColor);
+            vertBiome.push(face.biome);
             let firstPosIndex = vertPos.length - 2;
             // triangulate the face
             while (current.next != first) {
@@ -16716,6 +16817,7 @@ class Geometry extends __WEBPACK_IMPORTED_MODULE_3__rendering_gl_Drawable__["a" 
                 vertPos.push(nextPos);
                 vertNorm.push(normal);
                 vertCol.push(meshColor);
+                vertBiome.push(face.biome);
                 idxs.push(firstPosIndex);
                 idxs.push(vertPos.length - 2);
                 idxs.push(vertPos.length - 1);
@@ -16741,10 +16843,12 @@ class Geometry extends __WEBPACK_IMPORTED_MODULE_3__rendering_gl_Drawable__["a" 
         this.normals = new Float32Array(normals);
         this.positions = new Float32Array(positions);
         this.colors = new Float32Array(cols);
+        this.biomes = new Uint32Array(vertBiome);
         this.generateIdx();
         this.generatePos();
         this.generateNor();
         this.generateCol();
+        this.generateBiome();
         this.count = this.indices.length;
         __WEBPACK_IMPORTED_MODULE_5__globals__["a" /* gl */].bindBuffer(__WEBPACK_IMPORTED_MODULE_5__globals__["a" /* gl */].ELEMENT_ARRAY_BUFFER, this.bufIdx);
         __WEBPACK_IMPORTED_MODULE_5__globals__["a" /* gl */].bufferData(__WEBPACK_IMPORTED_MODULE_5__globals__["a" /* gl */].ELEMENT_ARRAY_BUFFER, this.indices, __WEBPACK_IMPORTED_MODULE_5__globals__["a" /* gl */].STATIC_DRAW);
@@ -16754,6 +16858,8 @@ class Geometry extends __WEBPACK_IMPORTED_MODULE_3__rendering_gl_Drawable__["a" 
         __WEBPACK_IMPORTED_MODULE_5__globals__["a" /* gl */].bufferData(__WEBPACK_IMPORTED_MODULE_5__globals__["a" /* gl */].ARRAY_BUFFER, this.normals, __WEBPACK_IMPORTED_MODULE_5__globals__["a" /* gl */].STATIC_DRAW);
         __WEBPACK_IMPORTED_MODULE_5__globals__["a" /* gl */].bindBuffer(__WEBPACK_IMPORTED_MODULE_5__globals__["a" /* gl */].ARRAY_BUFFER, this.bufCol);
         __WEBPACK_IMPORTED_MODULE_5__globals__["a" /* gl */].bufferData(__WEBPACK_IMPORTED_MODULE_5__globals__["a" /* gl */].ARRAY_BUFFER, this.colors, __WEBPACK_IMPORTED_MODULE_5__globals__["a" /* gl */].STATIC_DRAW);
+        __WEBPACK_IMPORTED_MODULE_5__globals__["a" /* gl */].bindBuffer(__WEBPACK_IMPORTED_MODULE_5__globals__["a" /* gl */].ARRAY_BUFFER, this.bufBiome);
+        __WEBPACK_IMPORTED_MODULE_5__globals__["a" /* gl */].bufferData(__WEBPACK_IMPORTED_MODULE_5__globals__["a" /* gl */].ARRAY_BUFFER, this.biomes, __WEBPACK_IMPORTED_MODULE_5__globals__["a" /* gl */].STATIC_DRAW);
     }
     readObjFromFile() {
         let mesh = Object(__WEBPACK_IMPORTED_MODULE_5__globals__["d" /* readTextFile */])('src/icosahedron.obj');
@@ -17202,6 +17308,52 @@ class Geometry extends __WEBPACK_IMPORTED_MODULE_3__rendering_gl_Drawable__["a" 
         face.edge.sym.next.sym = heF;
         heF.sym = face.edge.sym.next;
     }
+    extrudeSubface(face, scale, height, topCol, sideCol) {
+        // create new face
+        let newFace = new __WEBPACK_IMPORTED_MODULE_0__Face__["b" /* default */]();
+        this.faces.push(newFace);
+        newFace.biome = face.biome;
+        newFace.color = face.color;
+        // for each vertex in the existing face, create new vertices that are scaled down towards the center
+        let edge = face.edge;
+        let centroid = face.centroid();
+        let newEdge;
+        let prev;
+        do {
+            let position = edge.vertex.position;
+            let direction = __WEBPACK_IMPORTED_MODULE_4_gl_matrix__["c" /* vec3 */].create();
+            __WEBPACK_IMPORTED_MODULE_4_gl_matrix__["c" /* vec3 */].subtract(direction, position, centroid);
+            __WEBPACK_IMPORTED_MODULE_4_gl_matrix__["c" /* vec3 */].scale(direction, direction, scale);
+            __WEBPACK_IMPORTED_MODULE_4_gl_matrix__["c" /* vec3 */].add(direction, direction, centroid);
+            let vertex = new __WEBPACK_IMPORTED_MODULE_2__Vertex__["a" /* default */](direction);
+            this.vertexes.push(vertex);
+            newEdge = new __WEBPACK_IMPORTED_MODULE_1__Edge__["a" /* default */](newFace, vertex);
+            this.edges.push(newEdge);
+            let newSym = new __WEBPACK_IMPORTED_MODULE_1__Edge__["a" /* default */]();
+            this.edges.push(newSym);
+            newEdge.sym = newSym;
+            newSym.sym = newEdge;
+            if (prev) {
+                prev.next = newEdge;
+                newSym.vertex = prev.vertex;
+                newSym.next = prev.sym;
+            }
+            else {
+                newFace.edge = newEdge;
+            }
+            prev = newEdge;
+        } while ((edge = edge.next) !== face.edge);
+        // connect last edge
+        newEdge.next = newFace.edge;
+        newFace.edge.sym.vertex = newEdge.vertex;
+        let status = this.testStructure();
+        // connect these new vertices with new half edges, don't forget the syms
+        // extrude the new subface
+        newFace.color = sideCol;
+        this.extrude(newFace, height);
+        newFace.color = topCol;
+        return newFace;
+    }
     testStructure() {
         for (let edge of this.edges) {
             if (edge.face == null)
@@ -17253,8 +17405,11 @@ Edge.count = 0;
 
 "use strict";
 class Vertex {
-    constructor() {
+    constructor(position) {
         this.id = Vertex.count++;
+        if (position) {
+            this.position = position;
+        }
     }
 }
 Vertex.count = 0;
@@ -17276,6 +17431,7 @@ class Drawable {
         this.norGenerated = false;
         this.colGenerated = false;
         this.uvGenerated = false;
+        this.biomeGenerated = false;
         this.numInstances = 0; // How many instances of this Drawable the shader program should draw
     }
     destory() {
@@ -17285,6 +17441,7 @@ class Drawable {
         __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].deleteBuffer(this.bufCol);
         __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].deleteBuffer(this.bufRotate);
         __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].deleteBuffer(this.bufUV);
+        __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].deleteBuffer(this.bufBiome);
     }
     generateIdx() {
         this.idxGenerated = true;
@@ -17305,6 +17462,10 @@ class Drawable {
     generateUV() {
         this.uvGenerated = true;
         this.bufUV = __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].createBuffer();
+    }
+    generateBiome() {
+        this.biomeGenerated = true;
+        this.bufBiome = __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].createBuffer();
     }
     bindIdx() {
         if (this.idxGenerated) {
@@ -17336,6 +17497,12 @@ class Drawable {
         }
         return this.uvGenerated;
     }
+    bindBiome() {
+        if (this.biomeGenerated) {
+            __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].bindBuffer(__WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].ARRAY_BUFFER, this.bufBiome);
+        }
+        return this.biomeGenerated;
+    }
     elemCount() {
         return this.count;
     }
@@ -17356,8 +17523,10 @@ class Drawable {
 
 "use strict";
 /* unused harmony export Crust */
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_gl_matrix__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__globals__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__geometry_Face__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_gl_matrix__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__globals__ = __webpack_require__(2);
+
 
 
 var Crust;
@@ -17370,9 +17539,9 @@ class TectonicPlate {
         this.faces = [];
         this.id = TectonicPlate.count++;
         this.elevation = Math.random();
-        this.velocity = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["b" /* vec2 */].fromValues((Math.random() - 0.5) * 2, (Math.random() - 0.5) * 2);
-        this.color = Object(__WEBPACK_IMPORTED_MODULE_1__globals__["c" /* randColor */])();
-        __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].scale(this.color, this.color, (Math.random() / 2 + 0.5));
+        this.velocity = __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["b" /* vec2 */].fromValues((Math.random() - 0.5) * 2, (Math.random() - 0.5) * 2);
+        this.color = Object(__WEBPACK_IMPORTED_MODULE_2__globals__["c" /* randColor */])();
+        __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].scale(this.color, this.color, (Math.random() / 2 + 0.5));
     }
     addFace(face) {
         this.faces.push(face);
@@ -17403,6 +17572,9 @@ class TectonicPlate {
             }
         }
         return boundary;
+    }
+    lakes() {
+        return this.faces.filter(f => f.biome === __WEBPACK_IMPORTED_MODULE_0__geometry_Face__["a" /* Biome */].Lake);
     }
     setElevations() {
         if (this.continental()) {
@@ -17443,7 +17615,7 @@ class TectonicPlate {
         else {
             for (let face of this.faces) {
                 if (face.elevation > TectonicPlate.seaLevel) {
-                    face.color = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].fromValues(200 / 255, 200 / 255, 100 / 255);
+                    face.color = __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].fromValues(200 / 255, 200 / 255, 100 / 255);
                 }
                 else {
                     face.elevation = TectonicPlate.seaLevel;
@@ -17480,31 +17652,61 @@ Temperature.sun = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].fromVa
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__geometry_Face__ = __webpack_require__(4);
+
 class Precipitation {
     static setPrecipitation(tectonicPlates) {
-        for (let plate of tectonicPlates.filter(p => p.oceanic())) {
-            for (let face of plate.faces) {
-                face.precipitation = 1.0;
-            }
-            for (let boundary of plate.boundary()) {
-                let queue = boundary.neighbors().filter(n => n.plate !== plate && n.plate.continental());
-                let precipitation = 1.0;
-                let visited = new Set();
-                let toAdd = [];
-                while (queue.length > 0) {
-                    let face = queue.pop();
-                    visited.add(face);
-                    if (precipitation > face.precipitation) {
-                        face.precipitation = precipitation;
-                        if (face.elevation <= 0.8)
-                            toAdd = toAdd.concat(face.neighbors().filter(n => n.plate.continental() && !visited.has(n)));
+        for (let plate of tectonicPlates) {
+            if (plate.oceanic()) {
+                for (let face of plate.faces) {
+                    face.precipitation = 1.0;
+                }
+                for (let boundary of plate.boundary()) {
+                    let queue = boundary.neighbors().filter(n => n.plate !== plate && n.plate.continental());
+                    let precipitation = 1.0;
+                    let visited = new Set();
+                    let toAdd = [];
+                    while (queue.length > 0) {
+                        let face = queue.pop();
+                        visited.add(face);
+                        if (precipitation > face.precipitation) {
+                            face.precipitation = precipitation;
+                            if (face.elevation <= 0.8)
+                                toAdd = toAdd.concat(face.neighbors().filter(n => n.plate.continental() && !visited.has(n)));
+                        }
+                        if (queue.length == 0) {
+                            precipitation -= .05;
+                            if (precipitation <= 0)
+                                break;
+                            queue = toAdd;
+                            toAdd = [];
+                        }
                     }
-                    if (queue.length == 0) {
-                        precipitation -= .05;
-                        if (precipitation <= 0)
-                            break;
-                        queue = toAdd;
-                        toAdd = [];
+                }
+            }
+            else {
+                for (let lake of plate.lakes()) {
+                    lake.precipitation = 1.0;
+                    let queue = lake.neighbors().filter(n => n.biome != __WEBPACK_IMPORTED_MODULE_0__geometry_Face__["a" /* Biome */].Lake);
+                    let precipitation = 1.0;
+                    let visited = new Set();
+                    let toAdd = [];
+                    while (queue.length > 0) {
+                        let face = queue.pop();
+                        visited.add(face);
+                        if (precipitation > face.precipitation) {
+                            face.precipitation = precipitation;
+                            if (face.elevation <= 0.8) {
+                                toAdd = toAdd.concat(face.neighbors().filter(n => !visited.has(n)));
+                            }
+                        }
+                        if (queue.length == 0) {
+                            precipitation -= 0.05;
+                            if (precipitation <= 0)
+                                break;
+                            queue = toAdd;
+                            toAdd = [];
+                        }
                     }
                 }
             }
@@ -17518,13 +17720,13 @@ class Precipitation {
 /* 75 */
 /***/ (function(module, exports) {
 
-module.exports = "# version 300 es\nprecision highp float;\n\n//This is a vertex shader. While it is called a \"shader\" due to outdated conventions, this file\n//is used to apply matrix transformations to the arrays of vertex data passed to it.\n//Since this code is run on your GPU, each vertex is transformed simultaneously.\n//If it were run on your CPU, each vertex would have to be processed in a FOR loop, one at a time.\n//This simultaneous transformation allows your program to run much faster, especially when rendering\n//geometry with millions of vertices.\n\nuniform mat4 u_Model;       // The matrix that defines the transformation of the\n                            // object we're rendering. In this assignment,\n                            // this will be the result of traversing your scene graph.\n\nuniform mat4 u_ModelInvTr;  // The inverse transpose of the model matrix.\n                            // This allows us to transform the object's normals properly\n                            // if the object has been non-uniformly scaled.\n\nuniform mat4 u_ViewProj;    // The matrix that defines the camera's transformation.\n                            // We've written a static matrix for you to use for HW2,\n                            // but in HW3 you'll have to generate one yourself\n\nin vec4 vs_Pos;             // The array of vertex positions passed to the shader\n\nin vec4 vs_Nor;             // The array of vertex normals passed to the shader\n\nin vec4 vs_Col;             // The array of vertex colors passed to the shader.\n\nout vec4 fs_Nor;            // The array of normals that has been transformed by u_ModelInvTr. This is implicitly passed to the fragment shader.\nout vec4 fs_LightVec;       // The direction in which our virtual light lies, relative to each vertex. This is implicitly passed to the fragment shader.\nout vec4 fs_Col;            // The color of each vertex. This is implicitly passed to the fragment shader.\n\nconst vec4 lightPos = vec4(0.0, 0.0, 10000000.0, 1.0); //The position of our virtual light, which is used to compute the shading of\n                                        //the geometry in the fragment shader.\n\nvoid main()\n{\n    fs_Col = vs_Col;                         // Pass the vertex colors to the fragment shader for interpolation\n\n    mat3 invTranspose = mat3(u_ModelInvTr);\n    fs_Nor = vec4(invTranspose * vec3(vs_Nor), 0.0);          // Pass the vertex normals to the fragment shader for interpolation.\n                                                            // Transform the geometry's normals by the inverse transpose of the\n                                                            // model matrix. This is necessary to ensure the normals remain\n                                                            // perpendicular to the surface after the surface is transformed by\n                                                            // the model matrix.\n\n\n    vec4 modelposition = u_Model * vs_Pos;   // Temporarily store the transformed vertex positions for use below\n\n    fs_LightVec = modelposition;  // Compute the direction in which the light source lies\n\n    gl_Position = u_ViewProj * modelposition;// gl_Position is a built-in variable of OpenGL which is\n                                             // used to render the final positions of the geometry's vertices\n}\n"
+module.exports = "# version 300 es\nprecision highp float;\n\nuniform mat4 u_Model;       // The matrix that defines the transformation of the\n                            // object we're rendering. \n\nuniform mat4 u_ModelInvTr;  // The inverse transpose of the model matrix.\n                            // This allows us to transform the object's normals properly\n                            // if the object has been non-uniformly scaled.\n\nuniform mat4 u_ViewProj;    // The matrix that defines the camera's transformation.\n\nin vec4 vs_Pos;             // The array of vertex positions passed to the shader\nin vec4 vs_Nor;             // The array of vertex normals passed to the shader\nin vec4 vs_Col;             // The array of vertex colors passed to the shader.\nin uint vs_Biome;\n\nout vec4 fs_Pos;\nout vec4 fs_Nor;            // The array of normals that has been transformed by u_ModelInvTr. This is implicitly passed to the fragment shader.\nout vec4 fs_LightVec;       // The direction in which our virtual light lies, relative to each vertex. This is implicitly passed to the fragment shader.\nout vec4 fs_Col;            // The color of each vertex. This is implicitly passed to the fragment shader.\nflat out uint fs_Biome;\n\nconst vec4 lightPos = vec4(0.0, 0.0, 10000000.0, 1.0);\n\n\nvoid main()\n{\n    fs_Col = vs_Col;\n    fs_Biome = vs_Biome;\n\n    mat3 invTranspose = mat3(u_ModelInvTr);\n    fs_Nor = vec4(invTranspose * vec3(vs_Nor), 0.0);          // Pass the vertex normals to the fragment shader for interpolation.\n                                                            // Transform the geometry's normals by the inverse transpose of the\n                                                            // model matrix. This is necessary to ensure the normals remain\n                                                            // perpendicular to the surface after the surface is transformed by\n                                                            // the model matrix.\n\n\n    vec4 modelposition = u_Model * vs_Pos;   // Temporarily store the transformed vertex positions for use below\n\n    fs_LightVec = modelposition;  // Compute the direction in which the light source lies\n\n    gl_Position = u_ViewProj * modelposition;// gl_Position is a built-in variable of OpenGL which is\n                                             // used to render the final positions of the geometry's vertices\n}\n"
 
 /***/ }),
 /* 76 */
 /***/ (function(module, exports) {
 
-module.exports = "# version 300 es\nprecision highp float;\n\n// This is a fragment shader. If you've opened this file first, please\n// open and read lambert.vert.glsl before reading on.\n// Unlike the vertex shader, the fragment shader actually does compute\n// the shading of geometry. For every pixel in your program's output\n// screen, the fragment shader is run for every bit of geometry that\n// particular pixel overlaps. By implicitly interpolating the position\n// data passed into the fragment shader by the vertex shader, the fragment shader\n// can compute what color to apply to its pixel based on things like vertex\n// position, light position, and vertex color.\n\nuniform vec4 u_Color; // The color with which to render this instance of geometry.\n\n// These are the interpolated values out of the rasterizer, so you can't know\n// their specific values without knowing the vertices that contributed to them\nin vec4 fs_Nor;\nin vec4 fs_LightVec;\nin vec4 fs_Col;\n\nout vec4 out_Col; // This is the final output color that you will see on your\n                  // screen for the pixel that is currently being processed.\n\nvoid main()\n{\n    // Material base color (before shading)\n    vec4 diffuseColor = fs_Col;\n\n    // Calculate the diffuse term for Lambert shading\n    float diffuseTerm = dot(normalize(fs_Nor), normalize(fs_LightVec));\n    // Avoid negative lighting values\n    diffuseTerm = clamp(diffuseTerm, 0.0, 1.0);\n\n    float ambientTerm = 0.2;\n\n    float lightIntensity = clamp(diffuseTerm + ambientTerm, 0.0, 1.0);   //Add a small float value to the color multiplier\n                                                        //to simulate ambient lighting. This ensures that faces that are not\n                                                        //lit by our point light are not completely black.\n\n    // Compute final shaded color\n    out_Col = vec4(diffuseColor.rgb * lightIntensity, diffuseColor.a);\n}\n"
+module.exports = "# version 300 es\nprecision highp float;\n\n// This is a fragment shader. If you've opened this file first, please\n// open and read lambert.vert.glsl before reading on.\n// Unlike the vertex shader, the fragment shader actually does compute\n// the shading of geometry. For every pixel in your program's output\n// screen, the fragment shader is run for every bit of geometry that\n// particular pixel overlaps. By implicitly interpolating the position\n// data passed into the fragment shader by the vertex shader, the fragment shader\n// can compute what color to apply to its pixel based on things like vertex\n// position, light position, and vertex color.\n\nuniform vec4 u_Color; // The color with which to render this instance of geometry.\n\n// These are the interpolated values out of the rasterizer, so you can't know\n// their specific values without knowing the vertices that contributed to them\nin vec4 fs_Pos;\nin vec4 fs_Nor;\nin vec4 fs_LightVec;\nin vec4 fs_Col;\nflat in uint fs_Biome;\n\nout vec4 out_Col; // This is the final output color that you will see on your\n                  // screen for the pixel that is currently being processed.\n\nvec4 getColorFromBiome()\n{\n    if (fs_Pos.x > 0.0) return vec4(1.0, 0.0, 0.0, 1.0);\n    else return vec4(1.0, 1.0, 0.0, 1.0);\n}\n\nvoid main()\n{\n    // Material base color (before shading)\n    vec4 diffuseColor = fs_Col;\n\n    // Calculate the diffuse term for Lambert shading\n    float diffuseTerm = dot(normalize(fs_Nor), normalize(fs_LightVec));\n    // Avoid negative lighting values\n    diffuseTerm = clamp(diffuseTerm, 0.0, 1.0);\n\n    float ambientTerm = 0.2;\n\n    float lightIntensity = clamp(diffuseTerm + ambientTerm, 0.0, 1.0);   //Add a small float value to the color multiplier\n                                                        //to simulate ambient lighting. This ensures that faces that are not\n                                                        //lit by our point light are not completely black.\n\n    // Compute final shaded color\n    out_Col = vec4(diffuseColor.rgb * lightIntensity, diffuseColor.a);\n}\n"
 
 /***/ })
 /******/ ]);
