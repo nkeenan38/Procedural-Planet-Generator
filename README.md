@@ -22,6 +22,16 @@ Sliding mostly just causes earthquakes and no huge geological formations, so I l
 ![Tectonic Plates](./img/plate-elevated.png)
 
 ### Temperature ###
-Getting the temperature was relatively straightforward. This planet doesn't have any seasons, so I assumed the equator is closest to the sun and the northern and southern hemispheres are the same distance from the sun. Using these assumptions, the temperature is hottest at the equator and decreases as we approach the poles, as is expected.
+Getting the initial temperature was relatively straightforward. This planet doesn't have any seasons, so I assumed the equator is closest to the sun and the northern and southern hemispheres are the same distance from the sun. Using these assumptions, the temperature is hottest at the equator and decreases as we approach the poles, as is expected. I then used the terrain height to add some more variability to temperature (high elevations have lower temperature). Temperature and precipitation, which I'll talk about next, both influence the other. Higher precipitation tends to make temperatures less extreme due to the higher heat capacity of water. This is why deserts can get so hot during the day and cold at night. So higher precipitation drove the temperature closer to the middle.
+
+In the temeperature map below, higher temperatures are colored in red and cooler temperatures are blue.
 
 ![Temperature Map](./img/temperature.png)
+
+### Precipitation ###
+For precipation, I used the assumption that areas closer to water would get more precipitation than further ones. So that's exactly what I did, the closer to an ocean or lake, the higher the precipitation. I also didn't allow precipation to move across mountains, creating the rain shadows that we see in reality. The last thing to do was calculate the temperature's effect on precipitation. Higher temperatures lead to more evaporation which leads to more precipitation. 
+
+In the precipiation map below, blue corresponds to higher precipitation and red corresponds to less.
+
+![Precipitation Map](./img/precipitation.png)
+
