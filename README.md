@@ -35,3 +35,18 @@ In the precipiation map below, blue corresponds to higher precipitation and red 
 
 ![Precipitation Map](./img/precipitation.png)
 
+### Biomes ###
+The biomes are determined by using tectonic plate type, boundary event, elevation, temperature, and precipitation of each tile. The different biomes are:
+* **Snowy Mountain:** High Elevetion, Low Temperature
+* **Rocky Mountain:** High Elevation, Mid to High Temperature
+* **Desert:** Low Precipitation, Mid to High Temperature
+* **Tundra:** Low Precipitation, Low Temperature
+* **Grassland:** Mid Precipitation, Mid Temperature
+* **Jungle:** High Precipitation, High Temperature
+* **Forest:** High Precipation, Low to Mid Temperature
+* **Lake:** Fills continental rifts
+* **Ocean:** Covers oceanic tectonic plates
+* **Island:** Occurs at convergent oceanic plates
+* **Coast:** Occurs at the divergent and sliding boundaries between continental and oceanic plates
+
+![Biome Example](./img/biome.png)
