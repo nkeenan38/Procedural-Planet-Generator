@@ -1,4 +1,4 @@
-import Face from "../geometry/Face";
+import Face, { Biome } from "../geometry/Face";
 import { vec2, vec3 } from "gl-matrix";
 import { randColor } from "../globals";
 
@@ -72,6 +72,11 @@ class TectonicPlate
             }
         }
         return boundary;
+    }
+
+    lakes() : Face[]
+    {
+        return this.faces.filter(f => f.biome === Biome.Lake);
     }
 
     setElevations()

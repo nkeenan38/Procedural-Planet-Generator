@@ -68,7 +68,7 @@ class TectonicPlate {
                             toAdd.push(neighbor);
                         }
                     }
-                    face.elevation = 0.75 * face.elevation + 0.25 * (elevation / count);
+                    face.elevation = 0.8 * face.elevation + 0.2 * (elevation / count);
                 }
                 for (let face of queue) {
                     visited.add(face);

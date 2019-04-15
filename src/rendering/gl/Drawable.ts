@@ -9,12 +9,14 @@ abstract class Drawable {
   bufRotate: WebGLBuffer;
   bufCol: WebGLBuffer;
   bufUV: WebGLBuffer;
+  bufBiome: WebGLBuffer;
 
   idxGenerated: boolean = false;
   posGenerated: boolean = false;
   norGenerated: boolean = false;
   colGenerated: boolean = false;
   uvGenerated: boolean = false;
+  biomeGenerated: boolean = false;
 
   numInstances: number = 0; // How many instances of this Drawable the shader program should draw
 
@@ -27,6 +29,7 @@ abstract class Drawable {
     gl.deleteBuffer(this.bufCol);
     gl.deleteBuffer(this.bufRotate);
     gl.deleteBuffer(this.bufUV);
+    gl.deleteBuffer(this.bufBiome);
   }
 
   generateIdx() {
@@ -52,6 +55,12 @@ abstract class Drawable {
   generateUV() {
     this.uvGenerated = true;
     this.bufUV = gl.createBuffer();
+  }
+
+  generateBiome()
+  {
+    this.biomeGenerated = true;
+    this.bufBiome = gl.createBuffer();
   }
 
   bindIdx(): boolean {
@@ -87,6 +96,13 @@ abstract class Drawable {
       gl.bindBuffer(gl.ARRAY_BUFFER, this.bufUV);
     }
     return this.uvGenerated;
+  }
+
+  bindBiome(): boolean {
+    if (this.biomeGenerated) {
+      gl.bindBuffer(gl.ARRAY_BUFFER, this.bufBiome);
+    }
+    return this.biomeGenerated;
   }
 
   elemCount(): number {

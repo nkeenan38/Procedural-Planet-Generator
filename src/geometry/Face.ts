@@ -8,15 +8,15 @@ export enum Biome
 {
     SnowyMountain,
     RockyMountain,
-    SandDesert,
-    IceDesert,
+    Desert,
+    Tundra,
     Grassland,
     Jungle,
-    Pasture,
     Forest,
-    Tundra,
-    SnowForest,
-    Swamp
+    Lake,
+    Ocean,
+    Island,
+    Coast
 }
 
 class Face
@@ -70,15 +70,17 @@ class Face
 
     // used for the hexagonal tiles
     // colors the sides to be the same color
-    setColor(color: vec3): void
+    setColor(top: vec3, sides?: vec3): void
     {
-        this.color = color;
+        this.color = top;
+        if (!sides) sides = top;
         if (!this.plate) return;
         let edge: Edge = this.edge;
         do
         {
             let side: Face = edge.sym.face;
-            side.color = color;
+            side.color = sides;
+            side.biome = this.biome;
         }
         while ((edge = edge.next) != this.edge);
     }

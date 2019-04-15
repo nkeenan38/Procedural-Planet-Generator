@@ -24,11 +24,11 @@ class ShaderProgram {
   attrPos: number;
   attrNor: number;
   attrCol: number;
+  attrBiome: number;
 
   unifModel: WebGLUniformLocation;
   unifModelInvTr: WebGLUniformLocation;
   unifViewProj: WebGLUniformLocation;
-
 
   time: number = 0.0;
 
@@ -46,6 +46,7 @@ class ShaderProgram {
     this.attrPos = gl.getAttribLocation(this.prog, "vs_Pos");
     this.attrNor = gl.getAttribLocation(this.prog, "vs_Nor");
     this.attrCol = gl.getAttribLocation(this.prog, "vs_Col");
+    this.attrBiome = gl.getAttribLocation(this.prog, "vs_Biome");
     this.unifModel      = gl.getUniformLocation(this.prog, "u_Model");
     this.unifModelInvTr = gl.getUniformLocation(this.prog, "u_ModelInvTr");
     this.unifViewProj   = gl.getUniformLocation(this.prog, "u_ViewProj");
@@ -85,26 +86,33 @@ class ShaderProgram {
   draw(d: Drawable) {
     this.use();
 
-    if (this.attrPos != -1 && d.bindPos()) {
+    if (this.attrPos !== -1 && d.bindPos()) {
       gl.enableVertexAttribArray(this.attrPos);
       gl.vertexAttribPointer(this.attrPos, 4, gl.FLOAT, false, 0, 0);
     }
 
-    if (this.attrNor != -1 && d.bindNor()) {
+    if (this.attrNor !== -1 && d.bindNor()) {
       gl.enableVertexAttribArray(this.attrNor);
       gl.vertexAttribPointer(this.attrNor, 4, gl.FLOAT, false, 0, 0);
     }
 
-    if (this.attrCol != -1 && d.bindCol()) {
+    if (this.attrCol !== -1 && d.bindCol()) {
       gl.enableVertexAttribArray(this.attrCol);
       gl.vertexAttribPointer(this.attrCol, 4, gl.FLOAT, false, 0, 0);
+    }
+
+    if (this.attrBiome !== -1 && d.bindBiome()) {
+      gl.enableVertexAttribArray(this.attrBiome);
+      gl.vertexAttribIPointer(this.attrBiome, 1, gl.UNSIGNED_INT, 0, 0);
     }
 
     d.bindIdx();
     gl.drawElements(d.drawMode(), d.elemCount(), gl.UNSIGNED_INT, 0);
 
-    if (this.attrPos != -1) gl.disableVertexAttribArray(this.attrPos);
-    if (this.attrNor != -1) gl.disableVertexAttribArray(this.attrNor);
+    if (this.attrPos !== -1) gl.disableVertexAttribArray(this.attrPos);
+    if (this.attrNor !== -1) gl.disableVertexAttribArray(this.attrNor);
+    if (this.attrCol !== -1) gl.disableVertexAttribArray(this.attrCol);
+    if (this.attrBiome !== -1) gl.disableVertexAttribArray(this.attrBiome);
   }
 };
 

@@ -12,9 +12,13 @@ let prevSharpness = 0.2;
 // This will be referred to by dat.GUI's functions that add GUI elements.
 const controls = {
     'Load Scene': loadScene,
+    'Subdivsions': 4,
+    'Plates': 10,
     'Tile': 'Terrain'
 };
 let tileType = controls.Tile;
+let subdivisions = controls.Subdivsions;
+let plateCount = controls.Plates;
 let planet;
 let wPressed;
 let aPressed;
@@ -23,11 +27,11 @@ let dPressed;
 function loadScene() {
     planet = new Planet();
     planet.readObjFromFile();
-    for (let i = 0; i < 4; i++) {
+    for (let i = 0; i < subdivisions; i++) {
         planet.subdividePolyhedron();
     }
     planet.dualPolyhedron();
-    planet.createTectonicPlates(10);
+    planet.createTectonicPlates(plateCount);
     planet.fixEdges();
     planet.computePlateBoundaries();
     planet.setElevation();
@@ -86,6 +90,9 @@ function main() {
     document.body.appendChild(stats.domElement);
     // Add controls to the gui
     const gui = new DAT.GUI();
+    gui.add(controls, 'Load Scene');
+    gui.add(controls, 'Subdivsions', 3, 5).step(1);
+    gui.add(controls, 'Plates', 4, 20).step(1);
     gui.add(controls, 'Tile', ['Terrain', 'Tectonic Plates', 'Temperature', 'Precipitation']);
     // get canvas and webgl context
     const canvas = document.getElementById('canvas');
@@ -129,6 +136,12 @@ function main() {
             planet.setTileColors(tileType);
             planet.destory();
             planet.create();
+        }
+        if (subdivisions !== controls.Subdivsions) {
+            subdivisions = controls.Subdivsions;
+        }
+        if (plateCount !== controls.Plates) {
+            plateCount = controls.Plates;
         }
         camera.update();
         stats.begin();

@@ -9,9 +9,13 @@ class Vertex
     edge: Edge;
     position: vec3;
 
-    constructor()
+    constructor(position?: vec3)
     {
         this.id = Vertex.count++;
+        if (position)
+        {
+            this.position = position;
+        }
     }
 }
 

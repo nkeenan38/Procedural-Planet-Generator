@@ -16,6 +16,7 @@ class Geometry extends Drawable
     private positions: Float32Array;
     private normals: Float32Array;
     private colors: Float32Array;
+    private biomes: Uint32Array;
     
     constructor()
     {
@@ -31,6 +32,7 @@ class Geometry extends Drawable
         let vertPos: vec4[] = [];
         let vertNorm: vec4[] = [];
         let vertCol: vec4[] = [];
+        let vertBiome: number[] = [];
 
         for (let face of this.faces) {
             let edge = face.edge;
@@ -70,10 +72,12 @@ class Geometry extends Drawable
             vertPos.push(firstPos);
             vertNorm.push(normal);
             vertCol.push(meshColor);
+            vertBiome.push(face.biome);
 
             vertPos.push(currentPos);
             vertNorm.push(normal);
             vertCol.push(meshColor);
+            vertBiome.push(face.biome);
 
             let firstPosIndex: number = vertPos.length - 2;
 
@@ -85,6 +89,7 @@ class Geometry extends Drawable
                 vertPos.push(nextPos);
                 vertNorm.push(normal);
                 vertCol.push(meshColor);
+                vertBiome.push(face.biome);
 
                 idxs.push(firstPosIndex);
                 idxs.push(vertPos.length - 2);
@@ -118,11 +123,13 @@ class Geometry extends Drawable
         this.normals = new Float32Array(normals);
         this.positions = new Float32Array(positions);
         this.colors = new Float32Array(cols);
+        this.biomes = new Uint32Array(vertBiome);
     
         this.generateIdx();
         this.generatePos();
         this.generateNor();
         this.generateCol();
+        this.generateBiome();
 
         this.count = this.indices.length;
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.bufIdx);
@@ -136,6 +143,9 @@ class Geometry extends Drawable
 
         gl.bindBuffer(gl.ARRAY_BUFFER, this.bufCol);
         gl.bufferData(gl.ARRAY_BUFFER, this.colors, gl.STATIC_DRAW);
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.bufBiome);
+        gl.bufferData(gl.ARRAY_BUFFER, this.biomes, gl.STATIC_DRAW);
     }
 
     readObjFromFile() : void
@@ -650,6 +660,58 @@ class Geometry extends Drawable
         // connect missing halfEdge sym
         face.edge.sym.next.sym = heF;
         heF.sym = face.edge.sym.next;
+    }
+
+    extrudeSubface(face: Face, scale: number, height: number, topCol: vec3, sideCol: vec3): Face
+    {
+        // create new face
+        let newFace: Face = new Face();
+        this.faces.push(newFace);
+        newFace.biome = face.biome;
+        newFace.color = face.color;
+        // for each vertex in the existing face, create new vertices that are scaled down towards the center
+        let edge: Edge = face.edge;
+        let centroid: vec3 = face.centroid();
+        let newEdge: Edge;
+        let prev: Edge;
+        do
+        {
+            let position: vec3 = edge.vertex.position;
+            let direction = vec3.create();
+            vec3.subtract(direction, position, centroid);
+            vec3.scale(direction, direction, scale);
+            vec3.add(direction, direction, centroid);
+            let vertex: Vertex = new Vertex(direction);
+            this.vertexes.push(vertex);
+            newEdge = new Edge(newFace, vertex);
+            this.edges.push(newEdge);
+            let newSym: Edge = new Edge();
+            this.edges.push(newSym);
+            newEdge.sym = newSym;
+            newSym.sym = newEdge;
+            if (prev)
+            {
+                prev.next = newEdge;
+                newSym.vertex = prev.vertex;
+                newSym.next = prev.sym;
+            }
+            else
+            {
+                newFace.edge = newEdge;
+            }
+            prev = newEdge;
+        }
+        while ((edge = edge.next) !== face.edge);
+        // connect last edge
+        newEdge.next = newFace.edge;
+        newFace.edge.sym.vertex = newEdge.vertex;
+        let status = this.testStructure();
+        // connect these new vertices with new half edges, don't forget the syms
+        // extrude the new subface
+        newFace.color = sideCol;
+        this.extrude(newFace, height);
+        newFace.color = topCol;
+        return newFace;
     }
 
     testStructure(): number

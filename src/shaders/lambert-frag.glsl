@@ -15,12 +15,20 @@ uniform vec4 u_Color; // The color with which to render this instance of geometr
 
 // These are the interpolated values out of the rasterizer, so you can't know
 // their specific values without knowing the vertices that contributed to them
+in vec4 fs_Pos;
 in vec4 fs_Nor;
 in vec4 fs_LightVec;
 in vec4 fs_Col;
+flat in uint fs_Biome;
 
 out vec4 out_Col; // This is the final output color that you will see on your
                   // screen for the pixel that is currently being processed.
+
+vec4 getColorFromBiome()
+{
+    if (fs_Pos.x > 0.0) return vec4(1.0, 0.0, 0.0, 1.0);
+    else return vec4(1.0, 1.0, 0.0, 1.0);
+}
 
 void main()
 {

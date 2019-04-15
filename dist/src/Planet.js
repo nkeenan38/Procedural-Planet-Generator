@@ -13,17 +13,19 @@ class Planet extends Geometry {
     determineBiomes() {
         // temperature  // precipitation    // elevation
         for (let plate of this.tectonicPlates) {
-            for (let face of plate.faces) {
+            for (let face of plate.faces.filter(f => !f.biome)) {
                 if (face.elevation > 1.1) {
                     face.biome = Biome.SnowyMountain;
                 }
-                else if (face.elevation > 0.8) {
+                else if (face.elevation > 0.75) {
                     face.biome = Biome.RockyMountain;
                 }
-                // else
-                // {
-                //     face.biome = Biome.Pasture;
-                // }
+                else {
+                    if (face.precipitation == 0.0) {
+                        face.biome = face.temperature > 0.25 ? Biome.SandDesert : Biome.IceDesert;
+                    }
+                    face.biome = Biome.Pasture;
+                }
             }
         }
     }
@@ -45,13 +47,48 @@ class Planet extends Geometry {
                         }
                         else {
                             for (let face of plate.faces) {
+                                switch (face.biome) {
+                                    case Biome.SnowyMountain:
+                                        {
+                                            let color = vec3.fromValues(0.9, 0.9, 0.9);
+                                            face.setColor(color);
+                                            break;
+                                        }
+                                    case Biome.RockyMountain:
+                                        {
+                                            let color = vec3.fromValues(150 / 255, 90 / 255, 20 / 255);
+                                            face.setColor(color);
+                                            break;
+                                        }
+                                    case Biome.Lake:
+                                        {
+                                            let color = vec3.fromValues(0, .2, .8);
+                                            face.setColor(color);
+                                            break;
+                                        }
+                                    case (Biome.SandDesert):
+                                        {
+                                            let color = vec3.fromValues(250 / 255, 200 / 255);
+                                            face.setColor(color);
+                                            break;
+                                        }
+                                    case (Biome.IceDesert):
+                                        {
+                                            break;
+                                        }
+                                }
                                 if (face.biome == Biome.SnowyMountain) {
                                     let color = vec3.fromValues(0.9, 0.9, 0.9);
                                     face.setColor(color);
                                     continue;
                                 }
                                 else if (face.biome == Biome.RockyMountain) {
-                                    let color = vec3.fromValues(150.255, 90 / 255, 0.9);
+                                    let color = vec3.fromValues(150 / 255, 90 / 255, 20 / 255);
+                                    face.setColor(color);
+                                    continue;
+                                }
+                                else if (face.biome == Biome.Lake) {
+                                    let color = vec3.fromValues(0, .2, .8);
                                     face.setColor(color);
                                     continue;
                                 }
@@ -144,7 +181,7 @@ class Planet extends Geometry {
             let v1 = plate.velocity;
             for (let face of plate.boundary()) {
                 let p1 = face.centroid();
-                // the collisions aren't always consistent dur othe geometry, so juse use the most common one
+                // the collisions aren't always consistent due to the geometry, so juse use the most common one
                 // sliding: 0, diverge: 1, land->land: 2, ocean->land: 3, ocean->ocean: 4, 
                 let pressure = 0;
                 let count = 0;
@@ -182,6 +219,8 @@ class Planet extends Geometry {
                 }
                 else if (pressure < -0.3) {
                     elevation = Math.max(plate.elevation, otherPlate.elevation) - Math.exp(pressure / 4);
+                    if (plate.continental() && otherPlate.continental())
+                        face.biome = Biome.Lake;
                 }
                 else {
                     elevation = (plate.elevation + otherPlate.elevation) / 2;
@@ -225,7 +264,7 @@ class Planet extends Geometry {
                     let precipitation = face.precipitation;
                     let temperature = face.temperature;
                     face.precipitation = Math.max(precipitation * Math.pow(temperature, 0.5), 0.0);
-                    face.temperature = temperature * Math.pow(1.0 - precipitation * 0.5, 0.5);
+                    face.temperature = Math.max(temperature * Math.pow(1.0 - precipitation * 0.5, 0.5), 0.0);
                 }
             }
             else {
