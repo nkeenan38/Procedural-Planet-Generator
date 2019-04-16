@@ -31,6 +31,7 @@ class Face
     biome: Biome;
     color : vec3;
     edge : Edge;
+    tile: boolean; // effectively, is this face a top face or side face?
 
     constructor(color?: vec3)
     {

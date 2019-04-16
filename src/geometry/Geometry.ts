@@ -16,6 +16,7 @@ class Geometry extends Drawable
     private positions: Float32Array;
     private normals: Float32Array;
     private colors: Float32Array;
+    private uvs: Float32Array;
     private biomes: Uint32Array;
     
     constructor()
@@ -33,6 +34,7 @@ class Geometry extends Drawable
         let vertNorm: vec4[] = [];
         let vertCol: vec4[] = [];
         let vertBiome: number[] = [];
+        let vertUV: vec2[] = [];    // not actual UV coordinates
 
         for (let face of this.faces) {
             let edge = face.edge;
@@ -73,11 +75,14 @@ class Geometry extends Drawable
             vertNorm.push(normal);
             vertCol.push(meshColor);
             vertBiome.push(face.biome);
+            vertUV.push(this.getUV(first));
 
             vertPos.push(currentPos);
             vertNorm.push(normal);
             vertCol.push(meshColor);
             vertBiome.push(face.biome);
+            vertUV.push(this.getUV(current));
+            // vertUV.push(vec2.fromValues(1, 1));
 
             let firstPosIndex: number = vertPos.length - 2;
 
@@ -90,6 +95,7 @@ class Geometry extends Drawable
                 vertNorm.push(normal);
                 vertCol.push(meshColor);
                 vertBiome.push(face.biome);
+                vertUV.push(this.getUV(current.next));
 
                 idxs.push(firstPosIndex);
                 idxs.push(vertPos.length - 2);
@@ -118,17 +124,24 @@ class Geometry extends Drawable
         {
             cols.push(col[0], col[1], col[2], col[3]);
         }
+        let uvs: number[] = [];
+        for (let uv of vertUV)
+        {
+            uvs.push(uv[0], uv[1]);
+        }
 
         this.indices = new Uint32Array(idxs);
         this.normals = new Float32Array(normals);
         this.positions = new Float32Array(positions);
         this.colors = new Float32Array(cols);
+        this.uvs = new Float32Array(uvs);
         this.biomes = new Uint32Array(vertBiome);
     
         this.generateIdx();
         this.generatePos();
         this.generateNor();
         this.generateCol();
+        this.generateUV();
         this.generateBiome();
 
         this.count = this.indices.length;
@@ -144,8 +157,37 @@ class Geometry extends Drawable
         gl.bindBuffer(gl.ARRAY_BUFFER, this.bufCol);
         gl.bufferData(gl.ARRAY_BUFFER, this.colors, gl.STATIC_DRAW);
 
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.bufUV);
+        gl.bufferData(gl.ARRAY_BUFFER, this.uvs, gl.STATIC_DRAW);
+
         gl.bindBuffer(gl.ARRAY_BUFFER, this.bufBiome);
         gl.bufferData(gl.ARRAY_BUFFER, this.biomes, gl.STATIC_DRAW);
+    }
+
+    getUV(edge: Edge)
+    {
+        if (edge.vertex.bottom)
+        {
+            if (edge.sym.vertex.bottom)
+            {
+                return vec2.fromValues(1,0);
+            }
+            else
+            {
+                return vec2.fromValues(0,0);
+            }
+        }
+        else
+        {
+            if (edge.sym.vertex.bottom)
+            {
+                return vec2.fromValues(1,1);
+            }
+            else
+            {
+                return vec2.fromValues(0,1);
+            }
+        }
     }
 
     readObjFromFile() : void
@@ -170,6 +212,7 @@ class Geometry extends Drawable
             {
                 let color = randColor();
                 let face: Face = new Face(color);
+                face.tile = true;
                 let index: number = +list[1].split("/")[0];
                 let vertex: Vertex = this.vertexes[index - 1];
                 let prevedge: Edge = new Edge(face, vertex);
@@ -536,13 +579,16 @@ class Geometry extends Drawable
         let heB: Edge = heA.sym;
         let heC, heD, heE, heF, hePrevF;    // Edges
         let v1: Vertex = heA.vertex;
+        v1.bottom = true;
         let v2: Vertex = heB.vertex;
+        v2.bottom = true;
         let v3: Vertex;
         let position: vec3 = vec3.create();
         let normal: vec3 = vec3.create();
         normal = vec3.normalize(normal, v2.position);   // face grows in direction of vector
         vec3.scaleAndAdd(position, v2.position, normal, dist);
         let v4: Vertex = new Vertex();
+        v4.bottom = false;
         v4.position = vec3.clone(position);
         this.vertexes.push(v4);
         let newFace: Face;
@@ -555,10 +601,13 @@ class Geometry extends Drawable
             heE = new Edge();
             heF = new Edge();
             v1 = heA.vertex;
+            v1.bottom = true;
             v2 = heB.vertex;
+            v2.bottom = true;
             normal = vec3.normalize(normal, v1.position);   // face grows in direction of vector
             vec3.scaleAndAdd(position, v1.position, normal, dist);
-            v3 = new Vertex();
+            v3 = new Vertex();        
+            v3.bottom = false;
             v3.position = vec3.clone(position);
             // connect elements
             heA.vertex = v3;

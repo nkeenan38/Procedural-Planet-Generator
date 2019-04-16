@@ -24,6 +24,7 @@ class ShaderProgram {
   attrPos: number;
   attrNor: number;
   attrCol: number;
+  attrUV: number;
   attrBiome: number;
 
   unifModel: WebGLUniformLocation;
@@ -46,6 +47,7 @@ class ShaderProgram {
     this.attrPos = gl.getAttribLocation(this.prog, "vs_Pos");
     this.attrNor = gl.getAttribLocation(this.prog, "vs_Nor");
     this.attrCol = gl.getAttribLocation(this.prog, "vs_Col");
+    this.attrUV = gl.getAttribLocation(this.prog, "vs_UV");
     this.attrBiome = gl.getAttribLocation(this.prog, "vs_Biome");
     this.unifModel      = gl.getUniformLocation(this.prog, "u_Model");
     this.unifModelInvTr = gl.getUniformLocation(this.prog, "u_ModelInvTr");
@@ -101,6 +103,11 @@ class ShaderProgram {
       gl.vertexAttribPointer(this.attrCol, 4, gl.FLOAT, false, 0, 0);
     }
 
+    if (this.attrUV !== -1 && d.bindUV()) {
+      gl.enableVertexAttribArray(this.attrUV);
+      gl.vertexAttribPointer(this.attrUV, 2, gl.FLOAT, false, 0, 0);
+    }
+
     if (this.attrBiome !== -1 && d.bindBiome()) {
       gl.enableVertexAttribArray(this.attrBiome);
       gl.vertexAttribIPointer(this.attrBiome, 1, gl.UNSIGNED_INT, 0, 0);
@@ -112,6 +119,7 @@ class ShaderProgram {
     if (this.attrPos !== -1) gl.disableVertexAttribArray(this.attrPos);
     if (this.attrNor !== -1) gl.disableVertexAttribArray(this.attrNor);
     if (this.attrCol !== -1) gl.disableVertexAttribArray(this.attrCol);
+    if (this.attrUV !== -1) gl.disableVertexAttribArray(this.attrUV);
     if (this.attrBiome !== -1) gl.disableVertexAttribArray(this.attrBiome);
   }
 };

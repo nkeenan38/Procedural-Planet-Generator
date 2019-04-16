@@ -1,5 +1,5 @@
 import Edge from "./Edge";
-import { vec3 } from "gl-matrix";
+import { vec3, vec2 } from "gl-matrix";
 
 class Vertex
 {
@@ -8,6 +8,7 @@ class Vertex
     readonly id: number;
     edge: Edge;
     position: vec3;
+    bottom: boolean;    // used later to determine UV coordinates
 
     constructor(position?: vec3)
     {

@@ -92,7 +92,7 @@ class Planet extends Geometry
                                 }
                                 case Biome.RockyMountain:
                                 {
-                                    let color = vec3.fromValues(150/255, 90/255, 20/255);
+                                    let color = vec3.fromValues(0.4, 0.35, 0.3);
                                     vec3.scale(color, color, face.elevation + TectonicPlate.seaLevel);
                                     face.setColor(color);
                                     break;
