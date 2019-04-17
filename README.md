@@ -50,3 +50,8 @@ The biomes are determined by using tectonic plate type, boundary event, elevatio
 * **Coast:** Occurs at the divergent and sliding boundaries between continental and oceanic plates
 
 ![Biome Example](./img/biome.png)
+
+### Shadows ###
+I've added shadows to my scene by creating a virtual sun  as the light source. I do an inital render from my sun's perspective to create a depth map. I then use this depth map in my regular shader to determine if a point lies in a shadow or not. 
+
+![Shadow Example](./img/shadows.png)
