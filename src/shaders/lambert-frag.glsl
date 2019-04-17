@@ -96,7 +96,7 @@ void main()
     vec3 normal = normalize(vec3(fs_Nor));
     vec3 lightColor = vec3(1.0);
     // ambient
-    vec3 ambient = 0.5 * color;
+    vec3 ambient = 0.15 * color;
     // diffuse
     vec3 lightDir = normalize(lightPos - vec3(fs_Pos));
     float diff = max(dot(lightDir, normal), 0.0);
