@@ -23,32 +23,42 @@ class Planet extends Geometry
         // temperature  // precipitation    // elevation
         for (let plate of this.tectonicPlates)
         {
-            for (let face of plate.faces.filter(f => !f.biome))
+            if (plate.oceanic())
             {
-                if (face.elevation > 0.75)
+                for (let face of plate.faces.filter(f => !f.biome))
                 {
-                    if (face.temperature < 0.25) face.biome = Biome.SnowyMountain;
-                    else face.biome = Biome.RockyMountain;
+                    face.biome = Biome.Ocean;
                 }
-                else
-                {   
-                    if (face.precipitation < 0.1)
+            }
+            else
+            {
+                for (let face of plate.faces.filter(f => !f.biome))
+                {
+                    if (face.elevation > 0.75)
                     {
-                        face.biome = Biome.Desert;
-                    }
-                    else if (face.precipitation < 0.6)
-                    {
-                        face.biome = Biome.Grassland;
+                        if (face.temperature < 0.25) face.biome = Biome.SnowyMountain;
+                        else face.biome = Biome.RockyMountain;
                     }
                     else
-                    {
-                        if (face.temperature > 0.7)
+                    {   
+                        if (face.precipitation < 0.1)
                         {
-                            face.biome = Biome.Jungle;
+                            face.biome = Biome.Desert;
                         }
-                        else 
+                        else if (face.precipitation < 0.6)
                         {
-                            face.biome = Biome.Forest;
+                            face.biome = Biome.Grassland;
+                        }
+                        else
+                        {
+                            if (face.temperature > 0.7)
+                            {
+                                face.biome = Biome.Jungle;
+                            }
+                            else 
+                            {
+                                face.biome = Biome.Forest;
+                            }
                         }
                     }
                 }
@@ -138,12 +148,6 @@ class Planet extends Geometry
                                     vec3.scale(color, color, face.elevation + TectonicPlate.seaLevel);
                                     face.setColor(color);
                                     break;
-                                }
-                                default:
-                                {
-                                    let color = vec3.fromValues(1, 0, 0);
-                                    vec3.scale(color, color, face.elevation + TectonicPlate.seaLevel);
-                                    face.setColor(color);
                                 }
                             }
                         }

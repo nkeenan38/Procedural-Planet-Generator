@@ -96,7 +96,7 @@ void main()
     vec3 normal = normalize(vec3(fs_Nor));
     vec3 lightColor = vec3(1.0);
     // ambient
-    vec3 ambient = 0.15 * color;
+    vec3 ambient = 0.5 * color;
     // diffuse
     vec3 lightDir = normalize(lightPos - vec3(fs_Pos));
     float diff = max(dot(lightDir, normal), 0.0);
@@ -109,9 +109,11 @@ void main()
     vec3 specular = spec * lightColor;    
     // calculate shadow
     float shadow = shadowCalculation(fs_LightSpacePos, normal, lightDir);       
-    vec3 lighting = (ambient + (1.0 - shadow) * (diffuse + specular)) * color;   
+    vec3 lighting = clamp((ambient + (1.0 - shadow) * (diffuse + specular)) * color, vec3(0.0), vec3(1.0));   
  
     // out_Col = vec4(1.0 - shadow, 1.0 - shadow, 1.0 - shadow, 1.0);
+    // float alpha = 1.0;
+    // if (fs_Biome == uint(7) || fs_Biome == uint(8)) alpha = 0.8;
     out_Col = vec4(lighting, 1.0);
     // Compute final shaded color
     // out_Col = vec4(diffuseColor.rgb * lightIntensity, diffuseColor.a);
