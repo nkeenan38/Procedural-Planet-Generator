@@ -126,6 +126,10 @@ function main() {
   renderer.setClearColor(164.0 / 255.0, 233.0 / 255.0, 1.0, 1);
   gl.enable(gl.DEPTH_TEST);
 
+  const depth = new ShaderProgram([
+    new Shader(gl.VERTEX_SHADER, require('./shaders/depth-vert.glsl')),
+    new Shader(gl.FRAGMENT_SHADER, require('./shaders/depth-frag.glsl'))
+  ]);
   const lambert = new ShaderProgram([
     new Shader(gl.VERTEX_SHADER, require('./shaders/lambert-vert.glsl')),
     new Shader(gl.FRAGMENT_SHADER, require('./shaders/lambert-frag.glsl')),
@@ -167,12 +171,18 @@ function main() {
     }
     camera.update();
     stats.begin();
+    // 1. first render to depth map
+    gl.viewport(0, 0, planet.SHADOW_WIDTH, planet.SHADOW_HEIGHT);  // TODO: change to window width and height if it looks weird
+    gl.bindFramebuffer(gl.FRAMEBUFFER, planet.bufDepth);
+    gl.clear(gl.DEPTH_BUFFER_BIT);
+    renderer.render(camera, depth, [planet]);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    // 2. then render the scene as normal with shadow mapping
     gl.viewport(0, 0, window.innerWidth, window.innerHeight);
     renderer.clear();
     processKeyPresses();
-    renderer.render(camera, lambert, [
-      planet
-    ]);
+    gl.bindTexture(gl.TEXTURE_2D, planet.depthMap);
+    renderer.render(camera, lambert, [planet]);
     stats.end();
 
     // Tell the browser to call `tick` again whenever it renders a new frame

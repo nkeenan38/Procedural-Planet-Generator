@@ -1,4 +1,4 @@
-import {mat4, vec4} from 'gl-matrix';
+import {mat4, vec3, vec4} from 'gl-matrix';
 import Drawable from './Drawable';
 import Camera from '../../Camera';
 import {gl} from '../../globals';
@@ -30,6 +30,18 @@ class OpenGLRenderer {
     mat4.multiply(viewProj, camera.projectionMatrix, camera.viewMatrix);
     prog.setModelMatrix(model);
     prog.setViewProjMatrix(viewProj);
+
+    let nearPlane: number = 0.1;
+    let farPlane: number = 5.0;
+    let lightProjection: mat4 = mat4.create();
+    mat4.ortho(lightProjection, -10.0, 10.0, -10.0, 10.0, nearPlane, farPlane);  
+    let lightView: mat4 = mat4.create();
+    mat4.lookAt(lightView, vec3.fromValues(0.0, 0.0, 1.5), 
+                           vec3.fromValues(0.0, 0.0, 0.0), 
+                           vec3.fromValues(0.0, 1.0, 0.0));
+    let lightSpaceMatrix: mat4 = mat4.create();
+    mat4.multiply(lightSpaceMatrix, lightProjection, lightView);
+    prog.setLightSpaceMatrix(lightSpaceMatrix); 
 
     for (let drawable of drawables) {
       prog.draw(drawable);

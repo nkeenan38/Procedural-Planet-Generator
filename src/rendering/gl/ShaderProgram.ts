@@ -30,6 +30,7 @@ class ShaderProgram {
   unifModel: WebGLUniformLocation;
   unifModelInvTr: WebGLUniformLocation;
   unifViewProj: WebGLUniformLocation;
+  unifLightSpaceMatrix: WebGLUniformLocation;
 
   time: number = 0.0;
 
@@ -52,6 +53,7 @@ class ShaderProgram {
     this.unifModel      = gl.getUniformLocation(this.prog, "u_Model");
     this.unifModelInvTr = gl.getUniformLocation(this.prog, "u_ModelInvTr");
     this.unifViewProj   = gl.getUniformLocation(this.prog, "u_ViewProj");
+    this.unifLightSpaceMatrix = gl.getUniformLocation(this.prog, "u_LightSpaceMatrix");
 
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
@@ -82,6 +84,13 @@ class ShaderProgram {
     this.use();
     if (this.unifViewProj !== -1) {
       gl.uniformMatrix4fv(this.unifViewProj, false, vp);
+    }
+  }
+
+  setLightSpaceMatrix(m: mat4) {
+    this.use();
+    if (this.unifLightSpaceMatrix !== -1) {
+      gl.uniformMatrix4fv(this.unifLightSpaceMatrix, false, m);
     }
   }
 

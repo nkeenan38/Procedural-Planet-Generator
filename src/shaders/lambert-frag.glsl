@@ -12,6 +12,8 @@ precision highp float;
 // position, light position, and vertex color.
 
 uniform vec4 u_Color; // The color with which to render this instance of geometry.
+uniform sampler2D depthMap;
+uniform mat4 u_ViewProj;
 
 // These are the interpolated values out of the rasterizer, so you can't know
 // their specific values without knowing the vertices that contributed to them
@@ -20,6 +22,7 @@ in vec4 fs_Nor;
 in vec4 fs_LightVec;
 in vec4 fs_Col;
 in vec2 fs_UV;
+in vec4 fs_LightSpacePos;
 flat in uint fs_Biome;
 
 out vec4 out_Col; // This is the final output color that you will see on your
@@ -30,7 +33,7 @@ const float TWO_PI = 6.28318530718;
 const float FOUR_PI = 12.5663706144;
 const float EIGHT_PI = 25.1327412287;
 
-const vec4 KEY_LIGHT = vec4(0.0, 0.0, 10000000.0, 1.0);
+const vec3 lightPos = vec3(0.0, 0.0, 1.5);
 
 vec4 getColorFromBiome()
 {
@@ -62,24 +65,54 @@ vec4 getColorFromBiome()
     return fs_Col;
 }
 
+float shadowCalculation(vec4 lightSpacePos, vec3 normal, vec3 lightDir)
+{
+    vec3 projCoords = lightSpacePos.xyz / lightSpacePos.w;
+    projCoords = projCoords * 0.5 + 0.5; 
+    if(projCoords.z > 1.0)
+        return 0.0;
+    float closestDepth = texture(depthMap, projCoords.xy).r; 
+    float currentDepth = projCoords.z; 
+    float bias = max(0.005 * (1.0 - dot(normal, lightDir)), 0.0005);  
+    if (dot(normal, lightDir) < 0.1) return 0.0;
+    float shadow = 0.0;
+    vec2 texelSize = vec2(1.0 / float(textureSize(depthMap, 0).x), 1.0 / float(textureSize(depthMap, 0).y));
+    for(int x = -1; x <= 1; ++x)
+    {
+        for(int y = -1; y <= 1; ++y)
+        {
+            float pcfDepth = texture(depthMap, projCoords.xy + vec2(float(x), float(y)) * texelSize).r; 
+            shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0;        
+        }    
+    }
+    shadow /= 9.0;
+    return shadow;
+}
 
 
 void main()
 {
-    // Material base color (before shading)
-    vec4 diffuseColor = getColorFromBiome();
-
-    // Calculate the diffuse term for Lambert shading
-    float diffuseTerm = dot(normalize(fs_Nor), normalize(KEY_LIGHT));
-    // Avoid negative lighting values
-    diffuseTerm = clamp(diffuseTerm, 0.0, 1.0);
-
-    float ambientTerm = 0.2;
-
-    float lightIntensity = clamp(diffuseTerm + ambientTerm, 0.0, 1.0);   //Add a small float value to the color multiplier
-                                                        //to simulate ambient lighting. This ensures that faces that are not
-                                                        //lit by our point light are not completely black.
-
+    vec3 color = vec3(getColorFromBiome());
+    vec3 normal = normalize(vec3(fs_Nor));
+    vec3 lightColor = vec3(1.0);
+    // ambient
+    vec3 ambient = 0.15 * color;
+    // diffuse
+    vec3 lightDir = normalize(lightPos - vec3(fs_Pos));
+    float diff = max(dot(lightDir, normal), 0.0);
+    vec3 diffuse = diff * lightColor;
+    // specular
+    vec3 viewDir = normalize(u_ViewProj[3].xyz - vec3(fs_Pos));
+    float spec = 0.0;
+    vec3 halfwayDir = normalize(lightDir + viewDir);  
+    spec = pow(max(dot(normal, halfwayDir), 0.0), 64.0);
+    vec3 specular = spec * lightColor;    
+    // calculate shadow
+    float shadow = shadowCalculation(fs_LightSpacePos, normal, lightDir);       
+    vec3 lighting = (ambient + (1.0 - shadow) * (diffuse + specular)) * color;   
+ 
+    // out_Col = vec4(1.0 - shadow, 1.0 - shadow, 1.0 - shadow, 1.0);
+    out_Col = vec4(lighting, 1.0);
     // Compute final shaded color
-    out_Col = vec4(diffuseColor.rgb * lightIntensity, diffuseColor.a);
+    // out_Col = vec4(diffuseColor.rgb * lightIntensity, diffuseColor.a);
 }

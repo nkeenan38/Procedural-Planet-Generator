@@ -143,6 +143,11 @@ class Geometry extends Drawable
         this.generateCol();
         this.generateUV();
         this.generateBiome();
+        this.generateDepthMap();
+        this.generateDepth();
+        
+        this.bindDepthMap();
+        this.bindDepth();
 
         this.count = this.indices.length;
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.bufIdx);
