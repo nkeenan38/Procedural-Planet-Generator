@@ -131,10 +131,12 @@ class TectonicPlate
             {
                 if (face.elevation > TectonicPlate.seaLevel)
                 {
+                    face.biome = Biome.Island;
                     face.color = vec3.fromValues(200/ 255, 200 / 255, 100/ 255);
                 }
                 else
                 {
+                    face.biome = Biome.Ocean;
                     face.elevation = TectonicPlate.seaLevel;
                 }
             }

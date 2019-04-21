@@ -35,7 +35,7 @@ abstract class Drawable {
     gl.deleteBuffer(this.bufCol);
     gl.deleteBuffer(this.bufUV);
     gl.deleteBuffer(this.bufBiome);
-    gl.deleteBuffer(this.bufDepth);
+    gl.deleteFramebuffer(this.bufDepth);
     gl.deleteTexture(this.depthMap);
   }
 

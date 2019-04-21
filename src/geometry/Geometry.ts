@@ -1,4 +1,4 @@
-import Face from "./Face";
+import Face, { Biome } from "./Face";
 import Edge from "./Edge";
 import Vertex from "./Vertex";
 import Drawable from "../rendering/gl/Drawable";
@@ -29,6 +29,8 @@ class Geometry extends Drawable
 
     create()
     {
+        let translucent: Face[] = [];
+
         let idxs: number[] = [];
         let vertPos: vec4[] = [];
         let vertNorm: vec4[] = [];
@@ -37,6 +39,83 @@ class Geometry extends Drawable
         let vertUV: vec2[] = [];    // not actual UV coordinates
 
         for (let face of this.faces) {
+            if (face.biome == Biome.Surface)
+            {
+                translucent.push(face);
+                continue;
+            }
+            
+            let edge = face.edge;
+            let normal = vec4.create();
+            do
+            {
+                let edge1: vec3 = vec3.create();
+                vec3.subtract(edge1, edge.next.vertex.position, edge.vertex.position);
+                let edge2: vec3 = vec3.create();
+                vec3.subtract(edge2, edge.next.next.vertex.position, edge.vertex.position);
+                let crossProd: vec3 = vec3.create();
+                vec3.cross(crossProd, edge1, edge2);
+
+                if (crossProd == vec3.fromValues(0, 0, 0)) 
+                {
+                    continue;
+                }
+
+                vec3.normalize(crossProd, crossProd);
+                normal = vec4.fromValues(crossProd[0], crossProd[1], crossProd[2], 1.0);
+                break;
+            }
+            while ((edge = edge.next) != face.edge);
+
+            let meshColor : vec4 = vec4.fromValues(face.color[0], face.color[1], face.color[2], 1);
+
+            let first: Edge = face.edge;
+            let current: Edge = first.next;
+
+            let firstPos: vec4 = vec4.fromValues(first.vertex.position[0], first.vertex.position[1], first.vertex.position[2], 1);
+            let currentPos: vec4 = vec4.fromValues(current.vertex.position[0], current.vertex.position[1], current.vertex.position[2], 1);
+
+            // reset current half edge
+            current = first.next;
+
+            // push the first vertex position and normal to the VBO
+            vertPos.push(firstPos);
+            vertNorm.push(normal);
+            vertCol.push(meshColor);
+            vertBiome.push(face.biome);
+            vertUV.push(this.getUV(first));
+
+            vertPos.push(currentPos);
+            vertNorm.push(normal);
+            vertCol.push(meshColor);
+            vertBiome.push(face.biome);
+            vertUV.push(this.getUV(current));
+            // vertUV.push(vec2.fromValues(1, 1));
+
+            let firstPosIndex: number = vertPos.length - 2;
+
+            // triangulate the face
+            while (current.next != first)
+            {
+                let nextPos: vec4 = vec4.fromValues(current.next.vertex.position[0], current.next.vertex.position[1], current.next.vertex.position[2], 1);
+
+                vertPos.push(nextPos);
+                vertNorm.push(normal);
+                vertCol.push(meshColor);
+                vertBiome.push(face.biome);
+                vertUV.push(this.getUV(current.next));
+
+                idxs.push(firstPosIndex);
+                idxs.push(vertPos.length - 2);
+                idxs.push(vertPos.length - 1);
+
+                current = current.next;
+                currentPos = nextPos;
+            }
+        }
+
+        for (let face of translucent)
+        {
             let edge = face.edge;
             let normal = vec4.create();
             do
@@ -171,6 +250,7 @@ class Geometry extends Drawable
 
     getUV(edge: Edge)
     {
+        if (edge.sym == null) return vec2.fromValues(1,1);
         if (edge.vertex.bottom)
         {
             if (edge.sym.vertex.bottom)
@@ -578,7 +658,7 @@ class Geometry extends Drawable
     extrude(face: Face, dist: number): void
     {
         if (!face) return;
-        
+
         // extrude the face
         let heA: Edge = face.edge;
         let heB: Edge = heA.sym;
@@ -601,6 +681,7 @@ class Geometry extends Drawable
         {
             heB = heA.sym;
             newFace = new Face(face.color);
+            newFace.biome = face.biome;
             heC = new Edge();
             heD = new Edge();
             heE = new Edge();
@@ -663,6 +744,7 @@ class Geometry extends Drawable
         // connect last side
         heB = heA.sym;
         newFace = new Face(face.color);
+        newFace.biome = face.biome;
         heC = new Edge();
         heD = new Edge();
         heE = new Edge();
@@ -716,7 +798,7 @@ class Geometry extends Drawable
         heF.sym = face.edge.sym.next;
     }
 
-    extrudeSubface(face: Face, scale: number, height: number, topCol: vec3, sideCol: vec3): Face
+    copyFace(face: Face): Face
     {
         // create new face
         let newFace: Face = new Face();
@@ -730,12 +812,7 @@ class Geometry extends Drawable
         let prev: Edge;
         do
         {
-            let position: vec3 = edge.vertex.position;
-            let direction = vec3.create();
-            vec3.subtract(direction, position, centroid);
-            vec3.scale(direction, direction, scale);
-            vec3.add(direction, direction, centroid);
-            let vertex: Vertex = new Vertex(direction);
+            let vertex: Vertex = new Vertex(edge.vertex.position);
             this.vertexes.push(vertex);
             newEdge = new Edge(newFace, vertex);
             this.edges.push(newEdge);
@@ -759,12 +836,6 @@ class Geometry extends Drawable
         // connect last edge
         newEdge.next = newFace.edge;
         newFace.edge.sym.vertex = newEdge.vertex;
-        let status = this.testStructure();
-        // connect these new vertices with new half edges, don't forget the syms
-        // extrude the new subface
-        newFace.color = sideCol;
-        this.extrude(newFace, height);
-        newFace.color = topCol;
         return newFace;
     }
 

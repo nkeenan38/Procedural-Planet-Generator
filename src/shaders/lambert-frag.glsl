@@ -14,6 +14,7 @@ precision highp float;
 uniform vec4 u_Color; // The color with which to render this instance of geometry.
 uniform sampler2D depthMap;
 uniform mat4 u_ViewProj;
+uniform vec3 u_LightPos;
 
 // These are the interpolated values out of the rasterizer, so you can't know
 // their specific values without knowing the vertices that contributed to them
@@ -33,34 +34,37 @@ const float TWO_PI = 6.28318530718;
 const float FOUR_PI = 12.5663706144;
 const float EIGHT_PI = 25.1327412287;
 
-const vec3 lightPos = vec3(0.0, 0.0, 1.5);
-
 vec4 getColorFromBiome()
 {
     switch (fs_Biome)
     {
         case uint(0):   // Snow Mountain
-            if (sin(fs_UV.x * TWO_PI) * 0.05 + sin(fs_UV.x * FOUR_PI) * 0.05 + fs_UV.y > 0.7) 
+            if (sin(fs_UV.x * TWO_PI) * 0.05 + sin(fs_UV.x * FOUR_PI) * 0.05 + fs_UV.y > 0.85) 
                 return fs_Col;
             return vec4(0.4, 0.35, 0.3, 1.0);
         case uint(1):   // Rocky Mountain
-            if (sin(fs_UV.x * TWO_PI) * 0.05 + sin(fs_UV.x * FOUR_PI) * 0.05 + sin(fs_UV.x * EIGHT_PI) * 0.05 + fs_UV.y > 0.7) 
+            if (sin(fs_UV.x * TWO_PI) * 0.05 + sin(fs_UV.x * FOUR_PI) * 0.05 + sin(fs_UV.x * EIGHT_PI) * 0.05 + fs_UV.y > 0.85) 
                 return fs_Col;
             return vec4(0.4, 0.35, 0.3, 1.0);
         case uint(2):   // Desert
             return vec4(0.95, 0.85, 0.25, 1.0);
         case uint(4):   // Grassland
-            if (sin(fs_UV.x * TWO_PI) * 0.05 + fs_UV.y > 0.6) 
+            if (sin(fs_UV.x * TWO_PI) * 0.05 + fs_UV.y > 0.85) 
                 return fs_Col;
             return vec4(0.5, 0.35, 0.1, 1.0);
         case uint(5):   // Jungle
-            if (sin(fs_UV.x * TWO_PI) * 0.05 + fs_UV.y > 0.6) 
+            if (sin(fs_UV.x * TWO_PI) * 0.05 + fs_UV.y > 0.85) 
                 return fs_Col;
             return vec4(0.5, 0.35, 0.1, 1.0);
         case uint(6):   // Forest
-            if (sin(fs_UV.x * TWO_PI) * 0.05 + fs_UV.y > 0.6) 
+            if (sin(fs_UV.x * TWO_PI) * 0.05 + fs_UV.y > 0.85) 
                 return fs_Col;
             return vec4(0.5, 0.35, 0.1, 1.0);
+        case uint(7):   // lake
+        case uint(8):   // ocean
+        case uint(11):  // surface
+            return vec4(0.0, 0.1, 0.8, 0.8);
+
     }
     return fs_Col;
 }
@@ -74,7 +78,6 @@ float shadowCalculation(vec4 lightSpacePos, vec3 normal, vec3 lightDir)
     float closestDepth = texture(depthMap, projCoords.xy).r; 
     float currentDepth = projCoords.z; 
     float bias = max(0.005 * (1.0 - dot(normal, lightDir)), 0.0005);  
-    if (dot(normal, lightDir) < 0.1) return 0.0;
     float shadow = 0.0;
     vec2 texelSize = vec2(1.0 / float(textureSize(depthMap, 0).x), 1.0 / float(textureSize(depthMap, 0).y));
     for(int x = -1; x <= 1; ++x)
@@ -98,7 +101,7 @@ void main()
     // ambient
     vec3 ambient = 0.15 * color;
     // diffuse
-    vec3 lightDir = normalize(lightPos - vec3(fs_Pos));
+    vec3 lightDir = normalize(u_LightPos - vec3(fs_Pos));
     float diff = max(dot(lightDir, normal), 0.0);
     vec3 diffuse = diff * lightColor;
     // specular
@@ -109,12 +112,11 @@ void main()
     vec3 specular = spec * lightColor;    
     // calculate shadow
     float shadow = shadowCalculation(fs_LightSpacePos, normal, lightDir);       
-    vec3 lighting = clamp((ambient + (1.0 - shadow) * (diffuse + specular)) * color, vec3(0.0), vec3(1.0));   
+    vec3 lighting = clamp((ambient + (1.0 - shadow) * (diffuse + specular)) * color, vec3(0.0), vec3(1.0));
  
-    // out_Col = vec4(1.0 - shadow, 1.0 - shadow, 1.0 - shadow, 1.0);
-    // float alpha = 1.0;
-    // if (fs_Biome == uint(7) || fs_Biome == uint(8)) alpha = 0.8;
-    out_Col = vec4(lighting, 1.0);
+    float alpha = 1.0;
+    // if (fs_Biome == uint(11)) alpha = 1.0;
+    out_Col = vec4(lighting, alpha);
     // Compute final shaded color
     // out_Col = vec4(diffuseColor.rgb * lightIntensity, diffuseColor.a);
 }

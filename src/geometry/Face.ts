@@ -16,7 +16,8 @@ export enum Biome
     Lake,
     Ocean,
     Island,
-    Coast
+    Coast,
+    Surface
 }
 
 class Face

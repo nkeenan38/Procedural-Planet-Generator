@@ -22,7 +22,7 @@ class OpenGLRenderer {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
   }
 
-  render(camera: Camera, prog: ShaderProgram, drawables: Array<Drawable>) {
+  render(camera: Camera, lightPos: vec3, prog: ShaderProgram, drawables: Array<Drawable>) {
     let model = mat4.create();
     let viewProj = mat4.create();
 
@@ -36,12 +36,14 @@ class OpenGLRenderer {
     let lightProjection: mat4 = mat4.create();
     mat4.ortho(lightProjection, -10.0, 10.0, -10.0, 10.0, nearPlane, farPlane);  
     let lightView: mat4 = mat4.create();
-    mat4.lookAt(lightView, vec3.fromValues(0.0, 0.0, 1.5), 
+    mat4.lookAt(lightView, lightPos, 
                            vec3.fromValues(0.0, 0.0, 0.0), 
                            vec3.fromValues(0.0, 1.0, 0.0));
     let lightSpaceMatrix: mat4 = mat4.create();
     mat4.multiply(lightSpaceMatrix, lightProjection, lightView);
     prog.setLightSpaceMatrix(lightSpaceMatrix); 
+    prog.setLightPosition(lightPos);
+    prog.setCameraPosition(camera.position);
 
     for (let drawable of drawables) {
       prog.draw(drawable);

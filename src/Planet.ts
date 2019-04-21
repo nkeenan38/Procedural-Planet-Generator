@@ -74,81 +74,81 @@ class Planet extends Geometry
             {
                 for (let plate of this.tectonicPlates)
                 {
-                    if (plate.oceanic())
+                    for (let face of plate.faces)
                     {
-                        for (let face of plate.faces)
+                        switch (face.biome)
                         {
-                            if (face.elevation > 0) face.setColor(vec3.fromValues(200/255, 200/255, 100/255));
-                            else 
+                            case Biome.SnowyMountain:
                             {
-                                let color = vec3.fromValues(0, 0.1, 0.9);
+                                let color = vec3.fromValues(0.9, 0.9, 0.9);
                                 vec3.scale(color, color, face.elevation + TectonicPlate.seaLevel);
                                 face.setColor(color);
+                                break;
                             }
-                        }
-                    }
-                    else
-                    {
-                        for (let face of plate.faces)
-                        {
-                            switch (face.biome)
+                            case Biome.RockyMountain:
                             {
-                                case Biome.SnowyMountain:
-                                {
-                                    let color = vec3.fromValues(0.9, 0.9, 0.9);
-                                    vec3.scale(color, color, face.elevation + TectonicPlate.seaLevel);
-                                    face.setColor(color);
-                                    break;
-                                }
-                                case Biome.RockyMountain:
-                                {
-                                    let color = vec3.fromValues(0.4, 0.35, 0.3);
-                                    vec3.scale(color, color, face.elevation + TectonicPlate.seaLevel);
-                                    face.setColor(color);
-                                    break;
-                                }
-                                case Biome.Lake:
-                                {
-                                    let color = vec3.fromValues(0, .2, .8);
-                                    vec3.scale(color, color, face.elevation + TectonicPlate.seaLevel);
-                                    face.setColor(color);
-                                    break;
-                                }
-                                case Biome.Desert:
-                                {
-                                    let color = vec3.fromValues(250/255, 200/255, 50/255);
-                                    vec3.scale(color, color, face.elevation + TectonicPlate.seaLevel);
-                                    face.setColor(color);
-                                    break;
-                                }
-                                case Biome.Tundra:
-                                {
-                                    let color = vec3.fromValues(255/255, 250/255, 230/255);
-                                    vec3.scale(color, color, face.elevation + TectonicPlate.seaLevel);
-                                    face.setColor(color);
-                                    break;
-                                }
-                                case Biome.Forest:
-                                {
-                                    let color = vec3.fromValues(40/255, 160/255, 0);
-                                    vec3.scale(color, color, face.elevation + TectonicPlate.seaLevel);
-                                    face.setColor(color);
-                                    break;
-                                }
-                                case Biome.Jungle:
-                                {
-                                    let color = vec3.fromValues(20/255, 120/255, 0);
-                                    vec3.scale(color, color, face.elevation + TectonicPlate.seaLevel);
-                                    face.setColor(color);
-                                    break;
-                                }
-                                case Biome.Grassland:
-                                {
-                                    let color = vec3.fromValues(0.1, 0.9, 0.0);
-                                    vec3.scale(color, color, face.elevation + TectonicPlate.seaLevel);
-                                    face.setColor(color);
-                                    break;
-                                }
+                                let color = vec3.fromValues(0.4, 0.35, 0.3);
+                                vec3.scale(color, color, face.elevation + TectonicPlate.seaLevel);
+                                face.setColor(color);
+                                break;
+                            }
+                            case Biome.Lake:
+                            {
+                                let color = vec3.fromValues(0, .2, .8);
+                                vec3.scale(color, color, face.elevation + TectonicPlate.seaLevel);
+                                face.setColor(color);
+                                break;
+                            }
+                            case Biome.Desert:
+                            {
+                                let color = vec3.fromValues(250/255, 200/255, 50/255);
+                                vec3.scale(color, color, face.elevation + TectonicPlate.seaLevel);
+                                face.setColor(color);
+                                break;
+                            }
+                            case Biome.Tundra:
+                            {
+                                let color = vec3.fromValues(255/255, 250/255, 230/255);
+                                vec3.scale(color, color, face.elevation + TectonicPlate.seaLevel);
+                                face.setColor(color);
+                                break;
+                            }
+                            case Biome.Forest:
+                            {
+                                let color = vec3.fromValues(40/255, 160/255, 0);
+                                vec3.scale(color, color, face.elevation + TectonicPlate.seaLevel);
+                                face.setColor(color);
+                                break;
+                            }
+                            case Biome.Jungle:
+                            {
+                                let color = vec3.fromValues(20/255, 120/255, 0);
+                                vec3.scale(color, color, face.elevation + TectonicPlate.seaLevel);
+                                face.setColor(color);
+                                break;
+                            }
+                            case Biome.Grassland:
+                            {
+                                let color = vec3.fromValues(0.1, 0.9, 0.0);
+                                vec3.scale(color, color, face.elevation + TectonicPlate.seaLevel);
+                                face.setColor(color);
+                                break;
+                            }
+                            case Biome.Ocean:
+                            {
+                                let color = vec3.fromValues(0.1, 0.2, 0.8);
+                                vec3.scale(color, color, face.elevation + TectonicPlate.seaLevel);
+                                face.color = color;
+                            }
+                            case Biome.Coast:
+                            {
+                                face.setColor(vec3.fromValues(200/255, 200/255, 100/255));
+                                break;
+                            }
+                            case Biome.Island:
+                            {
+                                face.setColor(vec3.fromValues(200/255, 200/255, 100/255));
+                                break;
                             }
                         }
                     }
@@ -247,7 +247,25 @@ class Planet extends Geometry
         {
             for (let face of plate.faces)
             {
-                this.extrude(face, face.elevation * 0.1);
+                if (face.biome === Biome.Ocean)
+                {
+                    // copy the face
+                    let surface = this.copyFace(face);
+                    surface.color = face.color;
+                    surface.biome = Biome.Surface;
+                    let edge = surface.edge;
+                    let normal = vec3.create();
+                    do
+                    {
+                        vec3.normalize(normal, edge.vertex.position);
+                        vec3.scale(normal, normal, 1.0 + TectonicPlate.seaLevel * 0.25);
+                        edge.vertex.position = vec3.clone(normal);
+                    }
+                    while ((edge = edge.next) !== surface.edge);
+                    this.extrude(face, face.elevation * 0.25);
+                    continue;
+                }
+                this.extrude(face, (face.elevation + TectonicPlate.seaLevel) * 0.25);
             }
         }
     }

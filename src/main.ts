@@ -17,7 +17,8 @@ const controls = {
   'Load Scene': loadScene, // A function pointer, essentially
   'Subdivsions': 4,
   'Plates': 10,
-  'Tile': 'Terrain'
+  'Tile': 'Terrain',
+  'Time': 0,
 };
 let tileType = controls.Tile;
 let subdivisions = controls.Subdivsions;
@@ -44,8 +45,8 @@ function loadScene() {
   planet.setPlanetTemperature();
   planet.setPrecipitation();
   planet.blendTemperatureAndPrecipitation();
-  planet.extrudeFaces();
   planet.determineBiomes();
+  planet.extrudeFaces();
   planet.setTileColors(tileType);
   planet.create();
 
@@ -105,6 +106,7 @@ function main() {
   gui.add(controls, 'Subdivsions', 3, 5).step(1);
   gui.add(controls, 'Plates', 4, 20).step(1);
   gui.add(controls, 'Tile', [ 'Terrain', 'Tectonic Plates', 'Temperature', 'Precipitation' ]);
+  gui.add(controls, 'Time', 0, 24).listen();
 
 
   // get canvas and webgl context
@@ -169,20 +171,24 @@ function main() {
     {
       plateCount = controls.Plates;
     }
+    controls.Time = (controls.Time + 0.01) % 24;
     camera.update();
     stats.begin();
+    let time = (controls.Time / 12.0) * Math.PI;
+    let lightPos = vec3.fromValues(-Math.sin(time), 0, Math.cos(time));
+    vec3.scale(lightPos, lightPos, 1.5);
     // 1. first render to depth map
     gl.viewport(0, 0, planet.SHADOW_WIDTH, planet.SHADOW_HEIGHT);  // TODO: change to window width and height if it looks weird
     gl.bindFramebuffer(gl.FRAMEBUFFER, planet.bufDepth);
     gl.clear(gl.DEPTH_BUFFER_BIT);
-    renderer.render(camera, depth, [planet]);
+    renderer.render(camera, lightPos, depth, [planet]);
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     // 2. then render the scene as normal with shadow mapping
     gl.viewport(0, 0, window.innerWidth, window.innerHeight);
     renderer.clear();
     processKeyPresses();
     gl.bindTexture(gl.TEXTURE_2D, planet.depthMap);
-    renderer.render(camera, lambert, [planet]);
+    renderer.render(camera, lightPos, lambert, [planet]);
     stats.end();
 
     // Tell the browser to call `tick` again whenever it renders a new frame

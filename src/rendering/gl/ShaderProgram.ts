@@ -1,4 +1,4 @@
-import {vec2, vec4, mat4} from 'gl-matrix';
+import {vec2, vec4, mat4, vec3} from 'gl-matrix';
 import Drawable from './Drawable';
 import {gl} from '../../globals';
 
@@ -31,6 +31,8 @@ class ShaderProgram {
   unifModelInvTr: WebGLUniformLocation;
   unifViewProj: WebGLUniformLocation;
   unifLightSpaceMatrix: WebGLUniformLocation;
+  unifLightPosition: WebGLUniformLocation;
+  unifCameraPosition: WebGLUniformLocation;
 
   time: number = 0.0;
 
@@ -54,6 +56,8 @@ class ShaderProgram {
     this.unifModelInvTr = gl.getUniformLocation(this.prog, "u_ModelInvTr");
     this.unifViewProj   = gl.getUniformLocation(this.prog, "u_ViewProj");
     this.unifLightSpaceMatrix = gl.getUniformLocation(this.prog, "u_LightSpaceMatrix");
+    this.unifLightPosition = gl.getUniformLocation(this.prog, "u_LightPos");
+    this.unifCameraPosition = gl.getUniformLocation(this.prog, "u_CameraPosition");
 
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
@@ -91,6 +95,22 @@ class ShaderProgram {
     this.use();
     if (this.unifLightSpaceMatrix !== -1) {
       gl.uniformMatrix4fv(this.unifLightSpaceMatrix, false, m);
+    }
+  }
+
+  setLightPosition(p: vec3)
+  {
+    this.use();
+    if (this.unifLightPosition !== -1) {
+      gl.uniform3fv(this.unifLightPosition, p);
+    }
+  }
+
+  setCameraPosition(p: vec3)
+  {
+    this.use();
+    if (this.unifCameraPosition !== -1) {
+      gl.uniform3fv(this.unifCameraPosition, p);
     }
   }
 
