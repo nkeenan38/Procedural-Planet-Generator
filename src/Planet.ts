@@ -16,6 +16,7 @@ class Planet extends Geometry
     constructor()
     {
         super();
+        this.numInstances = 1;
     }
 
     determineBiomes()
@@ -140,12 +141,7 @@ class Planet extends Geometry
                                 vec3.scale(color, color, face.elevation + TectonicPlate.seaLevel);
                                 face.color = color;
                             }
-                            case Biome.Coast:
-                            {
-                                face.setColor(vec3.fromValues(200/255, 200/255, 100/255));
-                                break;
-                            }
-                            case Biome.Island:
+                            case Biome.Tropics:
                             {
                                 face.setColor(vec3.fromValues(200/255, 200/255, 100/255));
                                 break;
@@ -406,6 +402,16 @@ class Planet extends Geometry
                 }
             }
         }
+    }
+
+    getTropicalTilePositions() : vec3[]
+    {
+        let tiles: vec3[] = [];
+        for (let plate of this.tectonicPlates)
+        {
+            tiles = tiles.concat(plate.faces.filter(f => f.biome == Biome.Tropics).map(f => f.centroid()));
+        }
+        return tiles;
     }
 }
 

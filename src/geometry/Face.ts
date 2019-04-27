@@ -15,8 +15,7 @@ export enum Biome
     Forest,
     Lake,
     Ocean,
-    Island,
-    Coast,
+    Tropics,
     Surface
 }
 
