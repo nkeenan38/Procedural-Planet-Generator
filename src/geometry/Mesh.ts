@@ -23,22 +23,22 @@ class Mesh extends Drawable {
   }
 
   create() {  
-    let posTemp: number[] = [];
-    let norTemp: number[] = [];
-    let uvsTemp: number[] = [];
-    let idxTemp: number[] = [];
+    let posTemp: Array<number> = [];
+    let norTemp: Array<number> = [];
+    let uvsTemp: Array<number> = [];
+    let idxTemp: Array<number> = [];
 
     var loadedMesh = new Loader.Mesh(this.objString);
 
-    // posTemp = loadedMesh.vertices;
+    //posTemp = loadedMesh.vertices;
     for (var i = 0; i < loadedMesh.vertices.length; i++) {
       posTemp.push(loadedMesh.vertices[i]);
-      if (i % 3 === 2) posTemp.push(1.0);
+      if (i % 3 == 2) posTemp.push(1.0);
     }
 
     for (var i = 0; i < loadedMesh.vertexNormals.length; i++) {
       norTemp.push(loadedMesh.vertexNormals[i]);
-      if (i % 3 === 2) norTemp.push(0.0);
+      if (i % 3 == 2) norTemp.push(0.0);
     }
 
     uvsTemp = loadedMesh.textures;
@@ -53,13 +53,14 @@ class Mesh extends Drawable {
     this.indices = new Uint32Array(idxTemp);
     this.normals = new Float32Array(norTemp);
     this.positions = new Float32Array(posTemp);
-    this.uvs = new Float32Array(uvsTemp);
+    if (uvsTemp.length > 0) this.uvs = new Float32Array(uvsTemp);
 
     this.generateIdx();
     this.generatePos();
     this.generateNor();
-    if (this.uvs.length > 0) this.generateUV();
+    this.generateUV();
     this.generateCol();
+    this.generateColumns();
 
     this.count = this.indices.length;
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.bufIdx);
@@ -74,7 +75,7 @@ class Mesh extends Drawable {
     gl.bindBuffer(gl.ARRAY_BUFFER, this.bufCol);
     gl.bufferData(gl.ARRAY_BUFFER, this.colors, gl.STATIC_DRAW);
 
-    if (this.uvs.length > 0)
+    if (uvsTemp.length > 0)
     {
         gl.bindBuffer(gl.ARRAY_BUFFER, this.bufUV);
         gl.bufferData(gl.ARRAY_BUFFER, this.uvs, gl.STATIC_DRAW);
@@ -84,20 +85,18 @@ class Mesh extends Drawable {
     this.objString = ""; // hacky clear
   }
 
-  setInstanceVBOs(mat0: Float32Array, mat1: Float32Array, mat2: Float32Array, mat3: Float32Array) {
-    this.generateTransformation();
+  setInstanceVBOs(col1: Float32Array, col2: Float32Array, col3: Float32Array, col4: Float32Array) {
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.bufCol1);
+    gl.bufferData(gl.ARRAY_BUFFER, col1, gl.STATIC_DRAW);
 
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.bufMat0);
-    gl.bufferData(gl.ARRAY_BUFFER, mat0, gl.STATIC_DRAW);
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.bufCol2);
+    gl.bufferData(gl.ARRAY_BUFFER, col2, gl.STATIC_DRAW);
 
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.bufMat1);
-    gl.bufferData(gl.ARRAY_BUFFER, mat1, gl.STATIC_DRAW);
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.bufCol3);
+    gl.bufferData(gl.ARRAY_BUFFER, col3, gl.STATIC_DRAW);
 
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.bufMat2);
-    gl.bufferData(gl.ARRAY_BUFFER, mat2, gl.STATIC_DRAW);
-
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.bufMat3);
-    gl.bufferData(gl.ARRAY_BUFFER, mat3, gl.STATIC_DRAW);
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.bufCol4);
+    gl.bufferData(gl.ARRAY_BUFFER, col4, gl.STATIC_DRAW);
   }
 };
 

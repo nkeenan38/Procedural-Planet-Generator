@@ -18,7 +18,10 @@
     "3d-view-controls": "^2.2.2",
     "dat-gui": "^0.5.0",
     "gl-matrix": "^2.4.0",
-    "stats-js": "^1.0.0-alpha1"
+    "stats-js": "^1.0.0-alpha1",
+    "webgl-obj-loader": "^2.0.3"
   },
-  "files": ["src/icosahedron.obj"]
+  "files": [
+    "src/icosahedron.obj"
+  ]
 }

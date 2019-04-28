@@ -1,12 +1,13 @@
-import {vec2, vec3} from 'gl-matrix';
+import {vec2, vec3, mat4} from 'gl-matrix';
 import * as Stats from 'stats-js';
 import * as DAT from 'dat-gui';
 import OpenGLRenderer from './rendering/gl/OpenGLRenderer';
 import Camera from './Camera';
-import {setGL} from './globals';
+import {setGL, readTextFile} from './globals';
 import ShaderProgram, {Shader} from './rendering/gl/ShaderProgram';
 import Planet from './Planet';
 import Precipitation from './components/Precipitation';
+import Mesh from './geometry/Mesh';
 
 let prevScale: number = 5.0;
 let prevSharpness: number = 0.2
@@ -25,6 +26,7 @@ let subdivisions = controls.Subdivsions;
 let plateCount = controls.Plates;
 
 let planet: Planet;
+let palmTree: Mesh;
 let wPressed: boolean;
 let aPressed: boolean;
 let sPressed: boolean;
@@ -49,6 +51,38 @@ function loadScene() {
   planet.extrudeFaces();
   planet.setTileColors(tileType);
   planet.create();
+
+  let obj0: string = readTextFile('src/palm-tree.obj');
+  palmTree = new Mesh(obj0, vec3.create());
+  palmTree.create();
+
+  let col1Arr: number[] = [];
+  let col2Arr: number[] = [];
+  let col3Arr: number[] = [];
+  let col4Arr: number[] = [];
+  let instances = planet.getPalmTreePositions();
+  for (let pos of instances)
+  {
+    let transformation: mat4 = mat4.create();
+    mat4.translate(transformation, transformation, pos);
+    mat4.scale(transformation, transformation, vec3.fromValues(0.025, 0.025, 0.025));
+    let cross = vec3.create();
+    vec3.cross(cross, vec3.fromValues(0, 1, 0), pos);
+    let theta = vec3.angle(vec3.fromValues(0, 1, 0), pos);
+    mat4.rotate(transformation, transformation, theta, cross);
+    col1Arr.push(transformation[0], transformation[1], transformation[2], transformation[3]);
+    col2Arr.push(transformation[4], transformation[5], transformation[6], transformation[7]);
+    col3Arr.push(transformation[8], transformation[9], transformation[10], transformation[11]);
+    col4Arr.push(transformation[12], transformation[13], transformation[14], transformation[15]);
+  }
+
+  let col1 : Float32Array = new Float32Array(col1Arr);
+  let col2 : Float32Array = new Float32Array(col2Arr);
+  let col3 : Float32Array = new Float32Array(col3Arr);
+  let col4 : Float32Array = new Float32Array(col4Arr);
+
+  palmTree.setNumInstances(instances.length);
+  palmTree.setInstanceVBOs(col1, col2, col3, col4);
 
   wPressed = false;
   aPressed = false;
@@ -136,6 +170,10 @@ function main() {
     new Shader(gl.VERTEX_SHADER, require('./shaders/lambert-vert.glsl')),
     new Shader(gl.FRAGMENT_SHADER, require('./shaders/lambert-frag.glsl')),
   ]);
+  const assets = new ShaderProgram([
+    new Shader(gl.VERTEX_SHADER, require('./shaders/assets-vert.glsl')),
+    new Shader(gl.FRAGMENT_SHADER, require('./shaders/assets-frag.glsl'))
+  ]);
 
   function processKeyPresses() {
     let velocity: vec3 = vec3.fromValues(0,0,0);
@@ -189,6 +227,7 @@ function main() {
     processKeyPresses();
     gl.bindTexture(gl.TEXTURE_2D, planet.depthMap);
     renderer.render(camera, lightPos, lambert, [planet]);
+    renderer.render(camera, lightPos, assets, [palmTree]);
     stats.end();
 
     // Tell the browser to call `tick` again whenever it renders a new frame

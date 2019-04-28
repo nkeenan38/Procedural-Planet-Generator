@@ -404,12 +404,15 @@ class Planet extends Geometry
         }
     }
 
-    getTropicalTilePositions() : vec3[]
+    getPalmTreePositions() : vec3[]
     {
         let tiles: vec3[] = [];
         for (let plate of this.tectonicPlates)
         {
-            tiles = tiles.concat(plate.faces.filter(f => f.biome == Biome.Tropics).map(f => f.centroid()));
+            for (let face of plate.faces.filter(f => f.biome == Biome.Tropics))
+            {
+                if (Math.random() < 0.5) tiles.push(face.centroid());
+            }
         }
         return tiles;
     }
