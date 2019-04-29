@@ -243,24 +243,24 @@ class Planet extends Geometry
         {
             for (let face of plate.faces)
             {
-                if (face.biome === Biome.Ocean)
-                {
-                    // copy the face
-                    let surface = this.copyFace(face);
-                    surface.color = face.color;
-                    surface.biome = Biome.Surface;
-                    let edge = surface.edge;
-                    let normal = vec3.create();
-                    do
-                    {
-                        vec3.normalize(normal, edge.vertex.position);
-                        vec3.scale(normal, normal, 1.0 + TectonicPlate.seaLevel * 0.25);
-                        edge.vertex.position = vec3.clone(normal);
-                    }
-                    while ((edge = edge.next) !== surface.edge);
-                    this.extrude(face, face.elevation * 0.25);
-                    continue;
-                }
+                // if (face.biome === Biome.Ocean)
+                // {
+                //     // copy the face
+                //     let surface = this.copyFace(face);
+                //     surface.color = face.color;
+                //     surface.biome = Biome.Surface;
+                //     let edge = surface.edge;
+                //     let normal = vec3.create();
+                //     do
+                //     {
+                //         vec3.normalize(normal, edge.vertex.position);
+                //         vec3.scale(normal, normal, 1.0 + TectonicPlate.seaLevel * 0.25);
+                //         edge.vertex.position = vec3.clone(normal);
+                //     }
+                //     while ((edge = edge.next) !== surface.edge);
+                //     this.extrude(face, face.elevation * 0.25);
+                //     continue;
+                // }
                 this.extrude(face, (face.elevation + TectonicPlate.seaLevel) * 0.25);
             }
         }
@@ -411,7 +411,46 @@ class Planet extends Geometry
         {
             for (let face of plate.faces.filter(f => f.biome == Biome.Tropics))
             {
-                if (Math.random() < 0.5) tiles.push(face.centroid());
+                if (Math.random() < 0.25) tiles.push(face.centroid());
+            }
+        }
+        return tiles;
+    }
+
+    getFirTreePositions(): vec3[]
+    {
+        let tiles: vec3[] = [];
+        for (let plate of this.tectonicPlates)
+        {
+            for (let face of plate.faces.filter(f => f.biome === Biome.Forest || f.biome === Biome.Jungle))
+            {
+                if (Math.random() < 0.25) tiles.push(face.centroid());
+            }
+        }
+        return tiles;
+    }
+
+    getSnowTreePositions(): vec3[]
+    {
+        let tiles: vec3[] = [];
+        for (let plate of this.tectonicPlates)
+        {
+            for (let face of plate.faces.filter(f => f.biome === Biome.SnowyMountain))
+            {
+                if (Math.random() < 0.25) tiles.push(face.centroid());
+            }
+        }
+        return tiles;
+    }
+
+    getCowPositions(): vec3[]
+    {
+        let tiles: vec3[] = [];
+        for (let plate of this.tectonicPlates)
+        {
+            for (let face of plate.faces.filter(f => f.biome === Biome.Grassland))
+            {
+                if (Math.random() < 0.035) tiles.push(face.centroid());
             }
         }
         return tiles;

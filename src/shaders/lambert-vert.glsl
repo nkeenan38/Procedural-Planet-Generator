@@ -33,6 +33,7 @@ void main()
 {
     fs_Col = vs_Col;
     fs_UV = vs_UV;
+    fs_Pos = vs_Pos;
     fs_Biome = vs_Biome;
     mat3 invTranspose = mat3(u_ModelInvTr);
     fs_Nor = vec4(invTranspose * vec3(vs_Nor), 0.0);          // Pass the vertex normals to the fragment shader for interpolation.

@@ -30,7 +30,7 @@ out vec4 fs_LightSpacePos;
 void main()
 {
     mat4 T = mat4(vs_Col1, vs_Col2, vs_Col3, vs_Col4);
-    fs_Col = vec4(0.0, 0.5, 0.0, 1.0);
+    fs_Col = vs_Col;
     mat3 invTranspose = mat3(u_ModelInvTr);
     fs_Nor = vec4(invTranspose * vec3(vs_Nor), 0.0);          // Pass the vertex normals to the fragment shader for interpolation.
                                                             // Transform the geometry's normals by the inverse transpose of the

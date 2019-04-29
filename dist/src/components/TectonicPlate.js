@@ -1,3 +1,4 @@
+import { Biome } from "../geometry/Face";
 import { vec2, vec3 } from "gl-matrix";
 import { randColor } from "../globals";
 export var Crust;
@@ -44,6 +45,9 @@ class TectonicPlate {
         }
         return boundary;
     }
+    lakes() {
+        return this.faces.filter(f => f.biome === Biome.Lake);
+    }
     setElevations() {
         if (this.continental()) {
             let boundary = this.boundary();
@@ -83,9 +87,11 @@ class TectonicPlate {
         else {
             for (let face of this.faces) {
                 if (face.elevation > TectonicPlate.seaLevel) {
+                    face.biome = Biome.Tropics;
                     face.color = vec3.fromValues(200 / 255, 200 / 255, 100 / 255);
                 }
                 else {
+                    face.biome = Biome.Ocean;
                     face.elevation = TectonicPlate.seaLevel;
                 }
             }

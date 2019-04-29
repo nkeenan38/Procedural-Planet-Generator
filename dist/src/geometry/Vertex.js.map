@@ -1,1 +1,1 @@
-{"version":3,"file":"Vertex.js","sourceRoot":"","sources":["../../../src/geometry/Vertex.ts"],"names":[],"mappings":"AAGA;IAQI;QAEI,IAAI,CAAC,EAAE,GAAG,MAAM,CAAC,KAAK,EAAE,CAAC;IAC7B,CAAC;;AATc,YAAK,GAAY,CAAC,CAAC;AAYtC,eAAe,MAAM,CAAC"}
+{"version":3,"file":"Vertex.js","sourceRoot":"","sources":["../../../src/geometry/Vertex.ts"],"names":[],"mappings":"AAGA;IASI,YAAY,QAAe;QAEvB,IAAI,CAAC,EAAE,GAAG,MAAM,CAAC,KAAK,EAAE,CAAC;QACzB,IAAI,QAAQ,EACZ;YACI,IAAI,CAAC,QAAQ,GAAG,QAAQ,CAAC;SAC5B;IACL,CAAC;;AAdc,YAAK,GAAY,CAAC,CAAC;AAiBtC,eAAe,MAAM,CAAC"}

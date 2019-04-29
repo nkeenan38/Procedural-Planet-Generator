@@ -3,16 +3,15 @@ export var Biome;
 (function (Biome) {
     Biome[Biome["SnowyMountain"] = 0] = "SnowyMountain";
     Biome[Biome["RockyMountain"] = 1] = "RockyMountain";
-    Biome[Biome["SandDesert"] = 2] = "SandDesert";
-    Biome[Biome["IceDesert"] = 3] = "IceDesert";
+    Biome[Biome["Desert"] = 2] = "Desert";
+    Biome[Biome["Tundra"] = 3] = "Tundra";
     Biome[Biome["Grassland"] = 4] = "Grassland";
     Biome[Biome["Jungle"] = 5] = "Jungle";
-    Biome[Biome["Pasture"] = 6] = "Pasture";
-    Biome[Biome["Forest"] = 7] = "Forest";
-    Biome[Biome["Tundra"] = 8] = "Tundra";
-    Biome[Biome["SnowForest"] = 9] = "SnowForest";
-    Biome[Biome["Swamp"] = 10] = "Swamp";
-    Biome[Biome["Lake"] = 11] = "Lake";
+    Biome[Biome["Forest"] = 6] = "Forest";
+    Biome[Biome["Lake"] = 7] = "Lake";
+    Biome[Biome["Ocean"] = 8] = "Ocean";
+    Biome[Biome["Tropics"] = 9] = "Tropics";
+    Biome[Biome["Surface"] = 10] = "Surface";
 })(Biome || (Biome = {}));
 class Face {
     constructor(color) {
@@ -45,14 +44,17 @@ class Face {
     }
     // used for the hexagonal tiles
     // colors the sides to be the same color
-    setColor(color) {
-        this.color = color;
+    setColor(top, sides) {
+        this.color = top;
+        if (!sides)
+            sides = top;
         if (!this.plate)
             return;
         let edge = this.edge;
         do {
             let side = edge.sym.face;
-            side.color = color;
+            side.color = sides;
+            side.biome = this.biome;
         } while ((edge = edge.next) != this.edge);
     }
 }

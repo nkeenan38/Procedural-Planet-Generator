@@ -22,7 +22,7 @@ class Mesh extends Drawable {
     this.objString = objString;
   }
 
-  create() {  
+  create(color?: vec4) {  
     let posTemp: Array<number> = [];
     let norTemp: Array<number> = [];
     let uvsTemp: Array<number> = [];
@@ -44,10 +44,20 @@ class Mesh extends Drawable {
     uvsTemp = loadedMesh.textures;
     idxTemp = loadedMesh.indices;
 
-    // white vert color for now
     this.colors = new Float32Array(posTemp.length);
-    for (var i = 0; i < posTemp.length; ++i){
-      this.colors[i] = 1.0;
+    if (color)
+    {
+        for (let i = 0; i < posTemp.length; i++)
+        {
+            this.colors[i] = color[i % 4];
+        }
+    }
+    else
+    {
+        for (let i = 0; i < posTemp.length; i++)
+        {
+          this.colors[i] = 1.0;
+        }
     }
 
     this.indices = new Uint32Array(idxTemp);
@@ -61,6 +71,12 @@ class Mesh extends Drawable {
     this.generateUV();
     this.generateCol();
     this.generateColumns();
+
+    this.generateDepthMap();
+    this.generateDepth();
+    
+    this.bindDepthMap();
+    this.bindDepth();
 
     this.count = this.indices.length;
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.bufIdx);

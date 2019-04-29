@@ -37,7 +37,9 @@ class ShaderProgram {
   unifLightSpaceMatrix: WebGLUniformLocation;
   unifLightPosition: WebGLUniformLocation;
   unifCameraPosition: WebGLUniformLocation;
-
+  unifTileType: WebGLUniformLocation;
+  unifLightingEnabled: WebGLUniformLocation;
+  
   time: number = 0.0;
 
   constructor(shaders: Array<Shader>) {
@@ -67,6 +69,8 @@ class ShaderProgram {
     this.unifLightSpaceMatrix = gl.getUniformLocation(this.prog, "u_LightSpaceMatrix");
     this.unifLightPosition = gl.getUniformLocation(this.prog, "u_LightPos");
     this.unifCameraPosition = gl.getUniformLocation(this.prog, "u_CameraPosition");
+    this.unifTileType = gl.getUniformLocation(this.prog, "u_TileType");
+    this.unifLightingEnabled = gl.getUniformLocation(this.prog, "u_LightingEnabled");
 
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
@@ -112,6 +116,24 @@ class ShaderProgram {
     this.use();
     if (this.unifLightPosition !== -1) {
       gl.uniform3fv(this.unifLightPosition, p);
+    }
+  }
+
+  setTileType(t: number)
+  {
+    this.use();
+    if (this.unifTileType !== -1)
+    {
+      gl.uniform1i(this.unifTileType, t);
+    }
+  }
+
+  setLightingEnabled(t: number)
+  {
+    this.use();
+    if (this.unifLightingEnabled !== -1)
+    {
+      gl.uniform1i(this.unifLightingEnabled, t);
     }
   }
 
