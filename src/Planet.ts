@@ -404,53 +404,53 @@ class Planet extends Geometry
         }
     }
 
-    getPalmTreePositions() : vec3[]
+    getPalmTreePositions(density: number) : vec3[]
     {
         let tiles: vec3[] = [];
         for (let plate of this.tectonicPlates)
         {
             for (let face of plate.faces.filter(f => f.biome == Biome.Tropics))
             {
-                if (Math.random() < 0.25) tiles.push(face.centroid());
+                if (Math.random() < density) tiles.push(face.centroid());
             }
         }
         return tiles;
     }
 
-    getFirTreePositions(): vec3[]
+    getFirTreePositions(density: number): vec3[]
     {
         let tiles: vec3[] = [];
         for (let plate of this.tectonicPlates)
         {
             for (let face of plate.faces.filter(f => f.biome === Biome.Forest || f.biome === Biome.Jungle))
             {
-                if (Math.random() < 0.25) tiles.push(face.centroid());
+                if (Math.random() < density) tiles.push(face.centroid());
             }
         }
         return tiles;
     }
 
-    getSnowTreePositions(): vec3[]
+    getSnowTreePositions(density: number): vec3[]
     {
         let tiles: vec3[] = [];
         for (let plate of this.tectonicPlates)
         {
             for (let face of plate.faces.filter(f => f.biome === Biome.SnowyMountain))
             {
-                if (Math.random() < 0.25) tiles.push(face.centroid());
+                if (Math.random() < density) tiles.push(face.centroid());
             }
         }
         return tiles;
     }
 
-    getCowPositions(): vec3[]
+    getCowPositions(density: number): vec3[]
     {
         let tiles: vec3[] = [];
         for (let plate of this.tectonicPlates)
         {
             for (let face of plate.faces.filter(f => f.biome === Biome.Grassland))
             {
-                if (Math.random() < 0.035) tiles.push(face.centroid());
+                if (Math.random() < density) tiles.push(face.centroid());
             }
         }
         return tiles;

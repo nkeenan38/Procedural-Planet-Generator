@@ -18,7 +18,8 @@ const controls = {
   'Tile': 'Terrain',
   'Time': 0,
   'Rotation Speed': 0.01,
-  'Lighting': lighting
+  'Lighting': lighting,
+  'Tree Density': 0.25
 };
 let lightingEnabled: boolean = true;
 let switchLighting: boolean = false;
@@ -26,6 +27,7 @@ let tileType = controls.Tile;
 let subdivisions = controls.Subdivsions;
 let plateCount = controls.Plates;
 let rotationSpeed = controls["Rotation Speed"];
+let treeDensity = controls["Tree Density"];
 
 let planet: Planet;
 let palmTreeLeaves: Mesh;
@@ -46,7 +48,7 @@ function lighting()
   switchLighting = true;
 }
 
-function loadScene() 
+function createPlanet()
 {
   planet = new Planet();
   planet.readObjFromFile();
@@ -66,7 +68,10 @@ function loadScene()
   planet.extrudeFaces();
   planet.setTileColors(tileType);
   planet.create();
+}
 
+function addAssets()
+{
   let obj: string = readTextFile('src/palm-tree.obj');
   palmTreeLeaves = new Mesh(obj, vec3.create());
   palmTreeLeaves.create(vec4.fromValues(0.1, 0.8, 0.1, 1.0));
@@ -101,7 +106,7 @@ function loadScene()
   let col2Arr: number[] = [];
   let col3Arr: number[] = [];
   let col4Arr: number[] = [];
-  let instances = planet.getPalmTreePositions();
+  let instances = planet.getPalmTreePositions(treeDensity);
   for (let pos of instances)
   {
     let transformation: mat4 = mat4.create();
@@ -132,7 +137,7 @@ function loadScene()
   col3Arr = [];
   col4Arr = [];
 
-  instances = planet.getFirTreePositions();
+  instances = planet.getFirTreePositions(treeDensity);
   for (let pos of instances)
   {
     let transformation: mat4 = mat4.create();
@@ -163,7 +168,7 @@ function loadScene()
   col3Arr = [];
   col4Arr = [];
 
-  instances = planet.getSnowTreePositions();
+  instances = planet.getSnowTreePositions(treeDensity);
   for (let pos of instances)
   {
     let transformation: mat4 = mat4.create();
@@ -194,7 +199,7 @@ function loadScene()
   col3Arr = [];
   col4Arr = [];
 
-  instances = planet.getCowPositions();
+  instances = planet.getCowPositions(treeDensity / 10);
   for (let pos of instances)
   {
     let transformation: mat4 = mat4.create();
@@ -219,7 +224,12 @@ function loadScene()
 
   cow.setNumInstances(instances.length);
   cow.setInstanceVBOs(col1, col2, col3, col4);
+}
 
+function loadScene() 
+{
+  createPlanet();
+  addAssets();
   wPressed = false;
   aPressed = false;
   sPressed = false;
@@ -275,7 +285,8 @@ function main() {
   gui.add(controls, 'Load Scene');
   gui.add(controls, 'Lighting');
   gui.add(controls, 'Subdivsions', 3, 5).step(1);
-  gui.add(controls, 'Plates', 4, 20).step(1);
+  gui.add(controls, 'Plates', 4, 50).step(1);
+  gui.add(controls, 'Tree Density', 0, 1);
   gui.add(controls, 'Tile', [ 'Terrain', 'Tectonic Plates', 'Temperature', 'Precipitation' ]);
   gui.add(controls, 'Time', 0, 24).listen();
   gui.add(controls, 'Rotation Speed', 0, 0.1);
@@ -317,6 +328,9 @@ function main() {
     new Shader(gl.VERTEX_SHADER, require('./shaders/assets-vert.glsl')),
     new Shader(gl.FRAGMENT_SHADER, require('./shaders/assets-frag.glsl'))
   ]);
+
+  lambert.setLightingEnabled(lightingEnabled ? 1 : 0);
+  assets.setLightingEnabled(lightingEnabled ? 1 : 0);
 
   function processKeyPresses() {
     let velocity: vec3 = vec3.fromValues(0,0,0);
@@ -362,6 +376,18 @@ function main() {
       switchLighting = false;
       lambert.setLightingEnabled(lightingEnabled ? 1 : 0);
       assets.setLightingEnabled(lightingEnabled ? 1 : 0);
+    }
+    if (treeDensity !== controls["Tree Density"])
+    {
+      treeDensity = controls["Tree Density"];
+      palmTreeLeaves.destory();
+      palmTreeTrunk.destory();
+      firTreeLeaves.destory();
+      firTreeTrunk.destory();
+      snowTreeLeaves.destory();
+      snowTreeTrunk.destory();
+      cow.destory();
+      addAssets();
     }
     controls.Time = (controls.Time + rotationSpeed) % 24;
     camera.update();
