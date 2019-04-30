@@ -46,7 +46,7 @@ class TectonicPlate {
         return boundary;
     }
     lakes() {
-        return this.faces.filter(f => f.biome === Biome.Lake);
+        return this.faces.filter(f => f.biome === Biome.Water);
     }
     setElevations() {
         if (this.continental()) {
@@ -91,7 +91,7 @@ class TectonicPlate {
                     face.color = vec3.fromValues(200 / 255, 200 / 255, 100 / 255);
                 }
                 else {
-                    face.biome = Biome.Ocean;
+                    face.biome = Biome.Water;
                     face.elevation = TectonicPlate.seaLevel;
                 }
             }

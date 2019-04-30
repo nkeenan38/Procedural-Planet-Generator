@@ -16,7 +16,7 @@ class Planet extends Geometry {
         for (let plate of this.tectonicPlates) {
             if (plate.oceanic()) {
                 for (let face of plate.faces.filter(f => !f.biome)) {
-                    face.biome = Biome.Ocean;
+                    face.biome = Biome.Water;
                 }
             }
             else {
@@ -29,7 +29,7 @@ class Planet extends Geometry {
                     }
                     else {
                         if (face.precipitation < 0.1) {
-                            face.biome = Biome.Desert;
+                            face.biome = face.elevation < 0.5 ? Biome.Desert : Biome.Tundra;
                         }
                         else if (face.precipitation < 0.6) {
                             face.biome = Biome.Grassland;
@@ -68,13 +68,6 @@ class Planet extends Geometry {
                                         face.setColor(color);
                                         break;
                                     }
-                                case Biome.Lake:
-                                    {
-                                        let color = vec3.fromValues(0, .2, .8);
-                                        vec3.scale(color, color, face.elevation + TectonicPlate.seaLevel);
-                                        face.setColor(color);
-                                        break;
-                                    }
                                 case Biome.Desert:
                                     {
                                         let color = vec3.fromValues(250 / 255, 200 / 255, 50 / 255);
@@ -84,7 +77,7 @@ class Planet extends Geometry {
                                     }
                                 case Biome.Tundra:
                                     {
-                                        let color = vec3.fromValues(255 / 255, 250 / 255, 230 / 255);
+                                        let color = vec3.fromValues(0.5, 0.35, 0.3);
                                         vec3.scale(color, color, face.elevation + TectonicPlate.seaLevel);
                                         face.setColor(color);
                                         break;
@@ -110,7 +103,7 @@ class Planet extends Geometry {
                                         face.setColor(color);
                                         break;
                                     }
-                                case Biome.Ocean:
+                                case Biome.Water:
                                     {
                                         let color = vec3.fromValues(0.1, 0.2, 0.8);
                                         vec3.scale(color, color, face.elevation + TectonicPlate.seaLevel);
@@ -217,6 +210,8 @@ class Planet extends Geometry {
                 //     this.extrude(face, face.elevation * 0.25);
                 //     continue;
                 // }
+                if (face.biome === Biome.Water)
+                    face.elevation = 0;
                 this.extrude(face, (face.elevation + TectonicPlate.seaLevel) * 0.25);
             }
         }
@@ -265,7 +260,7 @@ class Planet extends Geometry {
                 else if (pressure < -0.3) {
                     elevation = Math.max(plate.elevation, otherPlate.elevation) - Math.exp(pressure / 4);
                     if (plate.continental() && otherPlate.continental())
-                        face.biome = Biome.Lake;
+                        face.biome = Biome.Water;
                 }
                 else {
                     elevation = (plate.elevation + otherPlate.elevation) / 2;
@@ -307,7 +302,7 @@ class Planet extends Geometry {
         for (let plate of this.tectonicPlates) {
             if (plate.continental()) {
                 for (let face of plate.faces) {
-                    if (face.biome == Biome.Lake) {
+                    if (face.biome == Biome.Water) {
                         let temperature = face.temperature;
                         face.temperature = temperature * Math.pow(0.5, 0.5);
                     }
@@ -327,41 +322,41 @@ class Planet extends Geometry {
             }
         }
     }
-    getPalmTreePositions() {
+    getPalmTreePositions(density) {
         let tiles = [];
         for (let plate of this.tectonicPlates) {
             for (let face of plate.faces.filter(f => f.biome == Biome.Tropics)) {
-                if (Math.random() < 0.25)
+                if (Math.random() < density)
                     tiles.push(face.centroid());
             }
         }
         return tiles;
     }
-    getFirTreePositions() {
+    getFirTreePositions(density) {
         let tiles = [];
         for (let plate of this.tectonicPlates) {
             for (let face of plate.faces.filter(f => f.biome === Biome.Forest || f.biome === Biome.Jungle)) {
-                if (Math.random() < 0.25)
+                if (Math.random() < density)
                     tiles.push(face.centroid());
             }
         }
         return tiles;
     }
-    getSnowTreePositions() {
+    getSnowTreePositions(density) {
         let tiles = [];
         for (let plate of this.tectonicPlates) {
             for (let face of plate.faces.filter(f => f.biome === Biome.SnowyMountain)) {
-                if (Math.random() < 0.25)
+                if (Math.random() < density)
                     tiles.push(face.centroid());
             }
         }
         return tiles;
     }
-    getCowPositions() {
+    getCowPositions(density) {
         let tiles = [];
         for (let plate of this.tectonicPlates) {
             for (let face of plate.faces.filter(f => f.biome === Biome.Grassland)) {
-                if (Math.random() < 0.035)
+                if (Math.random() < density)
                     tiles.push(face.centroid());
             }
         }

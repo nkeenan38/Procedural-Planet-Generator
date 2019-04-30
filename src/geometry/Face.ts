@@ -13,10 +13,8 @@ export enum Biome
     Grassland,
     Jungle,
     Forest,
-    Lake,
-    Ocean,
+    Water,
     Tropics,
-    Surface
 }
 
 class Face

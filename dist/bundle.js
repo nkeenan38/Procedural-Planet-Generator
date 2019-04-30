@@ -278,10 +278,8 @@ var Biome;
     Biome[Biome["Grassland"] = 4] = "Grassland";
     Biome[Biome["Jungle"] = 5] = "Jungle";
     Biome[Biome["Forest"] = 6] = "Forest";
-    Biome[Biome["Lake"] = 7] = "Lake";
-    Biome[Biome["Ocean"] = 8] = "Ocean";
-    Biome[Biome["Tropics"] = 9] = "Tropics";
-    Biome[Biome["Surface"] = 10] = "Surface";
+    Biome[Biome["Water"] = 7] = "Water";
+    Biome[Biome["Tropics"] = 8] = "Tropics";
 })(Biome || (Biome = {}));
 class Face {
     constructor(color) {
@@ -16934,7 +16932,7 @@ class Planet extends __WEBPACK_IMPORTED_MODULE_3__geometry_Geometry__["a" /* def
         for (let plate of this.tectonicPlates) {
             if (plate.oceanic()) {
                 for (let face of plate.faces.filter(f => !f.biome)) {
-                    face.biome = __WEBPACK_IMPORTED_MODULE_0__geometry_Face__["a" /* Biome */].Ocean;
+                    face.biome = __WEBPACK_IMPORTED_MODULE_0__geometry_Face__["a" /* Biome */].Water;
                 }
             }
             else {
@@ -16947,7 +16945,7 @@ class Planet extends __WEBPACK_IMPORTED_MODULE_3__geometry_Geometry__["a" /* def
                     }
                     else {
                         if (face.precipitation < 0.1) {
-                            face.biome = __WEBPACK_IMPORTED_MODULE_0__geometry_Face__["a" /* Biome */].Desert;
+                            face.biome = face.elevation < 0.5 ? __WEBPACK_IMPORTED_MODULE_0__geometry_Face__["a" /* Biome */].Desert : __WEBPACK_IMPORTED_MODULE_0__geometry_Face__["a" /* Biome */].Tundra;
                         }
                         else if (face.precipitation < 0.6) {
                             face.biome = __WEBPACK_IMPORTED_MODULE_0__geometry_Face__["a" /* Biome */].Grassland;
@@ -16986,13 +16984,6 @@ class Planet extends __WEBPACK_IMPORTED_MODULE_3__geometry_Geometry__["a" /* def
                                         face.setColor(color);
                                         break;
                                     }
-                                case __WEBPACK_IMPORTED_MODULE_0__geometry_Face__["a" /* Biome */].Lake:
-                                    {
-                                        let color = __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].fromValues(0, .2, .8);
-                                        __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].scale(color, color, face.elevation + __WEBPACK_IMPORTED_MODULE_4__components_TectonicPlate__["a" /* default */].seaLevel);
-                                        face.setColor(color);
-                                        break;
-                                    }
                                 case __WEBPACK_IMPORTED_MODULE_0__geometry_Face__["a" /* Biome */].Desert:
                                     {
                                         let color = __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].fromValues(250 / 255, 200 / 255, 50 / 255);
@@ -17002,7 +16993,7 @@ class Planet extends __WEBPACK_IMPORTED_MODULE_3__geometry_Geometry__["a" /* def
                                     }
                                 case __WEBPACK_IMPORTED_MODULE_0__geometry_Face__["a" /* Biome */].Tundra:
                                     {
-                                        let color = __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].fromValues(255 / 255, 250 / 255, 230 / 255);
+                                        let color = __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].fromValues(0.5, 0.45, 0.4);
                                         __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].scale(color, color, face.elevation + __WEBPACK_IMPORTED_MODULE_4__components_TectonicPlate__["a" /* default */].seaLevel);
                                         face.setColor(color);
                                         break;
@@ -17028,7 +17019,7 @@ class Planet extends __WEBPACK_IMPORTED_MODULE_3__geometry_Geometry__["a" /* def
                                         face.setColor(color);
                                         break;
                                     }
-                                case __WEBPACK_IMPORTED_MODULE_0__geometry_Face__["a" /* Biome */].Ocean:
+                                case __WEBPACK_IMPORTED_MODULE_0__geometry_Face__["a" /* Biome */].Water:
                                     {
                                         let color = __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].fromValues(0.1, 0.2, 0.8);
                                         __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].scale(color, color, face.elevation + __WEBPACK_IMPORTED_MODULE_4__components_TectonicPlate__["a" /* default */].seaLevel);
@@ -17135,6 +17126,8 @@ class Planet extends __WEBPACK_IMPORTED_MODULE_3__geometry_Geometry__["a" /* def
                 //     this.extrude(face, face.elevation * 0.25);
                 //     continue;
                 // }
+                if (face.biome === __WEBPACK_IMPORTED_MODULE_0__geometry_Face__["a" /* Biome */].Water)
+                    face.elevation = 0;
                 this.extrude(face, (face.elevation + __WEBPACK_IMPORTED_MODULE_4__components_TectonicPlate__["a" /* default */].seaLevel) * 0.25);
             }
         }
@@ -17183,7 +17176,7 @@ class Planet extends __WEBPACK_IMPORTED_MODULE_3__geometry_Geometry__["a" /* def
                 else if (pressure < -0.3) {
                     elevation = Math.max(plate.elevation, otherPlate.elevation) - Math.exp(pressure / 4);
                     if (plate.continental() && otherPlate.continental())
-                        face.biome = __WEBPACK_IMPORTED_MODULE_0__geometry_Face__["a" /* Biome */].Lake;
+                        face.biome = __WEBPACK_IMPORTED_MODULE_0__geometry_Face__["a" /* Biome */].Water;
                 }
                 else {
                     elevation = (plate.elevation + otherPlate.elevation) / 2;
@@ -17225,7 +17218,7 @@ class Planet extends __WEBPACK_IMPORTED_MODULE_3__geometry_Geometry__["a" /* def
         for (let plate of this.tectonicPlates) {
             if (plate.continental()) {
                 for (let face of plate.faces) {
-                    if (face.biome == __WEBPACK_IMPORTED_MODULE_0__geometry_Face__["a" /* Biome */].Lake) {
+                    if (face.biome == __WEBPACK_IMPORTED_MODULE_0__geometry_Face__["a" /* Biome */].Water) {
                         let temperature = face.temperature;
                         face.temperature = temperature * Math.pow(0.5, 0.5);
                     }
@@ -17314,7 +17307,6 @@ class Geometry extends __WEBPACK_IMPORTED_MODULE_3__rendering_gl_Drawable__["a" 
         this.vertexes = [];
     }
     create() {
-        let translucent = [];
         let idxs = [];
         let vertPos = [];
         let vertNorm = [];
@@ -17322,10 +17314,11 @@ class Geometry extends __WEBPACK_IMPORTED_MODULE_3__rendering_gl_Drawable__["a" 
         let vertBiome = [];
         let vertUV = []; // not actual UV coordinates
         for (let face of this.faces) {
-            if (face.biome == __WEBPACK_IMPORTED_MODULE_0__Face__["a" /* Biome */].Surface) {
-                translucent.push(face);
-                continue;
-            }
+            // if (face.biome == Biome.Surface)
+            // {
+            //     translucent.push(face);
+            //     continue;
+            // }
             let edge = face.edge;
             let normal = __WEBPACK_IMPORTED_MODULE_4_gl_matrix__["d" /* vec4 */].create();
             do {
@@ -17377,58 +17370,63 @@ class Geometry extends __WEBPACK_IMPORTED_MODULE_3__rendering_gl_Drawable__["a" 
                 currentPos = nextPos;
             }
         }
-        for (let face of translucent) {
-            let edge = face.edge;
-            let normal = __WEBPACK_IMPORTED_MODULE_4_gl_matrix__["d" /* vec4 */].create();
-            do {
-                let edge1 = __WEBPACK_IMPORTED_MODULE_4_gl_matrix__["c" /* vec3 */].create();
-                __WEBPACK_IMPORTED_MODULE_4_gl_matrix__["c" /* vec3 */].subtract(edge1, edge.next.vertex.position, edge.vertex.position);
-                let edge2 = __WEBPACK_IMPORTED_MODULE_4_gl_matrix__["c" /* vec3 */].create();
-                __WEBPACK_IMPORTED_MODULE_4_gl_matrix__["c" /* vec3 */].subtract(edge2, edge.next.next.vertex.position, edge.vertex.position);
-                let crossProd = __WEBPACK_IMPORTED_MODULE_4_gl_matrix__["c" /* vec3 */].create();
-                __WEBPACK_IMPORTED_MODULE_4_gl_matrix__["c" /* vec3 */].cross(crossProd, edge1, edge2);
-                if (crossProd == __WEBPACK_IMPORTED_MODULE_4_gl_matrix__["c" /* vec3 */].fromValues(0, 0, 0)) {
-                    continue;
-                }
-                __WEBPACK_IMPORTED_MODULE_4_gl_matrix__["c" /* vec3 */].normalize(crossProd, crossProd);
-                normal = __WEBPACK_IMPORTED_MODULE_4_gl_matrix__["d" /* vec4 */].fromValues(crossProd[0], crossProd[1], crossProd[2], 1.0);
-                break;
-            } while ((edge = edge.next) != face.edge);
-            let meshColor = __WEBPACK_IMPORTED_MODULE_4_gl_matrix__["d" /* vec4 */].fromValues(face.color[0], face.color[1], face.color[2], 1);
-            let first = face.edge;
-            let current = first.next;
-            let firstPos = __WEBPACK_IMPORTED_MODULE_4_gl_matrix__["d" /* vec4 */].fromValues(first.vertex.position[0], first.vertex.position[1], first.vertex.position[2], 1);
-            let currentPos = __WEBPACK_IMPORTED_MODULE_4_gl_matrix__["d" /* vec4 */].fromValues(current.vertex.position[0], current.vertex.position[1], current.vertex.position[2], 1);
-            // reset current half edge
-            current = first.next;
-            // push the first vertex position and normal to the VBO
-            vertPos.push(firstPos);
-            vertNorm.push(normal);
-            vertCol.push(meshColor);
-            vertBiome.push(face.biome);
-            vertUV.push(this.getUV(first));
-            vertPos.push(currentPos);
-            vertNorm.push(normal);
-            vertCol.push(meshColor);
-            vertBiome.push(face.biome);
-            vertUV.push(this.getUV(current));
-            // vertUV.push(vec2.fromValues(1, 1));
-            let firstPosIndex = vertPos.length - 2;
-            // triangulate the face
-            while (current.next != first) {
-                let nextPos = __WEBPACK_IMPORTED_MODULE_4_gl_matrix__["d" /* vec4 */].fromValues(current.next.vertex.position[0], current.next.vertex.position[1], current.next.vertex.position[2], 1);
-                vertPos.push(nextPos);
-                vertNorm.push(normal);
-                vertCol.push(meshColor);
-                vertBiome.push(face.biome);
-                vertUV.push(this.getUV(current.next));
-                idxs.push(firstPosIndex);
-                idxs.push(vertPos.length - 2);
-                idxs.push(vertPos.length - 1);
-                current = current.next;
-                currentPos = nextPos;
-            }
-        }
+        // for (let face of translucent)
+        // {
+        //     let edge = face.edge;
+        //     let normal = vec4.create();
+        //     do
+        //     {
+        //         let edge1: vec3 = vec3.create();
+        //         vec3.subtract(edge1, edge.next.vertex.position, edge.vertex.position);
+        //         let edge2: vec3 = vec3.create();
+        //         vec3.subtract(edge2, edge.next.next.vertex.position, edge.vertex.position);
+        //         let crossProd: vec3 = vec3.create();
+        //         vec3.cross(crossProd, edge1, edge2);
+        //         if (crossProd == vec3.fromValues(0, 0, 0)) 
+        //         {
+        //             continue;
+        //         }
+        //         vec3.normalize(crossProd, crossProd);
+        //         normal = vec4.fromValues(crossProd[0], crossProd[1], crossProd[2], 1.0);
+        //         break;
+        //     }
+        //     while ((edge = edge.next) != face.edge);
+        //     let meshColor : vec4 = vec4.fromValues(face.color[0], face.color[1], face.color[2], 1);
+        //     let first: Edge = face.edge;
+        //     let current: Edge = first.next;
+        //     let firstPos: vec4 = vec4.fromValues(first.vertex.position[0], first.vertex.position[1], first.vertex.position[2], 1);
+        //     let currentPos: vec4 = vec4.fromValues(current.vertex.position[0], current.vertex.position[1], current.vertex.position[2], 1);
+        //     // reset current half edge
+        //     current = first.next;
+        //     // push the first vertex position and normal to the VBO
+        //     vertPos.push(firstPos);
+        //     vertNorm.push(normal);
+        //     vertCol.push(meshColor);
+        //     vertBiome.push(face.biome);
+        //     vertUV.push(this.getUV(first));
+        //     vertPos.push(currentPos);
+        //     vertNorm.push(normal);
+        //     vertCol.push(meshColor);
+        //     vertBiome.push(face.biome);
+        //     vertUV.push(this.getUV(current));
+        //     // vertUV.push(vec2.fromValues(1, 1));
+        //     let firstPosIndex: number = vertPos.length - 2;
+        //     // triangulate the face
+        //     while (current.next != first)
+        //     {
+        //         let nextPos: vec4 = vec4.fromValues(current.next.vertex.position[0], current.next.vertex.position[1], current.next.vertex.position[2], 1);
+        //         vertPos.push(nextPos);
+        //         vertNorm.push(normal);
+        //         vertCol.push(meshColor);
+        //         vertBiome.push(face.biome);
+        //         vertUV.push(this.getUV(current.next));
+        //         idxs.push(firstPosIndex);
+        //         idxs.push(vertPos.length - 2);
+        //         idxs.push(vertPos.length - 1);
+        //         current = current.next;
+        //         currentPos = nextPos;
+        //     }
+        // }
         this.count = idxs.length;
         let vertexCount = vertPos.length;
         let positions = [];
@@ -18107,7 +18105,7 @@ class TectonicPlate {
         return boundary;
     }
     lakes() {
-        return this.faces.filter(f => f.biome === __WEBPACK_IMPORTED_MODULE_0__geometry_Face__["a" /* Biome */].Lake);
+        return this.faces.filter(f => f.biome === __WEBPACK_IMPORTED_MODULE_0__geometry_Face__["a" /* Biome */].Water);
     }
     setElevations() {
         if (this.continental()) {
@@ -18152,7 +18150,7 @@ class TectonicPlate {
                     face.color = __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].fromValues(200 / 255, 200 / 255, 100 / 255);
                 }
                 else {
-                    face.biome = __WEBPACK_IMPORTED_MODULE_0__geometry_Face__["a" /* Biome */].Ocean;
+                    face.biome = __WEBPACK_IMPORTED_MODULE_0__geometry_Face__["a" /* Biome */].Water;
                     face.elevation = TectonicPlate.seaLevel;
                 }
             }
@@ -18222,7 +18220,7 @@ class Precipitation {
             else {
                 for (let lake of plate.lakes()) {
                     lake.precipitation = 1.0;
-                    let queue = lake.neighbors().filter(n => n.biome !== __WEBPACK_IMPORTED_MODULE_0__geometry_Face__["a" /* Biome */].Lake);
+                    let queue = lake.neighbors().filter(n => n.biome !== __WEBPACK_IMPORTED_MODULE_0__geometry_Face__["a" /* Biome */].Water);
                     let precipitation = 1.0;
                     let visited = new Set();
                     let toAdd = [];
@@ -18411,7 +18409,7 @@ module.exports = "# version 300 es\nprecision highp float;\n\nuniform mat4 u_Mod
 /* 82 */
 /***/ (function(module, exports) {
 
-module.exports = "# version 300 es\nprecision highp float;\n\nuniform vec4 u_Color;\nuniform sampler2D depthMap;\nuniform sampler2D depthMapInstanced;\nuniform mat4 u_ViewProj;\nuniform vec3 u_LightPos;\nuniform vec3 u_CameraPosition;\nuniform int u_TileType;\nuniform int u_LightingEnabled;\n\n// These are the interpolated values out of the rasterizer, so you can't know\n// their specific values without knowing the vertices that contributed to them\nin vec4 fs_Pos;\nin vec4 fs_Nor;\nin vec4 fs_LightVec;\nin vec4 fs_Col;\nin vec2 fs_UV;\nin vec4 fs_LightSpacePos;\nflat in uint fs_Biome;\n\nout vec4 out_Col; // This is the final output color that you will see on your\n                  // screen for the pixel that is currently being processed.\n\nconst float PI = 3.14159265359;\nconst float TWO_PI = 6.28318530718;\nconst float FOUR_PI = 12.5663706144;\nconst float EIGHT_PI = 25.1327412287;\n\nvec4 getColorFromBiome()\n{\n    switch (fs_Biome)\n    {\n        case uint(0):   // Snow Mountain\n            if (sin(fs_UV.x * TWO_PI) * 0.05 + sin(fs_UV.x * FOUR_PI) * 0.05 + fs_UV.y > 0.85) \n                return fs_Col;\n            return vec4(0.4, 0.35, 0.3, 1.0);\n        case uint(1):   // Rocky Mountain\n            if (sin(fs_UV.x * TWO_PI) * 0.05 + sin(fs_UV.x * FOUR_PI) * 0.05 + sin(fs_UV.x * EIGHT_PI) * 0.05 + fs_UV.y > 0.85) \n                return fs_Col;\n            return vec4(0.4, 0.35, 0.3, 1.0);\n        case uint(2):   // Desert\n            return vec4(0.95, 0.85, 0.25, 1.0);\n        case uint(4):   // Grassland\n            if (sin(fs_UV.x * TWO_PI) * 0.05 + fs_UV.y > 0.85) \n                return fs_Col;\n            return vec4(0.5, 0.35, 0.1, 1.0);\n        case uint(5):   // Jungle\n            if (sin(fs_UV.x * TWO_PI) * 0.05 + fs_UV.y > 0.85) \n                return fs_Col;\n            return vec4(0.5, 0.35, 0.1, 1.0);\n        case uint(6):   // Forest\n            if (sin(fs_UV.x * TWO_PI) * 0.05 + fs_UV.y > 0.85) \n                return fs_Col;\n            return vec4(0.5, 0.35, 0.1, 1.0);\n        case uint(7):   // lake\n        case uint(8):   // ocean\n        case uint(10):  // surface\n            return vec4(0.0, 0.1, 0.8, 0.8);\n\n    }\n    return fs_Col;\n}\n\nfloat shadowCalculation(vec4 lightSpacePos, vec3 normal, vec3 lightDir)\n{\n    vec3 projCoords = lightSpacePos.xyz / lightSpacePos.w;\n    projCoords = projCoords * 0.5 + 0.5; \n    if(projCoords.z > 1.0)\n        return 0.0;\n    float closestDepth = min(texture(depthMap, projCoords.xy).r, texture(depthMapInstanced, projCoords.xy).r); \n    float currentDepth = projCoords.z; \n    float bias = max(0.005 * (1.0 - dot(normal, lightDir)), 0.0007);  \n    float shadow = 0.0;\n    vec2 texelSize = vec2(1.0 / float(textureSize(depthMap, 0).x), 1.0 / float(textureSize(depthMap, 0).y));\n    for(int x = -1; x <= 1; ++x)\n    {\n        for(int y = -1; y <= 1; ++y)\n        {\n            float pcfDepth = texture(depthMap, projCoords.xy + vec2(float(x), float(y)) * texelSize).r; \n            shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0;        \n        }    \n    }\n    shadow /= 9.0;\n    return shadow;\n}\n\n\n\nvoid main()\n{\n    vec3 color = u_TileType == 0 ? vec3(getColorFromBiome()) : vec3(fs_Col);\n    if (u_LightingEnabled == 1)\n    {\n        vec3 normal = normalize(vec3(fs_Nor));\n        vec3 lightColor = vec3(1.0);\n        // ambient\n        vec3 ambient = 0.15 * color;\n        // diffuse\n        vec3 lightDir = normalize(u_LightPos - vec3(fs_Pos));\n        float diff = max(dot(lightDir, normal), 0.0);\n        vec3 diffuse = diff * lightColor;\n        // specular\n        vec3 viewDir = normalize(vec3(fs_Pos));\n        float spec = 0.0;\n        vec3 halfwayDir = normalize(lightDir + viewDir);  \n        spec = pow(max(dot(normal, halfwayDir), 0.0), 64.0);\n        vec3 specular = spec * lightColor;    \n        // calculate shadow\n        float shadow = shadowCalculation(fs_LightSpacePos, normal, lightDir); \n        if (fs_Biome == uint(10) && shadow != 0.0) shadow *= 0.25;      \n        vec3 lighting = clamp((ambient + (1.0 - shadow) * (diffuse + specular)) * color, vec3(0.0), vec3(1.0));\n        out_Col = vec4(lighting, 1.0);\n    }\n    else\n    {\n        vec3 normal = normalize(vec3(fs_Nor));\n        vec3 lightColor = vec3(1.0);\n        // ambient\n        vec3 ambient = 0.15 * color;\n        // diffuse\n        vec3 lightDir = normalize(vec3(fs_Pos));\n        float diff = max(dot(lightDir, normal), 0.0);\n        vec3 diffuse = diff * lightColor;\n        // specular\n        vec3 lighting = clamp(ambient + diffuse * color, vec3(0.0), vec3(1.0));\n        out_Col = vec4(lighting, 1.0);\n    }\n}\n"
+module.exports = "# version 300 es\nprecision highp float;\n\nuniform vec4 u_Color;\nuniform sampler2D depthMap;\nuniform sampler2D depthMapInstanced;\nuniform mat4 u_ViewProj;\nuniform vec3 u_LightPos;\nuniform vec3 u_CameraPosition;\nuniform int u_TileType;\nuniform int u_LightingEnabled;\n\n// These are the interpolated values out of the rasterizer, so you can't know\n// their specific values without knowing the vertices that contributed to them\nin vec4 fs_Pos;\nin vec4 fs_Nor;\nin vec4 fs_LightVec;\nin vec4 fs_Col;\nin vec2 fs_UV;\nin vec4 fs_LightSpacePos;\nflat in uint fs_Biome;\n\nout vec4 out_Col; // This is the final output color that you will see on your\n                  // screen for the pixel that is currently being processed.\n\nconst float PI = 3.14159265359;\nconst float TWO_PI = 6.28318530718;\nconst float FOUR_PI = 12.5663706144;\nconst float EIGHT_PI = 25.1327412287;\n\nvec4 getColorFromBiome()\n{\n    switch (fs_Biome)\n    {\n        case uint(0):   // Snow Mountain\n            if (sin(fs_UV.x * TWO_PI) * 0.05 + sin(fs_UV.x * FOUR_PI) * 0.05 + fs_UV.y > 0.85) \n                return fs_Col;\n            return vec4(0.4, 0.35, 0.3, 1.0);\n        case uint(1):   // Rocky Mountain\n            if (sin(fs_UV.x * TWO_PI) * 0.05 + sin(fs_UV.x * FOUR_PI) * 0.05 + sin(fs_UV.x * EIGHT_PI) * 0.05 + fs_UV.y > 0.85) \n                return fs_Col;\n            return vec4(0.4, 0.35, 0.3, 1.0);\n        case uint(2):   // Desert\n            return vec4(0.95, 0.85, 0.25, 1.0);\n        case uint(3):   // Tundra\n            if (sin(fs_UV.x * TWO_PI) * 0.05 + sin(fs_UV.x * FOUR_PI) * 0.05 + sin(fs_UV.x * EIGHT_PI) * 0.05 + fs_UV.y > 0.85) \n                return fs_Col;\n            return vec4(0.4, 0.35, 0.3, 1.0);\n        case uint(4):   // Grassland\n            if (sin(fs_UV.x * TWO_PI) * 0.05 + fs_UV.y > 0.85) \n                return fs_Col;\n            return vec4(0.5, 0.35, 0.1, 1.0);\n        case uint(5):   // Jungle\n            if (sin(fs_UV.x * TWO_PI) * 0.05 + fs_UV.y > 0.85) \n                return fs_Col;\n            return vec4(0.5, 0.35, 0.1, 1.0);\n        case uint(6):   // Forest\n            if (sin(fs_UV.x * TWO_PI) * 0.05 + fs_UV.y > 0.85) \n                return fs_Col;\n            return vec4(0.5, 0.35, 0.1, 1.0);\n        case uint(7):   // lake\n            return vec4(0.0, 0.1, 0.8, 0.8);\n    }\n    return fs_Col;\n}\n\nfloat shadowCalculation(vec4 lightSpacePos, vec3 normal, vec3 lightDir)\n{\n    vec3 projCoords = lightSpacePos.xyz / lightSpacePos.w;\n    projCoords = projCoords * 0.5 + 0.5; \n    if(projCoords.z > 1.0)\n        return 0.0;\n    float closestDepth = min(texture(depthMap, projCoords.xy).r, texture(depthMapInstanced, projCoords.xy).r); \n    float currentDepth = projCoords.z; \n    float bias = max(0.005 * (1.0 - dot(normal, lightDir)), 0.0007);  \n    float shadow = 0.0;\n    vec2 texelSize = vec2(1.0 / float(textureSize(depthMap, 0).x), 1.0 / float(textureSize(depthMap, 0).y));\n    for(int x = -1; x <= 1; ++x)\n    {\n        for(int y = -1; y <= 1; ++y)\n        {\n            float pcfDepth = texture(depthMap, projCoords.xy + vec2(float(x), float(y)) * texelSize).r; \n            shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0;        \n        }    \n    }\n    shadow /= 9.0;\n    return shadow;\n}\n\n\n\nvoid main()\n{\n    vec3 color = u_TileType == 0 ? vec3(getColorFromBiome()) : vec3(fs_Col);\n    if (u_LightingEnabled == 1)\n    {\n        vec3 normal = normalize(vec3(fs_Nor));\n        vec3 lightColor = vec3(1.0);\n        // ambient\n        vec3 ambient = 0.15 * color;\n        // diffuse\n        vec3 lightDir = normalize(u_LightPos - vec3(fs_Pos));\n        float diff = max(dot(lightDir, normal), 0.0);\n        vec3 diffuse = diff * lightColor;\n        // specular\n        vec3 viewDir = normalize(vec3(fs_Pos));\n        float spec = 0.0;\n        vec3 halfwayDir = normalize(lightDir + viewDir);  \n        spec = pow(max(dot(normal, halfwayDir), 0.0), 64.0);\n        vec3 specular = spec * lightColor;    \n        // calculate shadow\n        float shadow = shadowCalculation(fs_LightSpacePos, normal, lightDir); \n        if (fs_Biome == uint(7) && shadow != 0.0) shadow *= 0.25;      \n        vec3 lighting = clamp((ambient + (1.0 - shadow) * (diffuse + specular)) * color, vec3(0.0), vec3(1.0));\n        out_Col = vec4(lighting, 1.0);\n    }\n    else\n    {\n        vec3 normal = normalize(vec3(fs_Nor));\n        vec3 lightColor = vec3(1.0);\n        // ambient\n        vec3 ambient = 0.15 * color;\n        // diffuse\n        vec3 lightDir = normalize(vec3(fs_Pos));\n        float diff = max(dot(lightDir, normal), 0.0);\n        vec3 diffuse = diff * lightColor;\n        // specular\n        vec3 lighting = clamp(ambient + diffuse * color, vec3(0.0), vec3(1.0));\n        out_Col = vec4(lighting, 1.0);\n    }\n}\n"
 
 /***/ }),
 /* 83 */

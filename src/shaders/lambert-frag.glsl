@@ -42,6 +42,10 @@ vec4 getColorFromBiome()
             return vec4(0.4, 0.35, 0.3, 1.0);
         case uint(2):   // Desert
             return vec4(0.95, 0.85, 0.25, 1.0);
+        case uint(3):   // Tundra
+            if (sin(fs_UV.x * TWO_PI) * 0.05 + sin(fs_UV.x * FOUR_PI) * 0.05 + sin(fs_UV.x * EIGHT_PI) * 0.05 + fs_UV.y > 0.85) 
+                return fs_Col;
+            return vec4(0.4, 0.35, 0.3, 1.0);
         case uint(4):   // Grassland
             if (sin(fs_UV.x * TWO_PI) * 0.05 + fs_UV.y > 0.85) 
                 return fs_Col;
@@ -55,10 +59,7 @@ vec4 getColorFromBiome()
                 return fs_Col;
             return vec4(0.5, 0.35, 0.1, 1.0);
         case uint(7):   // lake
-        case uint(8):   // ocean
-        case uint(10):  // surface
             return vec4(0.0, 0.1, 0.8, 0.8);
-
     }
     return fs_Col;
 }
@@ -109,7 +110,7 @@ void main()
         vec3 specular = spec * lightColor;    
         // calculate shadow
         float shadow = shadowCalculation(fs_LightSpacePos, normal, lightDir); 
-        if (fs_Biome == uint(10) && shadow != 0.0) shadow *= 0.25;      
+        if (fs_Biome == uint(7) && shadow != 0.0) shadow *= 0.25;      
         vec3 lighting = clamp((ambient + (1.0 - shadow) * (diffuse + specular)) * color, vec3(0.0), vec3(1.0));
         out_Col = vec4(lighting, 1.0);
     }

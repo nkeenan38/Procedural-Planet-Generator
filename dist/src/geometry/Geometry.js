@@ -1,4 +1,4 @@
-import Face, { Biome } from "./Face";
+import Face from "./Face";
 import Edge from "./Edge";
 import Vertex from "./Vertex";
 import Drawable from "../rendering/gl/Drawable";
@@ -12,7 +12,6 @@ class Geometry extends Drawable {
         this.vertexes = [];
     }
     create() {
-        let translucent = [];
         let idxs = [];
         let vertPos = [];
         let vertNorm = [];
@@ -20,10 +19,11 @@ class Geometry extends Drawable {
         let vertBiome = [];
         let vertUV = []; // not actual UV coordinates
         for (let face of this.faces) {
-            if (face.biome == Biome.Surface) {
-                translucent.push(face);
-                continue;
-            }
+            // if (face.biome == Biome.Surface)
+            // {
+            //     translucent.push(face);
+            //     continue;
+            // }
             let edge = face.edge;
             let normal = vec4.create();
             do {
@@ -75,58 +75,63 @@ class Geometry extends Drawable {
                 currentPos = nextPos;
             }
         }
-        for (let face of translucent) {
-            let edge = face.edge;
-            let normal = vec4.create();
-            do {
-                let edge1 = vec3.create();
-                vec3.subtract(edge1, edge.next.vertex.position, edge.vertex.position);
-                let edge2 = vec3.create();
-                vec3.subtract(edge2, edge.next.next.vertex.position, edge.vertex.position);
-                let crossProd = vec3.create();
-                vec3.cross(crossProd, edge1, edge2);
-                if (crossProd == vec3.fromValues(0, 0, 0)) {
-                    continue;
-                }
-                vec3.normalize(crossProd, crossProd);
-                normal = vec4.fromValues(crossProd[0], crossProd[1], crossProd[2], 1.0);
-                break;
-            } while ((edge = edge.next) != face.edge);
-            let meshColor = vec4.fromValues(face.color[0], face.color[1], face.color[2], 1);
-            let first = face.edge;
-            let current = first.next;
-            let firstPos = vec4.fromValues(first.vertex.position[0], first.vertex.position[1], first.vertex.position[2], 1);
-            let currentPos = vec4.fromValues(current.vertex.position[0], current.vertex.position[1], current.vertex.position[2], 1);
-            // reset current half edge
-            current = first.next;
-            // push the first vertex position and normal to the VBO
-            vertPos.push(firstPos);
-            vertNorm.push(normal);
-            vertCol.push(meshColor);
-            vertBiome.push(face.biome);
-            vertUV.push(this.getUV(first));
-            vertPos.push(currentPos);
-            vertNorm.push(normal);
-            vertCol.push(meshColor);
-            vertBiome.push(face.biome);
-            vertUV.push(this.getUV(current));
-            // vertUV.push(vec2.fromValues(1, 1));
-            let firstPosIndex = vertPos.length - 2;
-            // triangulate the face
-            while (current.next != first) {
-                let nextPos = vec4.fromValues(current.next.vertex.position[0], current.next.vertex.position[1], current.next.vertex.position[2], 1);
-                vertPos.push(nextPos);
-                vertNorm.push(normal);
-                vertCol.push(meshColor);
-                vertBiome.push(face.biome);
-                vertUV.push(this.getUV(current.next));
-                idxs.push(firstPosIndex);
-                idxs.push(vertPos.length - 2);
-                idxs.push(vertPos.length - 1);
-                current = current.next;
-                currentPos = nextPos;
-            }
-        }
+        // for (let face of translucent)
+        // {
+        //     let edge = face.edge;
+        //     let normal = vec4.create();
+        //     do
+        //     {
+        //         let edge1: vec3 = vec3.create();
+        //         vec3.subtract(edge1, edge.next.vertex.position, edge.vertex.position);
+        //         let edge2: vec3 = vec3.create();
+        //         vec3.subtract(edge2, edge.next.next.vertex.position, edge.vertex.position);
+        //         let crossProd: vec3 = vec3.create();
+        //         vec3.cross(crossProd, edge1, edge2);
+        //         if (crossProd == vec3.fromValues(0, 0, 0)) 
+        //         {
+        //             continue;
+        //         }
+        //         vec3.normalize(crossProd, crossProd);
+        //         normal = vec4.fromValues(crossProd[0], crossProd[1], crossProd[2], 1.0);
+        //         break;
+        //     }
+        //     while ((edge = edge.next) != face.edge);
+        //     let meshColor : vec4 = vec4.fromValues(face.color[0], face.color[1], face.color[2], 1);
+        //     let first: Edge = face.edge;
+        //     let current: Edge = first.next;
+        //     let firstPos: vec4 = vec4.fromValues(first.vertex.position[0], first.vertex.position[1], first.vertex.position[2], 1);
+        //     let currentPos: vec4 = vec4.fromValues(current.vertex.position[0], current.vertex.position[1], current.vertex.position[2], 1);
+        //     // reset current half edge
+        //     current = first.next;
+        //     // push the first vertex position and normal to the VBO
+        //     vertPos.push(firstPos);
+        //     vertNorm.push(normal);
+        //     vertCol.push(meshColor);
+        //     vertBiome.push(face.biome);
+        //     vertUV.push(this.getUV(first));
+        //     vertPos.push(currentPos);
+        //     vertNorm.push(normal);
+        //     vertCol.push(meshColor);
+        //     vertBiome.push(face.biome);
+        //     vertUV.push(this.getUV(current));
+        //     // vertUV.push(vec2.fromValues(1, 1));
+        //     let firstPosIndex: number = vertPos.length - 2;
+        //     // triangulate the face
+        //     while (current.next != first)
+        //     {
+        //         let nextPos: vec4 = vec4.fromValues(current.next.vertex.position[0], current.next.vertex.position[1], current.next.vertex.position[2], 1);
+        //         vertPos.push(nextPos);
+        //         vertNorm.push(normal);
+        //         vertCol.push(meshColor);
+        //         vertBiome.push(face.biome);
+        //         vertUV.push(this.getUV(current.next));
+        //         idxs.push(firstPosIndex);
+        //         idxs.push(vertPos.length - 2);
+        //         idxs.push(vertPos.length - 1);
+        //         current = current.next;
+        //         currentPos = nextPos;
+        //     }
+        // }
         this.count = idxs.length;
         let vertexCount = vertPos.length;
         let positions = [];
@@ -196,7 +201,7 @@ class Geometry extends Drawable {
         }
     }
     readObjFromFile() {
-        let mesh = readTextFile('src/icosahedron.obj');
+        let mesh = readTextFile('src/objs/icosahedron.obj');
         let lines = mesh.split('\n');
         for (let line of lines) {
             let list = line.split(" ");

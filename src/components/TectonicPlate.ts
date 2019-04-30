@@ -76,7 +76,7 @@ class TectonicPlate
 
     lakes() : Face[]
     {
-        return this.faces.filter(f => f.biome === Biome.Lake);
+        return this.faces.filter(f => f.biome === Biome.Water);
     }
 
     setElevations()
@@ -136,7 +136,7 @@ class TectonicPlate
                 }
                 else
                 {
-                    face.biome = Biome.Ocean;
+                    face.biome = Biome.Water;
                     face.elevation = TectonicPlate.seaLevel;
                 }
             }

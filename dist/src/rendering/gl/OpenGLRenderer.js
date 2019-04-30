@@ -32,7 +32,7 @@ class OpenGLRenderer {
         mat4.multiply(lightSpaceMatrix, lightProjection, lightView);
         prog.setLightSpaceMatrix(lightSpaceMatrix);
         prog.setLightPosition(lightPos);
-        prog.setCameraPosition(camera.position);
+        prog.setCameraPosition(vec3.fromValues(camera.viewMatrix[12], camera.viewMatrix[13], camera.viewMatrix[14]));
         for (let drawable of drawables) {
             prog.draw(drawable);
         }

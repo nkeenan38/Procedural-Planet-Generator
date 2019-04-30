@@ -44,7 +44,7 @@ class Precipitation
                 for (let lake of plate.lakes())
                 {
                     lake.precipitation = 1.0;
-                    let queue: Face[] = lake.neighbors().filter(n => n.biome !== Biome.Lake);
+                    let queue: Face[] = lake.neighbors().filter(n => n.biome !== Biome.Water);
                     let precipitation: number = 1.0;
                     let visited: Set<Face> = new Set<Face>();
                     let toAdd: Face[] = [];

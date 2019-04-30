@@ -8,10 +8,8 @@ export var Biome;
     Biome[Biome["Grassland"] = 4] = "Grassland";
     Biome[Biome["Jungle"] = 5] = "Jungle";
     Biome[Biome["Forest"] = 6] = "Forest";
-    Biome[Biome["Lake"] = 7] = "Lake";
-    Biome[Biome["Ocean"] = 8] = "Ocean";
-    Biome[Biome["Tropics"] = 9] = "Tropics";
-    Biome[Biome["Surface"] = 10] = "Surface";
+    Biome[Biome["Water"] = 7] = "Water";
+    Biome[Biome["Tropics"] = 8] = "Tropics";
 })(Biome || (Biome = {}));
 class Face {
     constructor(color) {
