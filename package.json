@@ -22,6 +22,11 @@
     "webgl-obj-loader": "^2.0.3"
   },
   "files": [
-    "src/icosahedron.obj"
+    "src/objs/cow.obj",
+    "src/objs/fir-tree",
+    "src/objs/fir-tree-trunk.obj",
+    "src/objs/icosahedron.obj",
+    "src/objs/palm-tree.obj",
+    "src/objs/palm-tree-leaves.obj"
   ]
 }

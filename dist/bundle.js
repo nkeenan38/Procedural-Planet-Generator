@@ -60,7 +60,7 @@
 /******/ 	__webpack_require__.p = "dist/";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 21);
+/******/ 	return __webpack_require__(__webpack_require__.s = 22);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -69,13 +69,13 @@
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__gl_matrix_common_js__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__gl_matrix_mat2_js__ = __webpack_require__(22);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__gl_matrix_mat2d_js__ = __webpack_require__(23);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__gl_matrix_mat2_js__ = __webpack_require__(23);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__gl_matrix_mat2d_js__ = __webpack_require__(24);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__gl_matrix_mat3_js__ = __webpack_require__(6);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__gl_matrix_mat4_js__ = __webpack_require__(7);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__gl_matrix_quat_js__ = __webpack_require__(8);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__gl_matrix_quat2_js__ = __webpack_require__(24);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__gl_matrix_vec2_js__ = __webpack_require__(25);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__gl_matrix_quat2_js__ = __webpack_require__(25);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__gl_matrix_vec2_js__ = __webpack_require__(26);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__gl_matrix_vec3_js__ = __webpack_require__(9);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__gl_matrix_vec4_js__ = __webpack_require__(10);
 /* unused harmony reexport glMatrix */
@@ -280,8 +280,8 @@ var Biome;
     Biome[Biome["Forest"] = 6] = "Forest";
     Biome[Biome["Lake"] = 7] = "Lake";
     Biome[Biome["Ocean"] = 8] = "Ocean";
-    Biome[Biome["Island"] = 9] = "Island";
-    Biome[Biome["Coast"] = 10] = "Coast";
+    Biome[Biome["Tropics"] = 9] = "Tropics";
+    Biome[Biome["Surface"] = 10] = "Surface";
 })(Biome || (Biome = {}));
 class Face {
     constructor(color) {
@@ -5323,7 +5323,7 @@ var forEach = function () {
 
 module.exports = createFilteredVector
 
-var cubicHermite = __webpack_require__(37)
+var cubicHermite = __webpack_require__(38)
 var bsearch = __webpack_require__(12)
 
 function clamp(lo, hi, x) {
@@ -5998,17 +5998,207 @@ function determinant(a) {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__globals__ = __webpack_require__(2);
+
+class Drawable {
+    constructor() {
+        this.SHADOW_WIDTH = 16384;
+        this.SHADOW_HEIGHT = 16384;
+        this.count = 0;
+        this.idxGenerated = false;
+        this.posGenerated = false;
+        this.norGenerated = false;
+        this.colGenerated = false;
+        this.uvGenerated = false;
+        this.biomeGenerated = false;
+        this.col1Generated = false;
+        this.col2Generated = false;
+        this.col3Generated = false;
+        this.col4Generated = false;
+        this.depthGenerated = false;
+        this.depthMapGenerated = false;
+        this.numInstances = 0; // How many instances of this Drawable the shader program should draw
+    }
+    destory() {
+        __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].deleteBuffer(this.bufIdx);
+        __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].deleteBuffer(this.bufPos);
+        __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].deleteBuffer(this.bufNor);
+        __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].deleteBuffer(this.bufCol);
+        __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].deleteBuffer(this.bufUV);
+        __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].deleteBuffer(this.bufBiome);
+        __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].deleteBuffer(this.bufCol1);
+        __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].deleteBuffer(this.bufCol2);
+        __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].deleteBuffer(this.bufCol3);
+        __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].deleteBuffer(this.bufCol4);
+        __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].deleteFramebuffer(this.bufDepth);
+        __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].deleteTexture(this.depthMap);
+    }
+    generateIdx() {
+        this.idxGenerated = true;
+        this.bufIdx = __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].createBuffer();
+    }
+    generatePos() {
+        this.posGenerated = true;
+        this.bufPos = __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].createBuffer();
+    }
+    generateNor() {
+        this.norGenerated = true;
+        this.bufNor = __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].createBuffer();
+    }
+    generateCol() {
+        this.colGenerated = true;
+        this.bufCol = __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].createBuffer();
+    }
+    generateUV() {
+        this.uvGenerated = true;
+        this.bufUV = __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].createBuffer();
+    }
+    generateBiome() {
+        this.biomeGenerated = true;
+        this.bufBiome = __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].createBuffer();
+    }
+    generateColumns() {
+        this.generateCol1();
+        this.generateCol2();
+        this.generateCol3();
+        this.generateCol4();
+    }
+    generateCol1() {
+        this.col1Generated = true;
+        this.bufCol1 = __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].createBuffer();
+    }
+    generateCol2() {
+        this.col2Generated = true;
+        this.bufCol2 = __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].createBuffer();
+    }
+    generateCol3() {
+        this.col3Generated = true;
+        this.bufCol3 = __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].createBuffer();
+    }
+    generateCol4() {
+        this.col4Generated = true;
+        this.bufCol4 = __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].createBuffer();
+    }
+    generateDepth() {
+        this.depthGenerated = true;
+        this.bufDepth = __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].createFramebuffer();
+    }
+    generateDepthMap() {
+        this.depthMapGenerated = true;
+        this.depthMap = __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].createTexture();
+    }
+    bindIdx() {
+        if (this.idxGenerated) {
+            __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].bindBuffer(__WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].ELEMENT_ARRAY_BUFFER, this.bufIdx);
+        }
+        return this.idxGenerated;
+    }
+    bindPos() {
+        if (this.posGenerated) {
+            __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].bindBuffer(__WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].ARRAY_BUFFER, this.bufPos);
+        }
+        return this.posGenerated;
+    }
+    bindNor() {
+        if (this.norGenerated) {
+            __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].bindBuffer(__WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].ARRAY_BUFFER, this.bufNor);
+        }
+        return this.norGenerated;
+    }
+    bindCol() {
+        if (this.colGenerated) {
+            __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].bindBuffer(__WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].ARRAY_BUFFER, this.bufCol);
+        }
+        return this.colGenerated;
+    }
+    bindUV() {
+        if (this.uvGenerated) {
+            __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].bindBuffer(__WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].ARRAY_BUFFER, this.bufUV);
+        }
+        return this.uvGenerated;
+    }
+    bindBiome() {
+        if (this.biomeGenerated) {
+            __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].bindBuffer(__WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].ARRAY_BUFFER, this.bufBiome);
+        }
+        return this.biomeGenerated;
+    }
+    bindCol1() {
+        if (this.col1Generated) {
+            __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].bindBuffer(__WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].ARRAY_BUFFER, this.bufCol1);
+        }
+        return this.colGenerated;
+    }
+    bindCol2() {
+        if (this.col2Generated) {
+            __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].bindBuffer(__WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].ARRAY_BUFFER, this.bufCol2);
+        }
+        return this.colGenerated;
+    }
+    bindCol3() {
+        if (this.col3Generated) {
+            __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].bindBuffer(__WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].ARRAY_BUFFER, this.bufCol3);
+        }
+        return this.colGenerated;
+    }
+    bindCol4() {
+        if (this.col4Generated) {
+            __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].bindBuffer(__WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].ARRAY_BUFFER, this.bufCol4);
+        }
+        return this.colGenerated;
+    }
+    bindDepth() {
+        if (this.depthGenerated) {
+            __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].bindFramebuffer(__WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].FRAMEBUFFER, this.bufDepth);
+            __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].framebufferTexture2D(__WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].FRAMEBUFFER, __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].DEPTH_ATTACHMENT, __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].TEXTURE_2D, this.depthMap, 0);
+            __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].drawBuffers([__WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].NONE]);
+            __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].readBuffer(__WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].NONE);
+            __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].bindFramebuffer(__WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].FRAMEBUFFER, null);
+        }
+        return this.depthGenerated;
+    }
+    bindDepthMap() {
+        if (this.depthMapGenerated) {
+            __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].bindTexture(__WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].TEXTURE_2D, this.depthMap);
+            __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].texImage2D(__WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].TEXTURE_2D, 0, __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].DEPTH_COMPONENT32F, this.SHADOW_WIDTH, this.SHADOW_HEIGHT, 0, __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].DEPTH_COMPONENT, __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].FLOAT, null);
+            __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].texParameteri(__WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].TEXTURE_2D, __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].TEXTURE_MIN_FILTER, __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].NEAREST);
+            __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].texParameteri(__WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].TEXTURE_2D, __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].TEXTURE_MAG_FILTER, __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].NEAREST);
+            __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].texParameteri(__WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].TEXTURE_2D, __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].TEXTURE_WRAP_S, __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].REPEAT);
+            __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].texParameteri(__WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].TEXTURE_2D, __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].TEXTURE_WRAP_T, __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].REPEAT);
+        }
+        return this.depthMapGenerated;
+    }
+    elemCount() {
+        return this.count;
+    }
+    drawMode() {
+        return __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].TRIANGLES;
+    }
+    setNumInstances(num) {
+        this.numInstances = num;
+    }
+}
+;
+/* harmony default export */ __webpack_exports__["a"] = (Drawable);
+
+
+/***/ }),
+/* 22 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_gl_matrix__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_stats_js__ = __webpack_require__(26);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_stats_js__ = __webpack_require__(27);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_stats_js___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_stats_js__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_dat_gui__ = __webpack_require__(27);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_dat_gui__ = __webpack_require__(28);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_dat_gui___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_dat_gui__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__rendering_gl_OpenGLRenderer__ = __webpack_require__(30);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__Camera__ = __webpack_require__(31);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__rendering_gl_OpenGLRenderer__ = __webpack_require__(31);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__Camera__ = __webpack_require__(32);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__globals__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__rendering_gl_ShaderProgram__ = __webpack_require__(66);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__Planet__ = __webpack_require__(67);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__rendering_gl_ShaderProgram__ = __webpack_require__(67);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__Planet__ = __webpack_require__(68);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__geometry_Mesh__ = __webpack_require__(75);
 
 
 
@@ -6017,25 +6207,43 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 
 
-let prevScale = 5.0;
-let prevSharpness = 0.2;
+
 // Define an object with application parameters and button callbacks
 // This will be referred to by dat.GUI's functions that add GUI elements.
 const controls = {
     'Load Scene': loadScene,
     'Subdivsions': 4,
     'Plates': 10,
-    'Tile': 'Terrain'
+    'Tile': 'Terrain',
+    'Time': 0,
+    'Rotation Speed': 0.01,
+    'Lighting': lighting,
+    'Tree Density': 0.25
 };
+let lightingEnabled = true;
+let switchLighting = false;
 let tileType = controls.Tile;
 let subdivisions = controls.Subdivsions;
 let plateCount = controls.Plates;
+let rotationSpeed = controls["Rotation Speed"];
+let treeDensity = controls["Tree Density"];
 let planet;
+let palmTreeLeaves;
+let palmTreeTrunk;
+let firTreeLeaves;
+let firTreeTrunk;
+let snowTreeLeaves;
+let snowTreeTrunk;
+let cow;
 let wPressed;
 let aPressed;
 let sPressed;
 let dPressed;
-function loadScene() {
+function lighting() {
+    lightingEnabled = !lightingEnabled;
+    switchLighting = true;
+}
+function createPlanet() {
     planet = new __WEBPACK_IMPORTED_MODULE_7__Planet__["a" /* default */]();
     planet.readObjFromFile();
     for (let i = 0; i < subdivisions; i++) {
@@ -6049,10 +6257,142 @@ function loadScene() {
     planet.setPlanetTemperature();
     planet.setPrecipitation();
     planet.blendTemperatureAndPrecipitation();
-    planet.extrudeFaces();
     planet.determineBiomes();
+    planet.extrudeFaces();
     planet.setTileColors(tileType);
     planet.create();
+}
+function addAssets() {
+    let obj = Object(__WEBPACK_IMPORTED_MODULE_5__globals__["d" /* readTextFile */])('src/objs/palm-tree.obj');
+    palmTreeLeaves = new __WEBPACK_IMPORTED_MODULE_8__geometry_Mesh__["a" /* default */](obj, __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].create());
+    palmTreeLeaves.create(__WEBPACK_IMPORTED_MODULE_0_gl_matrix__["d" /* vec4 */].fromValues(0.1, 0.8, 0.1, 1.0));
+    obj = Object(__WEBPACK_IMPORTED_MODULE_5__globals__["d" /* readTextFile */])('src/objs/palm-tree-trunk.obj');
+    palmTreeTrunk = new __WEBPACK_IMPORTED_MODULE_8__geometry_Mesh__["a" /* default */](obj, __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].create());
+    palmTreeTrunk.create(__WEBPACK_IMPORTED_MODULE_0_gl_matrix__["d" /* vec4 */].fromValues(0.5, 0.3, 0.05, 1.0));
+    obj = Object(__WEBPACK_IMPORTED_MODULE_5__globals__["d" /* readTextFile */])('src/objs/fir-tree.obj');
+    firTreeLeaves = new __WEBPACK_IMPORTED_MODULE_8__geometry_Mesh__["a" /* default */](obj, __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].create());
+    firTreeLeaves.create(__WEBPACK_IMPORTED_MODULE_0_gl_matrix__["d" /* vec4 */].fromValues(0.1, 0.8, 0.1, 1.0));
+    obj = Object(__WEBPACK_IMPORTED_MODULE_5__globals__["d" /* readTextFile */])('src/objs/fir-tree-trunk.obj');
+    firTreeTrunk = new __WEBPACK_IMPORTED_MODULE_8__geometry_Mesh__["a" /* default */](obj, __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].create());
+    firTreeTrunk.create(__WEBPACK_IMPORTED_MODULE_0_gl_matrix__["d" /* vec4 */].fromValues(0.5, 0.3, 0.05, 1.0));
+    obj = Object(__WEBPACK_IMPORTED_MODULE_5__globals__["d" /* readTextFile */])('src/objs/fir-tree.obj');
+    snowTreeLeaves = new __WEBPACK_IMPORTED_MODULE_8__geometry_Mesh__["a" /* default */](obj, __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].create());
+    snowTreeLeaves.create(__WEBPACK_IMPORTED_MODULE_0_gl_matrix__["d" /* vec4 */].fromValues(0.9, 0.9, 0.9, 1.0));
+    obj = Object(__WEBPACK_IMPORTED_MODULE_5__globals__["d" /* readTextFile */])('src/objs/fir-tree-trunk.obj');
+    snowTreeTrunk = new __WEBPACK_IMPORTED_MODULE_8__geometry_Mesh__["a" /* default */](obj, __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].create());
+    snowTreeTrunk.create(__WEBPACK_IMPORTED_MODULE_0_gl_matrix__["d" /* vec4 */].fromValues(0.5, 0.3, 0.05, 1.0));
+    obj = Object(__WEBPACK_IMPORTED_MODULE_5__globals__["d" /* readTextFile */])('src/objs/cow.obj');
+    cow = new __WEBPACK_IMPORTED_MODULE_8__geometry_Mesh__["a" /* default */](obj, __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].create());
+    cow.create(__WEBPACK_IMPORTED_MODULE_0_gl_matrix__["d" /* vec4 */].fromValues(0.78, 0.66, 0.4, 1.0));
+    let assetScale = 0.04 / (subdivisions - 2);
+    let col1Arr = [];
+    let col2Arr = [];
+    let col3Arr = [];
+    let col4Arr = [];
+    let instances = planet.getPalmTreePositions(treeDensity);
+    for (let pos of instances) {
+        let transformation = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["a" /* mat4 */].create();
+        __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["a" /* mat4 */].translate(transformation, transformation, pos);
+        __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["a" /* mat4 */].scale(transformation, transformation, __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].fromValues(assetScale, assetScale, assetScale));
+        let cross = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].create();
+        __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].cross(cross, __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].fromValues(0, 1, 0), pos);
+        let theta = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].angle(__WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].fromValues(0, 1, 0), pos);
+        __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["a" /* mat4 */].rotate(transformation, transformation, theta, cross);
+        col1Arr.push(transformation[0], transformation[1], transformation[2], transformation[3]);
+        col2Arr.push(transformation[4], transformation[5], transformation[6], transformation[7]);
+        col3Arr.push(transformation[8], transformation[9], transformation[10], transformation[11]);
+        col4Arr.push(transformation[12], transformation[13], transformation[14], transformation[15]);
+    }
+    let col1 = new Float32Array(col1Arr);
+    let col2 = new Float32Array(col2Arr);
+    let col3 = new Float32Array(col3Arr);
+    let col4 = new Float32Array(col4Arr);
+    palmTreeLeaves.setNumInstances(instances.length);
+    palmTreeLeaves.setInstanceVBOs(col1, col2, col3, col4);
+    palmTreeTrunk.setNumInstances(instances.length);
+    palmTreeTrunk.setInstanceVBOs(col1, col2, col3, col4);
+    col1Arr = [];
+    col2Arr = [];
+    col3Arr = [];
+    col4Arr = [];
+    instances = planet.getFirTreePositions(treeDensity);
+    for (let pos of instances) {
+        let transformation = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["a" /* mat4 */].create();
+        __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["a" /* mat4 */].translate(transformation, transformation, pos);
+        __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["a" /* mat4 */].scale(transformation, transformation, __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].fromValues(assetScale, assetScale, assetScale));
+        let cross = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].create();
+        __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].cross(cross, __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].fromValues(0, 1, 0), pos);
+        let theta = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].angle(__WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].fromValues(0, 1, 0), pos);
+        __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["a" /* mat4 */].rotate(transformation, transformation, theta, cross);
+        col1Arr.push(transformation[0], transformation[1], transformation[2], transformation[3]);
+        col2Arr.push(transformation[4], transformation[5], transformation[6], transformation[7]);
+        col3Arr.push(transformation[8], transformation[9], transformation[10], transformation[11]);
+        col4Arr.push(transformation[12], transformation[13], transformation[14], transformation[15]);
+    }
+    col1 = new Float32Array(col1Arr);
+    col2 = new Float32Array(col2Arr);
+    col3 = new Float32Array(col3Arr);
+    col4 = new Float32Array(col4Arr);
+    firTreeLeaves.setNumInstances(instances.length);
+    firTreeLeaves.setInstanceVBOs(col1, col2, col3, col4);
+    firTreeTrunk.setNumInstances(instances.length);
+    firTreeTrunk.setInstanceVBOs(col1, col2, col3, col4);
+    col1Arr = [];
+    col2Arr = [];
+    col3Arr = [];
+    col4Arr = [];
+    instances = planet.getSnowTreePositions(treeDensity);
+    for (let pos of instances) {
+        let transformation = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["a" /* mat4 */].create();
+        __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["a" /* mat4 */].translate(transformation, transformation, pos);
+        __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["a" /* mat4 */].scale(transformation, transformation, __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].fromValues(assetScale, assetScale, assetScale));
+        let cross = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].create();
+        __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].cross(cross, __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].fromValues(0, 1, 0), pos);
+        let theta = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].angle(__WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].fromValues(0, 1, 0), pos);
+        __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["a" /* mat4 */].rotate(transformation, transformation, theta, cross);
+        col1Arr.push(transformation[0], transformation[1], transformation[2], transformation[3]);
+        col2Arr.push(transformation[4], transformation[5], transformation[6], transformation[7]);
+        col3Arr.push(transformation[8], transformation[9], transformation[10], transformation[11]);
+        col4Arr.push(transformation[12], transformation[13], transformation[14], transformation[15]);
+    }
+    col1 = new Float32Array(col1Arr);
+    col2 = new Float32Array(col2Arr);
+    col3 = new Float32Array(col3Arr);
+    col4 = new Float32Array(col4Arr);
+    snowTreeLeaves.setNumInstances(instances.length);
+    snowTreeLeaves.setInstanceVBOs(col1, col2, col3, col4);
+    snowTreeTrunk.setNumInstances(instances.length);
+    snowTreeTrunk.setInstanceVBOs(col1, col2, col3, col4);
+    col1Arr = [];
+    col2Arr = [];
+    col3Arr = [];
+    col4Arr = [];
+    instances = planet.getCowPositions(treeDensity / 10);
+    for (let pos of instances) {
+        let transformation = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["a" /* mat4 */].create();
+        let scale = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].clone(pos);
+        __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].scale(scale, scale, 1.015);
+        __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["a" /* mat4 */].translate(transformation, transformation, scale);
+        __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["a" /* mat4 */].scale(transformation, transformation, __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].fromValues(assetScale * 0.25, assetScale * 0.25, assetScale * 0.25));
+        let cross = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].create();
+        __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].cross(cross, __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].fromValues(0, 1, 0), pos);
+        let theta = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].angle(__WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].fromValues(0, 1, 0), pos);
+        __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["a" /* mat4 */].rotate(transformation, transformation, theta, cross);
+        col1Arr.push(transformation[0], transformation[1], transformation[2], transformation[3]);
+        col2Arr.push(transformation[4], transformation[5], transformation[6], transformation[7]);
+        col3Arr.push(transformation[8], transformation[9], transformation[10], transformation[11]);
+        col4Arr.push(transformation[12], transformation[13], transformation[14], transformation[15]);
+    }
+    col1 = new Float32Array(col1Arr);
+    col2 = new Float32Array(col2Arr);
+    col3 = new Float32Array(col3Arr);
+    col4 = new Float32Array(col4Arr);
+    cow.setNumInstances(instances.length);
+    cow.setInstanceVBOs(col1, col2, col3, col4);
+}
+function loadScene() {
+    createPlanet();
+    addAssets();
     wPressed = false;
     aPressed = false;
     sPressed = false;
@@ -6102,9 +6442,13 @@ function main() {
     // Add controls to the gui
     const gui = new __WEBPACK_IMPORTED_MODULE_2_dat_gui__["GUI"]();
     gui.add(controls, 'Load Scene');
+    gui.add(controls, 'Lighting');
     gui.add(controls, 'Subdivsions', 3, 5).step(1);
-    gui.add(controls, 'Plates', 4, 20).step(1);
+    gui.add(controls, 'Plates', 4, 50).step(1);
+    gui.add(controls, 'Tree Density', 0, 1);
     gui.add(controls, 'Tile', ['Terrain', 'Tectonic Plates', 'Temperature', 'Precipitation']);
+    gui.add(controls, 'Time', 0, 24).listen();
+    gui.add(controls, 'Rotation Speed', 0, 0.1);
     // get canvas and webgl context
     const canvas = document.getElementById('canvas');
     const gl = canvas.getContext('webgl2');
@@ -6119,15 +6463,26 @@ function main() {
     const camera = new __WEBPACK_IMPORTED_MODULE_4__Camera__["a" /* default */](__WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].fromValues(0, 0, 5), __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].fromValues(0, 0, 0));
     const renderer = new __WEBPACK_IMPORTED_MODULE_3__rendering_gl_OpenGLRenderer__["a" /* default */](canvas);
     renderer.setClearColor(164.0 / 255.0, 233.0 / 255.0, 1.0, 1);
+    // renderer.setClearColor(0, 0, 0, 1);
     gl.enable(gl.DEPTH_TEST);
     const depth = new __WEBPACK_IMPORTED_MODULE_6__rendering_gl_ShaderProgram__["b" /* default */]([
-        new __WEBPACK_IMPORTED_MODULE_6__rendering_gl_ShaderProgram__["a" /* Shader */](gl.VERTEX_SHADER, __webpack_require__(75)),
-        new __WEBPACK_IMPORTED_MODULE_6__rendering_gl_ShaderProgram__["a" /* Shader */](gl.FRAGMENT_SHADER, __webpack_require__(76))
+        new __WEBPACK_IMPORTED_MODULE_6__rendering_gl_ShaderProgram__["a" /* Shader */](gl.VERTEX_SHADER, __webpack_require__(77)),
+        new __WEBPACK_IMPORTED_MODULE_6__rendering_gl_ShaderProgram__["a" /* Shader */](gl.FRAGMENT_SHADER, __webpack_require__(78))
+    ]);
+    const depthInstanced = new __WEBPACK_IMPORTED_MODULE_6__rendering_gl_ShaderProgram__["b" /* default */]([
+        new __WEBPACK_IMPORTED_MODULE_6__rendering_gl_ShaderProgram__["a" /* Shader */](gl.VERTEX_SHADER, __webpack_require__(79)),
+        new __WEBPACK_IMPORTED_MODULE_6__rendering_gl_ShaderProgram__["a" /* Shader */](gl.FRAGMENT_SHADER, __webpack_require__(80))
     ]);
     const lambert = new __WEBPACK_IMPORTED_MODULE_6__rendering_gl_ShaderProgram__["b" /* default */]([
-        new __WEBPACK_IMPORTED_MODULE_6__rendering_gl_ShaderProgram__["a" /* Shader */](gl.VERTEX_SHADER, __webpack_require__(77)),
-        new __WEBPACK_IMPORTED_MODULE_6__rendering_gl_ShaderProgram__["a" /* Shader */](gl.FRAGMENT_SHADER, __webpack_require__(78)),
+        new __WEBPACK_IMPORTED_MODULE_6__rendering_gl_ShaderProgram__["a" /* Shader */](gl.VERTEX_SHADER, __webpack_require__(81)),
+        new __WEBPACK_IMPORTED_MODULE_6__rendering_gl_ShaderProgram__["a" /* Shader */](gl.FRAGMENT_SHADER, __webpack_require__(82)),
     ]);
+    const assets = new __WEBPACK_IMPORTED_MODULE_6__rendering_gl_ShaderProgram__["b" /* default */]([
+        new __WEBPACK_IMPORTED_MODULE_6__rendering_gl_ShaderProgram__["a" /* Shader */](gl.VERTEX_SHADER, __webpack_require__(83)),
+        new __WEBPACK_IMPORTED_MODULE_6__rendering_gl_ShaderProgram__["a" /* Shader */](gl.FRAGMENT_SHADER, __webpack_require__(84))
+    ]);
+    lambert.setLightingEnabled(lightingEnabled ? 1 : 0);
+    assets.setLightingEnabled(lightingEnabled ? 1 : 0);
     function processKeyPresses() {
         let velocity = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].fromValues(0, 0, 0);
         if (wPressed) {
@@ -6148,6 +6503,7 @@ function main() {
     function tick() {
         if (tileType !== controls.Tile) {
             tileType = controls.Tile;
+            lambert.setTileType(tileType === "Terrain" ? 0 : 1);
             planet.setTileColors(tileType);
             planet.destory();
             planet.create();
@@ -6158,20 +6514,48 @@ function main() {
         if (plateCount !== controls.Plates) {
             plateCount = controls.Plates;
         }
+        if (rotationSpeed !== controls["Rotation Speed"]) {
+            rotationSpeed = controls["Rotation Speed"];
+        }
+        if (switchLighting) {
+            switchLighting = false;
+            lambert.setLightingEnabled(lightingEnabled ? 1 : 0);
+            assets.setLightingEnabled(lightingEnabled ? 1 : 0);
+        }
+        if (treeDensity !== controls["Tree Density"]) {
+            treeDensity = controls["Tree Density"];
+            palmTreeLeaves.destory();
+            palmTreeTrunk.destory();
+            firTreeLeaves.destory();
+            firTreeTrunk.destory();
+            snowTreeLeaves.destory();
+            snowTreeTrunk.destory();
+            cow.destory();
+            addAssets();
+        }
+        controls.Time = (controls.Time + rotationSpeed) % 24;
         camera.update();
         stats.begin();
+        let time = (controls.Time / 12.0) * Math.PI;
+        let lightPos = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].fromValues(-Math.sin(time), 0, Math.cos(time));
+        __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].scale(lightPos, lightPos, 3.0);
         // 1. first render to depth map
-        gl.viewport(0, 0, planet.SHADOW_WIDTH, planet.SHADOW_HEIGHT); // TODO: change to window width and height if it looks weird
+        gl.viewport(0, 0, planet.SHADOW_WIDTH, planet.SHADOW_HEIGHT);
         gl.bindFramebuffer(gl.FRAMEBUFFER, planet.bufDepth);
         gl.clear(gl.DEPTH_BUFFER_BIT);
-        renderer.render(camera, depth, [planet]);
+        // get the depth from the planet
+        renderer.render(camera, lightPos, depth, [planet]);
+        // get the depth from the palm trees
+        renderer.render(camera, lightPos, depthInstanced, [palmTreeLeaves, palmTreeTrunk, firTreeLeaves, firTreeTrunk, snowTreeLeaves, snowTreeTrunk, cow]);
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
         // 2. then render the scene as normal with shadow mapping
         gl.viewport(0, 0, window.innerWidth, window.innerHeight);
         renderer.clear();
         processKeyPresses();
+        // gl.bindTexture(gl.TEXTURE_2D, palmTree.depthMap);
         gl.bindTexture(gl.TEXTURE_2D, planet.depthMap);
-        renderer.render(camera, lambert, [planet]);
+        renderer.render(camera, lightPos, lambert, [planet]);
+        renderer.render(camera, lightPos, assets, [palmTreeLeaves, palmTreeTrunk, firTreeLeaves, firTreeTrunk, snowTreeLeaves, snowTreeTrunk, cow]);
         stats.end();
         // Tell the browser to call `tick` again whenever it renders a new frame
         requestAnimationFrame(tick);
@@ -6191,7 +6575,7 @@ main();
 
 
 /***/ }),
-/* 22 */
+/* 23 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -6658,7 +7042,7 @@ var mul = multiply;
 var sub = subtract;
 
 /***/ }),
-/* 23 */
+/* 24 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -7174,7 +7558,7 @@ var mul = multiply;
 var sub = subtract;
 
 /***/ }),
-/* 24 */
+/* 25 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -8066,7 +8450,7 @@ function equals(a, b) {
 }
 
 /***/ }),
-/* 25 */
+/* 26 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -8743,21 +9127,21 @@ var forEach = function () {
 }();
 
 /***/ }),
-/* 26 */
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
 !function(e,t){ true?module.exports=t():"function"==typeof define&&define.amd?define(t):e.Stats=t()}(this,function(){"use strict";var c=function(){var n=0,l=document.createElement("div");function e(e){return l.appendChild(e.dom),e}function t(e){for(var t=0;t<l.children.length;t++)l.children[t].style.display=t===e?"block":"none";n=e}l.style.cssText="position:fixed;top:0;left:0;cursor:pointer;opacity:0.9;z-index:10000",l.addEventListener("click",function(e){e.preventDefault(),t(++n%l.children.length)},!1);var i=(performance||Date).now(),a=i,o=0,f=e(new c.Panel("FPS","#0ff","#002")),r=e(new c.Panel("MS","#0f0","#020"));if(self.performance&&self.performance.memory)var d=e(new c.Panel("MB","#f08","#201"));return t(0),{REVISION:16,dom:l,addPanel:e,showPanel:t,begin:function(){i=(performance||Date).now()},end:function(){o++;var e=(performance||Date).now();if(r.update(e-i,200),a+1e3<=e&&(f.update(1e3*o/(e-a),100),a=e,o=0,d)){var t=performance.memory;d.update(t.usedJSHeapSize/1048576,t.jsHeapSizeLimit/1048576)}return e},update:function(){i=this.end()},domElement:l,setMode:t}};return c.Panel=function(n,l,i){var a=1/0,o=0,f=Math.round,r=f(window.devicePixelRatio||1),d=80*r,e=48*r,c=3*r,p=2*r,u=3*r,s=15*r,m=74*r,h=30*r,y=document.createElement("canvas");y.width=d,y.height=e,y.style.cssText="width:80px;height:48px";var v=y.getContext("2d");return v.font="bold "+9*r+"px Helvetica,Arial,sans-serif",v.textBaseline="top",v.fillStyle=i,v.fillRect(0,0,d,e),v.fillStyle=l,v.fillText(n,c,p),v.fillRect(u,s,m,h),v.fillStyle=i,v.globalAlpha=.9,v.fillRect(u,s,m,h),{dom:y,update:function(e,t){a=Math.min(a,e),o=Math.max(o,e),v.fillStyle=i,v.globalAlpha=1,v.fillRect(0,0,d,s),v.fillStyle=l,v.fillText(f(e)+" "+n+" ("+f(a)+"-"+f(o)+")",c,p),v.drawImage(y,u+r,s,m-r,h,u,s,m-r,h),v.fillRect(u+m-r,s,r,h),v.fillStyle=i,v.globalAlpha=.9,v.fillRect(u+m-r,s,r,f((1-e/t)*h))}}},c});
 
 
 /***/ }),
-/* 27 */
+/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(28)
-module.exports.color = __webpack_require__(29)
+module.exports = __webpack_require__(29)
+module.exports.color = __webpack_require__(30)
 
 /***/ }),
-/* 28 */
+/* 29 */
 /***/ (function(module, exports) {
 
 /**
@@ -12422,7 +12806,7 @@ dat.dom.dom,
 dat.utils.common);
 
 /***/ }),
-/* 29 */
+/* 30 */
 /***/ (function(module, exports) {
 
 /**
@@ -13182,7 +13566,7 @@ dat.color.toString,
 dat.utils.common);
 
 /***/ }),
-/* 30 */
+/* 31 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -13205,7 +13589,7 @@ class OpenGLRenderer {
     clear() {
         __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].clear(__WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].COLOR_BUFFER_BIT | __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].DEPTH_BUFFER_BIT);
     }
-    render(camera, prog, drawables) {
+    render(camera, lightPos, prog, drawables) {
         let model = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["a" /* mat4 */].create();
         let viewProj = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["a" /* mat4 */].create();
         __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["a" /* mat4 */].identity(model);
@@ -13217,10 +13601,12 @@ class OpenGLRenderer {
         let lightProjection = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["a" /* mat4 */].create();
         __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["a" /* mat4 */].ortho(lightProjection, -10.0, 10.0, -10.0, 10.0, nearPlane, farPlane);
         let lightView = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["a" /* mat4 */].create();
-        __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["a" /* mat4 */].lookAt(lightView, __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].fromValues(0.0, 0.0, 1.5), __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].fromValues(0.0, 0.0, 0.0), __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].fromValues(0.0, 1.0, 0.0));
+        __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["a" /* mat4 */].lookAt(lightView, lightPos, __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].fromValues(0.0, 0.0, 0.0), __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].fromValues(0.0, 1.0, 0.0));
         let lightSpaceMatrix = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["a" /* mat4 */].create();
         __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["a" /* mat4 */].multiply(lightSpaceMatrix, lightProjection, lightView);
         prog.setLightSpaceMatrix(lightSpaceMatrix);
+        prog.setLightPosition(lightPos);
+        prog.setCameraPosition(__WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].fromValues(camera.viewMatrix[12], camera.viewMatrix[13], camera.viewMatrix[14]));
         for (let drawable of drawables) {
             prog.draw(drawable);
         }
@@ -13231,12 +13617,12 @@ class OpenGLRenderer {
 
 
 /***/ }),
-/* 31 */
+/* 32 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_gl_matrix__ = __webpack_require__(0);
-var CameraControls = __webpack_require__(32);
+var CameraControls = __webpack_require__(33);
 
 class Camera {
     constructor(position, target) {
@@ -13274,7 +13660,7 @@ class Camera {
 
 
 /***/ }),
-/* 32 */
+/* 33 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -13282,12 +13668,12 @@ class Camera {
 
 module.exports = createCamera
 
-var now         = __webpack_require__(33)
-var createView  = __webpack_require__(35)
-var mouseChange = __webpack_require__(58)
-var mouseWheel  = __webpack_require__(60)
-var mouseOffset = __webpack_require__(63)
-var hasPassive  = __webpack_require__(64)
+var now         = __webpack_require__(34)
+var createView  = __webpack_require__(36)
+var mouseChange = __webpack_require__(59)
+var mouseWheel  = __webpack_require__(61)
+var mouseOffset = __webpack_require__(64)
+var hasPassive  = __webpack_require__(65)
 
 function createCamera(element, options) {
   element = element || document.body
@@ -13517,7 +13903,7 @@ function createCamera(element, options) {
 
 
 /***/ }),
-/* 33 */
+/* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global) {module.exports =
@@ -13528,10 +13914,10 @@ function createCamera(element, options) {
     return +new Date
   }
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(34)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(35)))
 
 /***/ }),
-/* 34 */
+/* 35 */
 /***/ (function(module, exports) {
 
 var g;
@@ -13558,7 +13944,7 @@ module.exports = g;
 
 
 /***/ }),
-/* 35 */
+/* 36 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -13566,9 +13952,9 @@ module.exports = g;
 
 module.exports = createViewController
 
-var createTurntable = __webpack_require__(36)
-var createOrbit     = __webpack_require__(39)
-var createMatrix    = __webpack_require__(42)
+var createTurntable = __webpack_require__(37)
+var createOrbit     = __webpack_require__(40)
+var createMatrix    = __webpack_require__(43)
 
 function ViewController(controllers, mode) {
   this._controllerNames = Object.keys(controllers)
@@ -13686,7 +14072,7 @@ function createViewController(options) {
 }
 
 /***/ }),
-/* 36 */
+/* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -13696,7 +14082,7 @@ module.exports = createTurntableController
 
 var filterVector = __webpack_require__(11)
 var invert44     = __webpack_require__(3)
-var rotateM      = __webpack_require__(38)
+var rotateM      = __webpack_require__(39)
 var cross        = __webpack_require__(13)
 var normalize3   = __webpack_require__(5)
 var dot3         = __webpack_require__(14)
@@ -14264,7 +14650,7 @@ function createTurntableController(options) {
 }
 
 /***/ }),
-/* 37 */
+/* 38 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -14309,7 +14695,7 @@ module.exports = cubicHermite
 module.exports.derivative = dcubicHermite
 
 /***/ }),
-/* 38 */
+/* 39 */
 /***/ (function(module, exports) {
 
 module.exports = rotate;
@@ -14378,7 +14764,7 @@ function rotate(out, a, rad, axis) {
 };
 
 /***/ }),
-/* 39 */
+/* 40 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -14388,9 +14774,9 @@ module.exports = createOrbitController
 
 var filterVector  = __webpack_require__(11)
 var lookAt        = __webpack_require__(15)
-var mat4FromQuat  = __webpack_require__(40)
+var mat4FromQuat  = __webpack_require__(41)
 var invert44      = __webpack_require__(3)
-var quatFromFrame = __webpack_require__(41)
+var quatFromFrame = __webpack_require__(42)
 
 function len3(x,y,z) {
   return Math.sqrt(Math.pow(x,2) + Math.pow(y,2) + Math.pow(z,2))
@@ -14777,7 +15163,7 @@ function createOrbitController(options) {
 }
 
 /***/ }),
-/* 40 */
+/* 41 */
 /***/ (function(module, exports) {
 
 module.exports = fromQuat;
@@ -14829,7 +15215,7 @@ function fromQuat(out, q) {
 };
 
 /***/ }),
-/* 41 */
+/* 42 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -14876,18 +15262,18 @@ function quatFromFrame(
 }
 
 /***/ }),
-/* 42 */
+/* 43 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
 var bsearch   = __webpack_require__(12)
-var m4interp  = __webpack_require__(43)
+var m4interp  = __webpack_require__(44)
 var invert44  = __webpack_require__(3)
-var rotateX   = __webpack_require__(55)
-var rotateY   = __webpack_require__(56)
-var rotateZ   = __webpack_require__(57)
+var rotateX   = __webpack_require__(56)
+var rotateY   = __webpack_require__(57)
+var rotateZ   = __webpack_require__(58)
 var lookAt    = __webpack_require__(15)
 var translate = __webpack_require__(17)
 var scale     = __webpack_require__(19)
@@ -15081,15 +15467,15 @@ function createMatrixCameraController(options) {
 
 
 /***/ }),
-/* 43 */
+/* 44 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var lerp = __webpack_require__(44)
+var lerp = __webpack_require__(45)
 
-var recompose = __webpack_require__(45)
-var decompose = __webpack_require__(48)
+var recompose = __webpack_require__(46)
+var decompose = __webpack_require__(49)
 var determinant = __webpack_require__(20)
-var slerp = __webpack_require__(53)
+var slerp = __webpack_require__(54)
 
 var state0 = state()
 var state1 = state()
@@ -15138,7 +15524,7 @@ function vec4() {
 }
 
 /***/ }),
-/* 44 */
+/* 45 */
 /***/ (function(module, exports) {
 
 module.exports = lerp;
@@ -15163,7 +15549,7 @@ function lerp(out, a, b, t) {
 }
 
 /***/ }),
-/* 45 */
+/* 46 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -15180,10 +15566,10 @@ From: http://www.w3.org/TR/css3-transforms/#recomposing-to-a-3d-matrix
 var mat4 = {
     identity: __webpack_require__(16),
     translate: __webpack_require__(17),
-    multiply: __webpack_require__(46),
+    multiply: __webpack_require__(47),
     create: __webpack_require__(18),
     scale: __webpack_require__(19),
-    fromRotationTranslation: __webpack_require__(47)
+    fromRotationTranslation: __webpack_require__(48)
 }
 
 var rotationMatrix = mat4.create()
@@ -15228,7 +15614,7 @@ module.exports = function recomposeMat4(matrix, translation, scale, skew, perspe
 }
 
 /***/ }),
-/* 46 */
+/* 47 */
 /***/ (function(module, exports) {
 
 module.exports = multiply;
@@ -15275,7 +15661,7 @@ function multiply(out, a, b) {
 };
 
 /***/ }),
-/* 47 */
+/* 48 */
 /***/ (function(module, exports) {
 
 module.exports = fromRotationTranslation;
@@ -15333,7 +15719,7 @@ function fromRotationTranslation(out, q, v) {
 };
 
 /***/ }),
-/* 48 */
+/* 49 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*jshint unused:true*/
@@ -15353,15 +15739,15 @@ https://github.com/ChromiumWebApps/chromium/blob/master/ui/gfx/transform_util.cc
 http://www.w3.org/TR/css3-transforms/#decomposing-a-3d-matrix
 */
 
-var normalize = __webpack_require__(49)
+var normalize = __webpack_require__(50)
 
 var create = __webpack_require__(18)
-var clone = __webpack_require__(50)
+var clone = __webpack_require__(51)
 var determinant = __webpack_require__(20)
 var invert = __webpack_require__(3)
-var transpose = __webpack_require__(51)
+var transpose = __webpack_require__(52)
 var vec3 = {
-    length: __webpack_require__(52),
+    length: __webpack_require__(53),
     normalize: __webpack_require__(5),
     dot: __webpack_require__(14),
     cross: __webpack_require__(13)
@@ -15517,7 +15903,7 @@ function combine(out, a, b, scale1, scale2) {
 }
 
 /***/ }),
-/* 49 */
+/* 50 */
 /***/ (function(module, exports) {
 
 module.exports = function normalize(out, mat) {
@@ -15532,7 +15918,7 @@ module.exports = function normalize(out, mat) {
 }
 
 /***/ }),
-/* 50 */
+/* 51 */
 /***/ (function(module, exports) {
 
 module.exports = clone;
@@ -15565,7 +15951,7 @@ function clone(a) {
 };
 
 /***/ }),
-/* 51 */
+/* 52 */
 /***/ (function(module, exports) {
 
 module.exports = transpose;
@@ -15619,7 +16005,7 @@ function transpose(out, a) {
 };
 
 /***/ }),
-/* 52 */
+/* 53 */
 /***/ (function(module, exports) {
 
 module.exports = length;
@@ -15638,13 +16024,13 @@ function length(a) {
 }
 
 /***/ }),
-/* 53 */
+/* 54 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(54)
+module.exports = __webpack_require__(55)
 
 /***/ }),
-/* 54 */
+/* 55 */
 /***/ (function(module, exports) {
 
 module.exports = slerp
@@ -15701,7 +16087,7 @@ function slerp (out, a, b, t) {
 
 
 /***/ }),
-/* 55 */
+/* 56 */
 /***/ (function(module, exports) {
 
 module.exports = rotateX;
@@ -15750,7 +16136,7 @@ function rotateX(out, a, rad) {
 };
 
 /***/ }),
-/* 56 */
+/* 57 */
 /***/ (function(module, exports) {
 
 module.exports = rotateY;
@@ -15799,7 +16185,7 @@ function rotateY(out, a, rad) {
 };
 
 /***/ }),
-/* 57 */
+/* 58 */
 /***/ (function(module, exports) {
 
 module.exports = rotateZ;
@@ -15848,7 +16234,7 @@ function rotateZ(out, a, rad) {
 };
 
 /***/ }),
-/* 58 */
+/* 59 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -15856,7 +16242,7 @@ function rotateZ(out, a, rad) {
 
 module.exports = mouseListen
 
-var mouse = __webpack_require__(59)
+var mouse = __webpack_require__(60)
 
 function mouseListen (element, callback) {
   if (!callback) {
@@ -16060,7 +16446,7 @@ function mouseListen (element, callback) {
 
 
 /***/ }),
-/* 59 */
+/* 60 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -16127,13 +16513,13 @@ exports.y = mouseRelativeY
 
 
 /***/ }),
-/* 60 */
+/* 61 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var toPX = __webpack_require__(61)
+var toPX = __webpack_require__(62)
 
 module.exports = mouseWheelListen
 
@@ -16174,13 +16560,13 @@ function mouseWheelListen(element, callback, noScroll) {
 
 
 /***/ }),
-/* 61 */
+/* 62 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var parseUnit = __webpack_require__(62)
+var parseUnit = __webpack_require__(63)
 
 module.exports = toPX
 
@@ -16255,7 +16641,7 @@ function toPX(str, element) {
 
 
 /***/ }),
-/* 62 */
+/* 63 */
 /***/ (function(module, exports) {
 
 module.exports = function parseUnit(str, out) {
@@ -16270,7 +16656,7 @@ module.exports = function parseUnit(str, out) {
 }
 
 /***/ }),
-/* 63 */
+/* 64 */
 /***/ (function(module, exports) {
 
 var rootPosition = { left: 0, top: 0 }
@@ -16301,13 +16687,13 @@ function getBoundingClientOffset (element) {
 
 
 /***/ }),
-/* 64 */
+/* 65 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var isBrowser = __webpack_require__(65)
+var isBrowser = __webpack_require__(66)
 
 function detect() {
 	var supported = false
@@ -16332,13 +16718,13 @@ module.exports = isBrowser && detect()
 
 
 /***/ }),
-/* 65 */
+/* 66 */
 /***/ (function(module, exports) {
 
 module.exports = true;
 
 /***/ }),
-/* 66 */
+/* 67 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -16376,10 +16762,18 @@ class ShaderProgram {
         this.attrCol = __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].getAttribLocation(this.prog, "vs_Col");
         this.attrUV = __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].getAttribLocation(this.prog, "vs_UV");
         this.attrBiome = __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].getAttribLocation(this.prog, "vs_Biome");
+        this.attrCol1 = __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].getAttribLocation(this.prog, "vs_Col1");
+        this.attrCol2 = __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].getAttribLocation(this.prog, "vs_Col2");
+        this.attrCol3 = __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].getAttribLocation(this.prog, "vs_Col3");
+        this.attrCol4 = __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].getAttribLocation(this.prog, "vs_Col4");
         this.unifModel = __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].getUniformLocation(this.prog, "u_Model");
         this.unifModelInvTr = __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].getUniformLocation(this.prog, "u_ModelInvTr");
         this.unifViewProj = __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].getUniformLocation(this.prog, "u_ViewProj");
         this.unifLightSpaceMatrix = __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].getUniformLocation(this.prog, "u_LightSpaceMatrix");
+        this.unifLightPosition = __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].getUniformLocation(this.prog, "u_LightPos");
+        this.unifCameraPosition = __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].getUniformLocation(this.prog, "u_CameraPosition");
+        this.unifTileType = __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].getUniformLocation(this.prog, "u_TileType");
+        this.unifLightingEnabled = __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].getUniformLocation(this.prog, "u_LightingEnabled");
         __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].enable(__WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].BLEND);
         __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].blendFunc(__WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].SRC_ALPHA, __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].ONE_MINUS_SRC_ALPHA);
     }
@@ -16413,30 +16807,79 @@ class ShaderProgram {
             __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].uniformMatrix4fv(this.unifLightSpaceMatrix, false, m);
         }
     }
+    setLightPosition(p) {
+        this.use();
+        if (this.unifLightPosition !== -1) {
+            __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].uniform3fv(this.unifLightPosition, p);
+        }
+    }
+    setTileType(t) {
+        this.use();
+        if (this.unifTileType !== -1) {
+            __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].uniform1i(this.unifTileType, t);
+        }
+    }
+    setLightingEnabled(t) {
+        this.use();
+        if (this.unifLightingEnabled !== -1) {
+            __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].uniform1i(this.unifLightingEnabled, t);
+        }
+    }
+    setCameraPosition(p) {
+        this.use();
+        if (this.unifCameraPosition !== -1) {
+            __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].uniform3fv(this.unifCameraPosition, p);
+        }
+    }
     draw(d) {
         this.use();
         if (this.attrPos !== -1 && d.bindPos()) {
             __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].enableVertexAttribArray(this.attrPos);
             __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].vertexAttribPointer(this.attrPos, 4, __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].FLOAT, false, 0, 0);
+            __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].vertexAttribDivisor(this.attrPos, 0);
         }
         if (this.attrNor !== -1 && d.bindNor()) {
             __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].enableVertexAttribArray(this.attrNor);
             __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].vertexAttribPointer(this.attrNor, 4, __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].FLOAT, false, 0, 0);
+            __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].vertexAttribDivisor(this.attrNor, 0);
         }
         if (this.attrCol !== -1 && d.bindCol()) {
             __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].enableVertexAttribArray(this.attrCol);
             __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].vertexAttribPointer(this.attrCol, 4, __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].FLOAT, false, 0, 0);
+            __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].vertexAttribDivisor(this.attrCol, 0);
         }
         if (this.attrUV !== -1 && d.bindUV()) {
             __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].enableVertexAttribArray(this.attrUV);
             __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].vertexAttribPointer(this.attrUV, 2, __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].FLOAT, false, 0, 0);
+            __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].vertexAttribDivisor(this.attrUV, 0);
         }
         if (this.attrBiome !== -1 && d.bindBiome()) {
             __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].enableVertexAttribArray(this.attrBiome);
             __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].vertexAttribIPointer(this.attrBiome, 1, __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].UNSIGNED_INT, 0, 0);
+            __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].vertexAttribDivisor(this.attrBiome, 0);
+        }
+        if (this.attrCol1 != -1 && d.bindCol1()) {
+            __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].enableVertexAttribArray(this.attrCol1);
+            __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].vertexAttribPointer(this.attrCol1, 4, __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].FLOAT, false, 0, 0);
+            __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].vertexAttribDivisor(this.attrCol1, 1); // Advance 1 index in col VBO for each drawn instance
+        }
+        if (this.attrCol2 != -1 && d.bindCol2()) {
+            __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].enableVertexAttribArray(this.attrCol2);
+            __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].vertexAttribPointer(this.attrCol2, 4, __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].FLOAT, false, 0, 0);
+            __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].vertexAttribDivisor(this.attrCol2, 1); // Advance 1 index in col VBO for each drawn instance
+        }
+        if (this.attrCol3 != -1 && d.bindCol3()) {
+            __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].enableVertexAttribArray(this.attrCol3);
+            __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].vertexAttribPointer(this.attrCol3, 4, __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].FLOAT, false, 0, 0);
+            __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].vertexAttribDivisor(this.attrCol3, 1); // Advance 1 index in col VBO for each drawn instance
+        }
+        if (this.attrCol4 != -1 && d.bindCol4()) {
+            __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].enableVertexAttribArray(this.attrCol4);
+            __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].vertexAttribPointer(this.attrCol4, 4, __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].FLOAT, false, 0, 0);
+            __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].vertexAttribDivisor(this.attrCol4, 1); // Advance 1 index in col VBO for each drawn instance
         }
         d.bindIdx();
-        __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].drawElements(d.drawMode(), d.elemCount(), __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].UNSIGNED_INT, 0);
+        __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].drawElementsInstanced(d.drawMode(), d.elemCount(), __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].UNSIGNED_INT, 0, d.numInstances);
         if (this.attrPos !== -1)
             __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].disableVertexAttribArray(this.attrPos);
         if (this.attrNor !== -1)
@@ -16447,6 +16890,14 @@ class ShaderProgram {
             __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].disableVertexAttribArray(this.attrUV);
         if (this.attrBiome !== -1)
             __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].disableVertexAttribArray(this.attrBiome);
+        if (this.attrCol1 != -1)
+            __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].disableVertexAttribArray(this.attrCol1);
+        if (this.attrCol2 != -1)
+            __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].disableVertexAttribArray(this.attrCol2);
+        if (this.attrCol3 != -1)
+            __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].disableVertexAttribArray(this.attrCol3);
+        if (this.attrCol4 != -1)
+            __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].disableVertexAttribArray(this.attrCol4);
     }
 }
 ;
@@ -16454,14 +16905,14 @@ class ShaderProgram {
 
 
 /***/ }),
-/* 67 */
+/* 68 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__geometry_Face__ = __webpack_require__(4);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_gl_matrix__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__globals__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__geometry_Geometry__ = __webpack_require__(68);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__geometry_Geometry__ = __webpack_require__(69);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__components_TectonicPlate__ = __webpack_require__(72);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__components_Temperature__ = __webpack_require__(73);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__components_Precipitation__ = __webpack_require__(74);
@@ -16476,6 +16927,7 @@ class Planet extends __WEBPACK_IMPORTED_MODULE_3__geometry_Geometry__["a" /* def
     constructor() {
         super();
         this.tectonicPlates = new Set();
+        this.numInstances = 1;
     }
     determineBiomes() {
         // temperature  // precipitation    // elevation
@@ -16518,77 +16970,75 @@ class Planet extends __WEBPACK_IMPORTED_MODULE_3__geometry_Geometry__["a" /* def
             case "Terrain":
                 {
                     for (let plate of this.tectonicPlates) {
-                        if (plate.oceanic()) {
-                            for (let face of plate.faces) {
-                                if (face.elevation > 0)
-                                    face.setColor(__WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].fromValues(200 / 255, 200 / 255, 100 / 255));
-                                else {
-                                    let color = __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].fromValues(0, 0.1, 0.9);
-                                    __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].scale(color, color, face.elevation + __WEBPACK_IMPORTED_MODULE_4__components_TectonicPlate__["a" /* default */].seaLevel);
-                                    face.setColor(color);
-                                }
-                            }
-                        }
-                        else {
-                            for (let face of plate.faces) {
-                                switch (face.biome) {
-                                    case __WEBPACK_IMPORTED_MODULE_0__geometry_Face__["a" /* Biome */].SnowyMountain:
-                                        {
-                                            let color = __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].fromValues(0.9, 0.9, 0.9);
-                                            __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].scale(color, color, face.elevation + __WEBPACK_IMPORTED_MODULE_4__components_TectonicPlate__["a" /* default */].seaLevel);
-                                            face.setColor(color);
-                                            break;
-                                        }
-                                    case __WEBPACK_IMPORTED_MODULE_0__geometry_Face__["a" /* Biome */].RockyMountain:
-                                        {
-                                            let color = __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].fromValues(0.4, 0.35, 0.3);
-                                            __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].scale(color, color, face.elevation + __WEBPACK_IMPORTED_MODULE_4__components_TectonicPlate__["a" /* default */].seaLevel);
-                                            face.setColor(color);
-                                            break;
-                                        }
-                                    case __WEBPACK_IMPORTED_MODULE_0__geometry_Face__["a" /* Biome */].Lake:
-                                        {
-                                            let color = __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].fromValues(0, .2, .8);
-                                            __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].scale(color, color, face.elevation + __WEBPACK_IMPORTED_MODULE_4__components_TectonicPlate__["a" /* default */].seaLevel);
-                                            face.setColor(color);
-                                            break;
-                                        }
-                                    case __WEBPACK_IMPORTED_MODULE_0__geometry_Face__["a" /* Biome */].Desert:
-                                        {
-                                            let color = __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].fromValues(250 / 255, 200 / 255, 50 / 255);
-                                            __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].scale(color, color, face.elevation + __WEBPACK_IMPORTED_MODULE_4__components_TectonicPlate__["a" /* default */].seaLevel);
-                                            face.setColor(color);
-                                            break;
-                                        }
-                                    case __WEBPACK_IMPORTED_MODULE_0__geometry_Face__["a" /* Biome */].Tundra:
-                                        {
-                                            let color = __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].fromValues(255 / 255, 250 / 255, 230 / 255);
-                                            __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].scale(color, color, face.elevation + __WEBPACK_IMPORTED_MODULE_4__components_TectonicPlate__["a" /* default */].seaLevel);
-                                            face.setColor(color);
-                                            break;
-                                        }
-                                    case __WEBPACK_IMPORTED_MODULE_0__geometry_Face__["a" /* Biome */].Forest:
-                                        {
-                                            let color = __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].fromValues(40 / 255, 160 / 255, 0);
-                                            __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].scale(color, color, face.elevation + __WEBPACK_IMPORTED_MODULE_4__components_TectonicPlate__["a" /* default */].seaLevel);
-                                            face.setColor(color);
-                                            break;
-                                        }
-                                    case __WEBPACK_IMPORTED_MODULE_0__geometry_Face__["a" /* Biome */].Jungle:
-                                        {
-                                            let color = __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].fromValues(20 / 255, 120 / 255, 0);
-                                            __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].scale(color, color, face.elevation + __WEBPACK_IMPORTED_MODULE_4__components_TectonicPlate__["a" /* default */].seaLevel);
-                                            face.setColor(color);
-                                            break;
-                                        }
-                                    case __WEBPACK_IMPORTED_MODULE_0__geometry_Face__["a" /* Biome */].Grassland:
-                                        {
-                                            let color = __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].fromValues(0.1, 0.9, 0.0);
-                                            __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].scale(color, color, face.elevation + __WEBPACK_IMPORTED_MODULE_4__components_TectonicPlate__["a" /* default */].seaLevel);
-                                            face.setColor(color);
-                                            break;
-                                        }
-                                }
+                        for (let face of plate.faces) {
+                            switch (face.biome) {
+                                case __WEBPACK_IMPORTED_MODULE_0__geometry_Face__["a" /* Biome */].SnowyMountain:
+                                    {
+                                        let color = __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].fromValues(0.9, 0.9, 0.9);
+                                        __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].scale(color, color, face.elevation + __WEBPACK_IMPORTED_MODULE_4__components_TectonicPlate__["a" /* default */].seaLevel);
+                                        face.setColor(color);
+                                        break;
+                                    }
+                                case __WEBPACK_IMPORTED_MODULE_0__geometry_Face__["a" /* Biome */].RockyMountain:
+                                    {
+                                        let color = __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].fromValues(0.4, 0.35, 0.3);
+                                        __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].scale(color, color, face.elevation + __WEBPACK_IMPORTED_MODULE_4__components_TectonicPlate__["a" /* default */].seaLevel);
+                                        face.setColor(color);
+                                        break;
+                                    }
+                                case __WEBPACK_IMPORTED_MODULE_0__geometry_Face__["a" /* Biome */].Lake:
+                                    {
+                                        let color = __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].fromValues(0, .2, .8);
+                                        __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].scale(color, color, face.elevation + __WEBPACK_IMPORTED_MODULE_4__components_TectonicPlate__["a" /* default */].seaLevel);
+                                        face.setColor(color);
+                                        break;
+                                    }
+                                case __WEBPACK_IMPORTED_MODULE_0__geometry_Face__["a" /* Biome */].Desert:
+                                    {
+                                        let color = __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].fromValues(250 / 255, 200 / 255, 50 / 255);
+                                        __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].scale(color, color, face.elevation + __WEBPACK_IMPORTED_MODULE_4__components_TectonicPlate__["a" /* default */].seaLevel);
+                                        face.setColor(color);
+                                        break;
+                                    }
+                                case __WEBPACK_IMPORTED_MODULE_0__geometry_Face__["a" /* Biome */].Tundra:
+                                    {
+                                        let color = __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].fromValues(255 / 255, 250 / 255, 230 / 255);
+                                        __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].scale(color, color, face.elevation + __WEBPACK_IMPORTED_MODULE_4__components_TectonicPlate__["a" /* default */].seaLevel);
+                                        face.setColor(color);
+                                        break;
+                                    }
+                                case __WEBPACK_IMPORTED_MODULE_0__geometry_Face__["a" /* Biome */].Forest:
+                                    {
+                                        let color = __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].fromValues(40 / 255, 160 / 255, 0);
+                                        __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].scale(color, color, face.elevation + __WEBPACK_IMPORTED_MODULE_4__components_TectonicPlate__["a" /* default */].seaLevel);
+                                        face.setColor(color);
+                                        break;
+                                    }
+                                case __WEBPACK_IMPORTED_MODULE_0__geometry_Face__["a" /* Biome */].Jungle:
+                                    {
+                                        let color = __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].fromValues(20 / 255, 120 / 255, 0);
+                                        __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].scale(color, color, face.elevation + __WEBPACK_IMPORTED_MODULE_4__components_TectonicPlate__["a" /* default */].seaLevel);
+                                        face.setColor(color);
+                                        break;
+                                    }
+                                case __WEBPACK_IMPORTED_MODULE_0__geometry_Face__["a" /* Biome */].Grassland:
+                                    {
+                                        let color = __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].fromValues(0.1, 0.9, 0.0);
+                                        __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].scale(color, color, face.elevation + __WEBPACK_IMPORTED_MODULE_4__components_TectonicPlate__["a" /* default */].seaLevel);
+                                        face.setColor(color);
+                                        break;
+                                    }
+                                case __WEBPACK_IMPORTED_MODULE_0__geometry_Face__["a" /* Biome */].Ocean:
+                                    {
+                                        let color = __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].fromValues(0.1, 0.2, 0.8);
+                                        __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].scale(color, color, face.elevation + __WEBPACK_IMPORTED_MODULE_4__components_TectonicPlate__["a" /* default */].seaLevel);
+                                        face.color = color;
+                                    }
+                                case __WEBPACK_IMPORTED_MODULE_0__geometry_Face__["a" /* Biome */].Tropics:
+                                    {
+                                        face.setColor(__WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].fromValues(200 / 255, 200 / 255, 100 / 255));
+                                        break;
+                                    }
                             }
                         }
                     }
@@ -16667,7 +17117,25 @@ class Planet extends __WEBPACK_IMPORTED_MODULE_3__geometry_Geometry__["a" /* def
     extrudeFaces() {
         for (let plate of this.tectonicPlates) {
             for (let face of plate.faces) {
-                this.extrude(face, face.elevation * 0.1);
+                // if (face.biome === Biome.Ocean)
+                // {
+                //     // copy the face
+                //     let surface = this.copyFace(face);
+                //     surface.color = face.color;
+                //     surface.biome = Biome.Surface;
+                //     let edge = surface.edge;
+                //     let normal = vec3.create();
+                //     do
+                //     {
+                //         vec3.normalize(normal, edge.vertex.position);
+                //         vec3.scale(normal, normal, 1.0 + TectonicPlate.seaLevel * 0.25);
+                //         edge.vertex.position = vec3.clone(normal);
+                //     }
+                //     while ((edge = edge.next) !== surface.edge);
+                //     this.extrude(face, face.elevation * 0.25);
+                //     continue;
+                // }
+                this.extrude(face, (face.elevation + __WEBPACK_IMPORTED_MODULE_4__components_TectonicPlate__["a" /* default */].seaLevel) * 0.25);
             }
         }
     }
@@ -16777,19 +17245,59 @@ class Planet extends __WEBPACK_IMPORTED_MODULE_3__geometry_Geometry__["a" /* def
             }
         }
     }
+    getPalmTreePositions(density) {
+        let tiles = [];
+        for (let plate of this.tectonicPlates) {
+            for (let face of plate.faces.filter(f => f.biome == __WEBPACK_IMPORTED_MODULE_0__geometry_Face__["a" /* Biome */].Tropics)) {
+                if (Math.random() < density)
+                    tiles.push(face.centroid());
+            }
+        }
+        return tiles;
+    }
+    getFirTreePositions(density) {
+        let tiles = [];
+        for (let plate of this.tectonicPlates) {
+            for (let face of plate.faces.filter(f => f.biome === __WEBPACK_IMPORTED_MODULE_0__geometry_Face__["a" /* Biome */].Forest || f.biome === __WEBPACK_IMPORTED_MODULE_0__geometry_Face__["a" /* Biome */].Jungle)) {
+                if (Math.random() < density)
+                    tiles.push(face.centroid());
+            }
+        }
+        return tiles;
+    }
+    getSnowTreePositions(density) {
+        let tiles = [];
+        for (let plate of this.tectonicPlates) {
+            for (let face of plate.faces.filter(f => f.biome === __WEBPACK_IMPORTED_MODULE_0__geometry_Face__["a" /* Biome */].SnowyMountain)) {
+                if (Math.random() < density)
+                    tiles.push(face.centroid());
+            }
+        }
+        return tiles;
+    }
+    getCowPositions(density) {
+        let tiles = [];
+        for (let plate of this.tectonicPlates) {
+            for (let face of plate.faces.filter(f => f.biome === __WEBPACK_IMPORTED_MODULE_0__geometry_Face__["a" /* Biome */].Grassland)) {
+                if (Math.random() < density)
+                    tiles.push(face.centroid());
+            }
+        }
+        return tiles;
+    }
 }
 /* harmony default export */ __webpack_exports__["a"] = (Planet);
 
 
 /***/ }),
-/* 68 */
+/* 69 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__Face__ = __webpack_require__(4);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__Edge__ = __webpack_require__(69);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__Vertex__ = __webpack_require__(70);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__rendering_gl_Drawable__ = __webpack_require__(71);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__Edge__ = __webpack_require__(70);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__Vertex__ = __webpack_require__(71);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__rendering_gl_Drawable__ = __webpack_require__(21);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_gl_matrix__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__globals__ = __webpack_require__(2);
 
@@ -16806,6 +17314,7 @@ class Geometry extends __WEBPACK_IMPORTED_MODULE_3__rendering_gl_Drawable__["a" 
         this.vertexes = [];
     }
     create() {
+        let translucent = [];
         let idxs = [];
         let vertPos = [];
         let vertNorm = [];
@@ -16813,6 +17322,62 @@ class Geometry extends __WEBPACK_IMPORTED_MODULE_3__rendering_gl_Drawable__["a" 
         let vertBiome = [];
         let vertUV = []; // not actual UV coordinates
         for (let face of this.faces) {
+            if (face.biome == __WEBPACK_IMPORTED_MODULE_0__Face__["a" /* Biome */].Surface) {
+                translucent.push(face);
+                continue;
+            }
+            let edge = face.edge;
+            let normal = __WEBPACK_IMPORTED_MODULE_4_gl_matrix__["d" /* vec4 */].create();
+            do {
+                let edge1 = __WEBPACK_IMPORTED_MODULE_4_gl_matrix__["c" /* vec3 */].create();
+                __WEBPACK_IMPORTED_MODULE_4_gl_matrix__["c" /* vec3 */].subtract(edge1, edge.next.vertex.position, edge.vertex.position);
+                let edge2 = __WEBPACK_IMPORTED_MODULE_4_gl_matrix__["c" /* vec3 */].create();
+                __WEBPACK_IMPORTED_MODULE_4_gl_matrix__["c" /* vec3 */].subtract(edge2, edge.next.next.vertex.position, edge.vertex.position);
+                let crossProd = __WEBPACK_IMPORTED_MODULE_4_gl_matrix__["c" /* vec3 */].create();
+                __WEBPACK_IMPORTED_MODULE_4_gl_matrix__["c" /* vec3 */].cross(crossProd, edge1, edge2);
+                if (crossProd == __WEBPACK_IMPORTED_MODULE_4_gl_matrix__["c" /* vec3 */].fromValues(0, 0, 0)) {
+                    continue;
+                }
+                __WEBPACK_IMPORTED_MODULE_4_gl_matrix__["c" /* vec3 */].normalize(crossProd, crossProd);
+                normal = __WEBPACK_IMPORTED_MODULE_4_gl_matrix__["d" /* vec4 */].fromValues(crossProd[0], crossProd[1], crossProd[2], 1.0);
+                break;
+            } while ((edge = edge.next) != face.edge);
+            let meshColor = __WEBPACK_IMPORTED_MODULE_4_gl_matrix__["d" /* vec4 */].fromValues(face.color[0], face.color[1], face.color[2], 1);
+            let first = face.edge;
+            let current = first.next;
+            let firstPos = __WEBPACK_IMPORTED_MODULE_4_gl_matrix__["d" /* vec4 */].fromValues(first.vertex.position[0], first.vertex.position[1], first.vertex.position[2], 1);
+            let currentPos = __WEBPACK_IMPORTED_MODULE_4_gl_matrix__["d" /* vec4 */].fromValues(current.vertex.position[0], current.vertex.position[1], current.vertex.position[2], 1);
+            // reset current half edge
+            current = first.next;
+            // push the first vertex position and normal to the VBO
+            vertPos.push(firstPos);
+            vertNorm.push(normal);
+            vertCol.push(meshColor);
+            vertBiome.push(face.biome);
+            vertUV.push(this.getUV(first));
+            vertPos.push(currentPos);
+            vertNorm.push(normal);
+            vertCol.push(meshColor);
+            vertBiome.push(face.biome);
+            vertUV.push(this.getUV(current));
+            // vertUV.push(vec2.fromValues(1, 1));
+            let firstPosIndex = vertPos.length - 2;
+            // triangulate the face
+            while (current.next != first) {
+                let nextPos = __WEBPACK_IMPORTED_MODULE_4_gl_matrix__["d" /* vec4 */].fromValues(current.next.vertex.position[0], current.next.vertex.position[1], current.next.vertex.position[2], 1);
+                vertPos.push(nextPos);
+                vertNorm.push(normal);
+                vertCol.push(meshColor);
+                vertBiome.push(face.biome);
+                vertUV.push(this.getUV(current.next));
+                idxs.push(firstPosIndex);
+                idxs.push(vertPos.length - 2);
+                idxs.push(vertPos.length - 1);
+                current = current.next;
+                currentPos = nextPos;
+            }
+        }
+        for (let face of translucent) {
             let edge = face.edge;
             let normal = __WEBPACK_IMPORTED_MODULE_4_gl_matrix__["d" /* vec4 */].create();
             do {
@@ -16913,6 +17478,8 @@ class Geometry extends __WEBPACK_IMPORTED_MODULE_3__rendering_gl_Drawable__["a" 
         __WEBPACK_IMPORTED_MODULE_5__globals__["a" /* gl */].bufferData(__WEBPACK_IMPORTED_MODULE_5__globals__["a" /* gl */].ARRAY_BUFFER, this.biomes, __WEBPACK_IMPORTED_MODULE_5__globals__["a" /* gl */].STATIC_DRAW);
     }
     getUV(edge) {
+        if (edge.sym == null)
+            return __WEBPACK_IMPORTED_MODULE_4_gl_matrix__["b" /* vec2 */].fromValues(1, 1);
         if (edge.vertex.bottom) {
             if (edge.sym.vertex.bottom) {
                 return __WEBPACK_IMPORTED_MODULE_4_gl_matrix__["b" /* vec2 */].fromValues(1, 0);
@@ -16931,7 +17498,7 @@ class Geometry extends __WEBPACK_IMPORTED_MODULE_3__rendering_gl_Drawable__["a" 
         }
     }
     readObjFromFile() {
-        let mesh = Object(__WEBPACK_IMPORTED_MODULE_5__globals__["d" /* readTextFile */])('src/icosahedron.obj');
+        let mesh = Object(__WEBPACK_IMPORTED_MODULE_5__globals__["d" /* readTextFile */])('src/objs/icosahedron.obj');
         let lines = mesh.split('\n');
         for (let line of lines) {
             let list = line.split(" ");
@@ -17285,6 +17852,7 @@ class Geometry extends __WEBPACK_IMPORTED_MODULE_3__rendering_gl_Drawable__["a" 
         do {
             heB = heA.sym;
             newFace = new __WEBPACK_IMPORTED_MODULE_0__Face__["b" /* default */](face.color);
+            newFace.biome = face.biome;
             heC = new __WEBPACK_IMPORTED_MODULE_1__Edge__["a" /* default */]();
             heD = new __WEBPACK_IMPORTED_MODULE_1__Edge__["a" /* default */]();
             heE = new __WEBPACK_IMPORTED_MODULE_1__Edge__["a" /* default */]();
@@ -17340,6 +17908,7 @@ class Geometry extends __WEBPACK_IMPORTED_MODULE_3__rendering_gl_Drawable__["a" 
         // connect last side
         heB = heA.sym;
         newFace = new __WEBPACK_IMPORTED_MODULE_0__Face__["b" /* default */](face.color);
+        newFace.biome = face.biome;
         heC = new __WEBPACK_IMPORTED_MODULE_1__Edge__["a" /* default */]();
         heD = new __WEBPACK_IMPORTED_MODULE_1__Edge__["a" /* default */]();
         heE = new __WEBPACK_IMPORTED_MODULE_1__Edge__["a" /* default */]();
@@ -17384,7 +17953,7 @@ class Geometry extends __WEBPACK_IMPORTED_MODULE_3__rendering_gl_Drawable__["a" 
         face.edge.sym.next.sym = heF;
         heF.sym = face.edge.sym.next;
     }
-    extrudeSubface(face, scale, height, topCol, sideCol) {
+    copyFace(face) {
         // create new face
         let newFace = new __WEBPACK_IMPORTED_MODULE_0__Face__["b" /* default */]();
         this.faces.push(newFace);
@@ -17396,12 +17965,7 @@ class Geometry extends __WEBPACK_IMPORTED_MODULE_3__rendering_gl_Drawable__["a" 
         let newEdge;
         let prev;
         do {
-            let position = edge.vertex.position;
-            let direction = __WEBPACK_IMPORTED_MODULE_4_gl_matrix__["c" /* vec3 */].create();
-            __WEBPACK_IMPORTED_MODULE_4_gl_matrix__["c" /* vec3 */].subtract(direction, position, centroid);
-            __WEBPACK_IMPORTED_MODULE_4_gl_matrix__["c" /* vec3 */].scale(direction, direction, scale);
-            __WEBPACK_IMPORTED_MODULE_4_gl_matrix__["c" /* vec3 */].add(direction, direction, centroid);
-            let vertex = new __WEBPACK_IMPORTED_MODULE_2__Vertex__["a" /* default */](direction);
+            let vertex = new __WEBPACK_IMPORTED_MODULE_2__Vertex__["a" /* default */](edge.vertex.position);
             this.vertexes.push(vertex);
             newEdge = new __WEBPACK_IMPORTED_MODULE_1__Edge__["a" /* default */](newFace, vertex);
             this.edges.push(newEdge);
@@ -17422,12 +17986,6 @@ class Geometry extends __WEBPACK_IMPORTED_MODULE_3__rendering_gl_Drawable__["a" 
         // connect last edge
         newEdge.next = newFace.edge;
         newFace.edge.sym.vertex = newEdge.vertex;
-        let status = this.testStructure();
-        // connect these new vertices with new half edges, don't forget the syms
-        // extrude the new subface
-        newFace.color = sideCol;
-        this.extrude(newFace, height);
-        newFace.color = topCol;
         return newFace;
     }
     testStructure() {
@@ -17456,7 +18014,7 @@ class Geometry extends __WEBPACK_IMPORTED_MODULE_3__rendering_gl_Drawable__["a" 
 
 
 /***/ }),
-/* 69 */
+/* 70 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -17476,7 +18034,7 @@ Edge.count = 0;
 
 
 /***/ }),
-/* 70 */
+/* 71 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -17490,141 +18048,6 @@ class Vertex {
 }
 Vertex.count = 0;
 /* harmony default export */ __webpack_exports__["a"] = (Vertex);
-
-
-/***/ }),
-/* 71 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__globals__ = __webpack_require__(2);
-
-class Drawable {
-    constructor() {
-        this.SHADOW_WIDTH = 16384;
-        this.SHADOW_HEIGHT = 16384;
-        this.count = 0;
-        this.idxGenerated = false;
-        this.posGenerated = false;
-        this.norGenerated = false;
-        this.colGenerated = false;
-        this.uvGenerated = false;
-        this.biomeGenerated = false;
-        this.depthGenerated = false;
-        this.depthMapGenerated = false;
-        this.numInstances = 0; // How many instances of this Drawable the shader program should draw
-    }
-    destory() {
-        __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].deleteBuffer(this.bufIdx);
-        __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].deleteBuffer(this.bufPos);
-        __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].deleteBuffer(this.bufNor);
-        __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].deleteBuffer(this.bufCol);
-        __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].deleteBuffer(this.bufUV);
-        __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].deleteBuffer(this.bufBiome);
-        __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].deleteBuffer(this.bufDepth);
-        __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].deleteTexture(this.depthMap);
-    }
-    generateIdx() {
-        this.idxGenerated = true;
-        this.bufIdx = __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].createBuffer();
-    }
-    generatePos() {
-        this.posGenerated = true;
-        this.bufPos = __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].createBuffer();
-    }
-    generateNor() {
-        this.norGenerated = true;
-        this.bufNor = __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].createBuffer();
-    }
-    generateCol() {
-        this.colGenerated = true;
-        this.bufCol = __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].createBuffer();
-    }
-    generateUV() {
-        this.uvGenerated = true;
-        this.bufUV = __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].createBuffer();
-    }
-    generateBiome() {
-        this.biomeGenerated = true;
-        this.bufBiome = __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].createBuffer();
-    }
-    generateDepth() {
-        this.depthGenerated = true;
-        this.bufDepth = __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].createFramebuffer();
-    }
-    generateDepthMap() {
-        this.depthMapGenerated = true;
-        this.depthMap = __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].createTexture();
-    }
-    bindIdx() {
-        if (this.idxGenerated) {
-            __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].bindBuffer(__WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].ELEMENT_ARRAY_BUFFER, this.bufIdx);
-        }
-        return this.idxGenerated;
-    }
-    bindPos() {
-        if (this.posGenerated) {
-            __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].bindBuffer(__WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].ARRAY_BUFFER, this.bufPos);
-        }
-        return this.posGenerated;
-    }
-    bindNor() {
-        if (this.norGenerated) {
-            __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].bindBuffer(__WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].ARRAY_BUFFER, this.bufNor);
-        }
-        return this.norGenerated;
-    }
-    bindCol() {
-        if (this.colGenerated) {
-            __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].bindBuffer(__WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].ARRAY_BUFFER, this.bufCol);
-        }
-        return this.colGenerated;
-    }
-    bindUV() {
-        if (this.uvGenerated) {
-            __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].bindBuffer(__WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].ARRAY_BUFFER, this.bufUV);
-        }
-        return this.uvGenerated;
-    }
-    bindBiome() {
-        if (this.biomeGenerated) {
-            __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].bindBuffer(__WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].ARRAY_BUFFER, this.bufBiome);
-        }
-        return this.biomeGenerated;
-    }
-    bindDepth() {
-        if (this.depthGenerated) {
-            __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].bindFramebuffer(__WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].FRAMEBUFFER, this.bufDepth);
-            __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].framebufferTexture2D(__WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].FRAMEBUFFER, __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].DEPTH_ATTACHMENT, __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].TEXTURE_2D, this.depthMap, 0);
-            __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].drawBuffers([__WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].NONE]);
-            __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].readBuffer(__WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].NONE);
-            __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].bindFramebuffer(__WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].FRAMEBUFFER, null);
-        }
-        return this.depthGenerated;
-    }
-    bindDepthMap() {
-        if (this.depthMapGenerated) {
-            __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].bindTexture(__WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].TEXTURE_2D, this.depthMap);
-            __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].texImage2D(__WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].TEXTURE_2D, 0, __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].DEPTH_COMPONENT32F, this.SHADOW_WIDTH, this.SHADOW_HEIGHT, 0, __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].DEPTH_COMPONENT, __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].FLOAT, null);
-            __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].texParameteri(__WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].TEXTURE_2D, __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].TEXTURE_MIN_FILTER, __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].NEAREST);
-            __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].texParameteri(__WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].TEXTURE_2D, __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].TEXTURE_MAG_FILTER, __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].NEAREST);
-            __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].texParameteri(__WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].TEXTURE_2D, __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].TEXTURE_WRAP_S, __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].REPEAT);
-            __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].texParameteri(__WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].TEXTURE_2D, __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].TEXTURE_WRAP_T, __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].REPEAT);
-        }
-        return this.depthMapGenerated;
-    }
-    elemCount() {
-        return this.count;
-    }
-    drawMode() {
-        return __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].TRIANGLES;
-    }
-    setNumInstances(num) {
-        this.numInstances = num;
-    }
-}
-;
-/* harmony default export */ __webpack_exports__["a"] = (Drawable);
 
 
 /***/ }),
@@ -17725,9 +18148,11 @@ class TectonicPlate {
         else {
             for (let face of this.faces) {
                 if (face.elevation > TectonicPlate.seaLevel) {
+                    face.biome = __WEBPACK_IMPORTED_MODULE_0__geometry_Face__["a" /* Biome */].Tropics;
                     face.color = __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].fromValues(200 / 255, 200 / 255, 100 / 255);
                 }
                 else {
+                    face.biome = __WEBPACK_IMPORTED_MODULE_0__geometry_Face__["a" /* Biome */].Ocean;
                     face.elevation = TectonicPlate.seaLevel;
                 }
             }
@@ -17797,7 +18222,7 @@ class Precipitation {
             else {
                 for (let lake of plate.lakes()) {
                     lake.precipitation = 1.0;
-                    let queue = lake.neighbors().filter(n => n.biome != __WEBPACK_IMPORTED_MODULE_0__geometry_Face__["a" /* Biome */].Lake);
+                    let queue = lake.neighbors().filter(n => n.biome !== __WEBPACK_IMPORTED_MODULE_0__geometry_Face__["a" /* Biome */].Lake);
                     let precipitation = 1.0;
                     let visited = new Set();
                     let toAdd = [];
@@ -17828,27 +18253,177 @@ class Precipitation {
 
 /***/ }),
 /* 75 */
-/***/ (function(module, exports) {
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
-module.exports = "# version 300 es\nprecision highp float;\n\nuniform mat4 u_Model;       // The matrix that defines the transformation of the\n                            // object we're rendering. \n\nuniform mat4 u_ModelInvTr;  // The inverse transpose of the model matrix.\n                            // This allows us to transform the object's normals properly\n                            // if the object has been non-uniformly scaled.\n\nuniform mat4 u_ViewProj;    // The matrix that defines the camera's transformation.\n\nuniform mat4 u_LightSpaceMatrix;\n\nin vec4 vs_Pos;             // The array of vertex positions passed to the shader\n\n\nvoid main()\n{\n    gl_Position = u_LightSpaceMatrix * u_Model * vs_Pos;\n}\n"
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_gl_matrix__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__rendering_gl_Drawable__ = __webpack_require__(21);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__globals__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_webgl_obj_loader__ = __webpack_require__(76);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_webgl_obj_loader___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_webgl_obj_loader__);
+
+
+
+
+class Mesh extends __WEBPACK_IMPORTED_MODULE_1__rendering_gl_Drawable__["a" /* default */] {
+    constructor(objString, center) {
+        super(); // Call the constructor of the super class. This is required.
+        this.center = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["d" /* vec4 */].fromValues(center[0], center[1], center[2], 1);
+        this.objString = objString;
+    }
+    create(color) {
+        let posTemp = [];
+        let norTemp = [];
+        let uvsTemp = [];
+        let idxTemp = [];
+        var loadedMesh = new __WEBPACK_IMPORTED_MODULE_3_webgl_obj_loader__["Mesh"](this.objString);
+        //posTemp = loadedMesh.vertices;
+        for (var i = 0; i < loadedMesh.vertices.length; i++) {
+            posTemp.push(loadedMesh.vertices[i]);
+            if (i % 3 == 2)
+                posTemp.push(1.0);
+        }
+        for (var i = 0; i < loadedMesh.vertexNormals.length; i++) {
+            norTemp.push(loadedMesh.vertexNormals[i]);
+            if (i % 3 == 2)
+                norTemp.push(0.0);
+        }
+        uvsTemp = loadedMesh.textures;
+        idxTemp = loadedMesh.indices;
+        this.colors = new Float32Array(posTemp.length);
+        if (color) {
+            for (let i = 0; i < posTemp.length; i++) {
+                this.colors[i] = color[i % 4];
+            }
+        }
+        else {
+            for (let i = 0; i < posTemp.length; i++) {
+                this.colors[i] = 1.0;
+            }
+        }
+        this.indices = new Uint32Array(idxTemp);
+        this.normals = new Float32Array(norTemp);
+        this.positions = new Float32Array(posTemp);
+        if (uvsTemp.length > 0)
+            this.uvs = new Float32Array(uvsTemp);
+        this.generateIdx();
+        this.generatePos();
+        this.generateNor();
+        this.generateUV();
+        this.generateCol();
+        this.generateColumns();
+        this.generateDepthMap();
+        this.generateDepth();
+        this.bindDepthMap();
+        this.bindDepth();
+        this.count = this.indices.length;
+        __WEBPACK_IMPORTED_MODULE_2__globals__["a" /* gl */].bindBuffer(__WEBPACK_IMPORTED_MODULE_2__globals__["a" /* gl */].ELEMENT_ARRAY_BUFFER, this.bufIdx);
+        __WEBPACK_IMPORTED_MODULE_2__globals__["a" /* gl */].bufferData(__WEBPACK_IMPORTED_MODULE_2__globals__["a" /* gl */].ELEMENT_ARRAY_BUFFER, this.indices, __WEBPACK_IMPORTED_MODULE_2__globals__["a" /* gl */].STATIC_DRAW);
+        __WEBPACK_IMPORTED_MODULE_2__globals__["a" /* gl */].bindBuffer(__WEBPACK_IMPORTED_MODULE_2__globals__["a" /* gl */].ARRAY_BUFFER, this.bufNor);
+        __WEBPACK_IMPORTED_MODULE_2__globals__["a" /* gl */].bufferData(__WEBPACK_IMPORTED_MODULE_2__globals__["a" /* gl */].ARRAY_BUFFER, this.normals, __WEBPACK_IMPORTED_MODULE_2__globals__["a" /* gl */].STATIC_DRAW);
+        __WEBPACK_IMPORTED_MODULE_2__globals__["a" /* gl */].bindBuffer(__WEBPACK_IMPORTED_MODULE_2__globals__["a" /* gl */].ARRAY_BUFFER, this.bufPos);
+        __WEBPACK_IMPORTED_MODULE_2__globals__["a" /* gl */].bufferData(__WEBPACK_IMPORTED_MODULE_2__globals__["a" /* gl */].ARRAY_BUFFER, this.positions, __WEBPACK_IMPORTED_MODULE_2__globals__["a" /* gl */].STATIC_DRAW);
+        __WEBPACK_IMPORTED_MODULE_2__globals__["a" /* gl */].bindBuffer(__WEBPACK_IMPORTED_MODULE_2__globals__["a" /* gl */].ARRAY_BUFFER, this.bufCol);
+        __WEBPACK_IMPORTED_MODULE_2__globals__["a" /* gl */].bufferData(__WEBPACK_IMPORTED_MODULE_2__globals__["a" /* gl */].ARRAY_BUFFER, this.colors, __WEBPACK_IMPORTED_MODULE_2__globals__["a" /* gl */].STATIC_DRAW);
+        if (uvsTemp.length > 0) {
+            __WEBPACK_IMPORTED_MODULE_2__globals__["a" /* gl */].bindBuffer(__WEBPACK_IMPORTED_MODULE_2__globals__["a" /* gl */].ARRAY_BUFFER, this.bufUV);
+            __WEBPACK_IMPORTED_MODULE_2__globals__["a" /* gl */].bufferData(__WEBPACK_IMPORTED_MODULE_2__globals__["a" /* gl */].ARRAY_BUFFER, this.uvs, __WEBPACK_IMPORTED_MODULE_2__globals__["a" /* gl */].STATIC_DRAW);
+        }
+        console.log(`Created Mesh from OBJ`);
+        this.objString = ""; // hacky clear
+    }
+    setInstanceVBOs(col1, col2, col3, col4) {
+        __WEBPACK_IMPORTED_MODULE_2__globals__["a" /* gl */].bindBuffer(__WEBPACK_IMPORTED_MODULE_2__globals__["a" /* gl */].ARRAY_BUFFER, this.bufCol1);
+        __WEBPACK_IMPORTED_MODULE_2__globals__["a" /* gl */].bufferData(__WEBPACK_IMPORTED_MODULE_2__globals__["a" /* gl */].ARRAY_BUFFER, col1, __WEBPACK_IMPORTED_MODULE_2__globals__["a" /* gl */].STATIC_DRAW);
+        __WEBPACK_IMPORTED_MODULE_2__globals__["a" /* gl */].bindBuffer(__WEBPACK_IMPORTED_MODULE_2__globals__["a" /* gl */].ARRAY_BUFFER, this.bufCol2);
+        __WEBPACK_IMPORTED_MODULE_2__globals__["a" /* gl */].bufferData(__WEBPACK_IMPORTED_MODULE_2__globals__["a" /* gl */].ARRAY_BUFFER, col2, __WEBPACK_IMPORTED_MODULE_2__globals__["a" /* gl */].STATIC_DRAW);
+        __WEBPACK_IMPORTED_MODULE_2__globals__["a" /* gl */].bindBuffer(__WEBPACK_IMPORTED_MODULE_2__globals__["a" /* gl */].ARRAY_BUFFER, this.bufCol3);
+        __WEBPACK_IMPORTED_MODULE_2__globals__["a" /* gl */].bufferData(__WEBPACK_IMPORTED_MODULE_2__globals__["a" /* gl */].ARRAY_BUFFER, col3, __WEBPACK_IMPORTED_MODULE_2__globals__["a" /* gl */].STATIC_DRAW);
+        __WEBPACK_IMPORTED_MODULE_2__globals__["a" /* gl */].bindBuffer(__WEBPACK_IMPORTED_MODULE_2__globals__["a" /* gl */].ARRAY_BUFFER, this.bufCol4);
+        __WEBPACK_IMPORTED_MODULE_2__globals__["a" /* gl */].bufferData(__WEBPACK_IMPORTED_MODULE_2__globals__["a" /* gl */].ARRAY_BUFFER, col4, __WEBPACK_IMPORTED_MODULE_2__globals__["a" /* gl */].STATIC_DRAW);
+    }
+}
+;
+/* harmony default export */ __webpack_exports__["a"] = (Mesh);
+
 
 /***/ }),
 /* 76 */
-/***/ (function(module, exports) {
+/***/ (function(module, exports, __webpack_require__) {
 
-module.exports = "# version 300 es\n\nvoid main()\n{             \n    // gl_FragDepth = gl_FragCoord.z;\n}  "
+!function(e,t){ true?module.exports=t():"function"==typeof define&&define.amd?define("OBJ",[],t):"object"==typeof exports?exports.OBJ=t():e.OBJ=t()}(window,function(){return function(e){var t={};function n(a){if(t[a])return t[a].exports;var s=t[a]={i:a,l:!1,exports:{}};return e[a].call(s.exports,s,s.exports,n),s.l=!0,s.exports}return n.m=e,n.c=t,n.d=function(e,t,a){n.o(e,t)||Object.defineProperty(e,t,{enumerable:!0,get:a})},n.r=function(e){"undefined"!=typeof Symbol&&Symbol.toStringTag&&Object.defineProperty(e,Symbol.toStringTag,{value:"Module"}),Object.defineProperty(e,"__esModule",{value:!0})},n.t=function(e,t){if(1&t&&(e=n(e)),8&t)return e;if(4&t&&"object"==typeof e&&e&&e.__esModule)return e;var a=Object.create(null);if(n.r(a),Object.defineProperty(a,"default",{enumerable:!0,value:e}),2&t&&"string"!=typeof e)for(var s in e)n.d(a,s,function(t){return e[t]}.bind(null,s));return a},n.n=function(e){var t=e&&e.__esModule?function(){return e.default}:function(){return e};return n.d(t,"a",t),t},n.o=function(e,t){return Object.prototype.hasOwnProperty.call(e,t)},n.p="/",n(n.s=0)}({"./src/index.ts":
+/*!**********************!*\
+  !*** ./src/index.ts ***!
+  \**********************/
+/*! exports provided: Attribute, DuplicateAttributeException, Layout, Material, MaterialLibrary, Mesh, TYPES, downloadModels, downloadMeshes, initMeshBuffers, deleteMeshBuffers, version */function(module,__webpack_exports__,__webpack_require__){"use strict";eval('__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "version", function() { return version; });\n/* harmony import */ var _mesh__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./mesh */ "./src/mesh.ts");\n/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Mesh", function() { return _mesh__WEBPACK_IMPORTED_MODULE_0__["default"]; });\n\n/* harmony import */ var _material__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./material */ "./src/material.ts");\n/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Material", function() { return _material__WEBPACK_IMPORTED_MODULE_1__["Material"]; });\n\n/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "MaterialLibrary", function() { return _material__WEBPACK_IMPORTED_MODULE_1__["MaterialLibrary"]; });\n\n/* harmony import */ var _layout__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./layout */ "./src/layout.ts");\n/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Attribute", function() { return _layout__WEBPACK_IMPORTED_MODULE_2__["Attribute"]; });\n\n/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "DuplicateAttributeException", function() { return _layout__WEBPACK_IMPORTED_MODULE_2__["DuplicateAttributeException"]; });\n\n/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Layout", function() { return _layout__WEBPACK_IMPORTED_MODULE_2__["Layout"]; });\n\n/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "TYPES", function() { return _layout__WEBPACK_IMPORTED_MODULE_2__["TYPES"]; });\n\n/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./utils */ "./src/utils.ts");\n/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "downloadModels", function() { return _utils__WEBPACK_IMPORTED_MODULE_3__["downloadModels"]; });\n\n/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "downloadMeshes", function() { return _utils__WEBPACK_IMPORTED_MODULE_3__["downloadMeshes"]; });\n\n/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "initMeshBuffers", function() { return _utils__WEBPACK_IMPORTED_MODULE_3__["initMeshBuffers"]; });\n\n/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "deleteMeshBuffers", function() { return _utils__WEBPACK_IMPORTED_MODULE_3__["deleteMeshBuffers"]; });\n\n\n\n\n\nconst version = "1.1.3";\n/**\n * @namespace\n */\n\n\n\n//# sourceURL=webpack://OBJ/./src/index.ts?')},"./src/layout.ts":
+/*!***********************!*\
+  !*** ./src/layout.ts ***!
+  \***********************/
+/*! exports provided: TYPES, DuplicateAttributeException, Attribute, Layout */function(module,__webpack_exports__,__webpack_require__){"use strict";eval('__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "TYPES", function() { return TYPES; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DuplicateAttributeException", function() { return DuplicateAttributeException; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Attribute", function() { return Attribute; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Layout", function() { return Layout; });\nvar TYPES;\n(function (TYPES) {\n    TYPES[TYPES["BYTE"] = 1] = "BYTE";\n    TYPES[TYPES["UNSIGNED_BYTE"] = 1] = "UNSIGNED_BYTE";\n    TYPES[TYPES["SHORT"] = 2] = "SHORT";\n    TYPES[TYPES["UNSIGNED_SHORT"] = 2] = "UNSIGNED_SHORT";\n    TYPES[TYPES["FLOAT"] = 4] = "FLOAT";\n})(TYPES || (TYPES = {}));\n/**\n * An exception for when two or more of the same attributes are found in the\n * same layout.\n * @private\n */\nclass DuplicateAttributeException extends Error {\n    /**\n     * Create a DuplicateAttributeException\n     * @param {Attribute} attribute - The attribute that was found more than\n     *        once in the {@link Layout}\n     */\n    constructor(attribute) {\n        super(`found duplicate attribute: ${attribute.key}`);\n    }\n}\n/**\n * Represents how a vertex attribute should be packed into an buffer.\n * @private\n */\nclass Attribute {\n    /**\n     * Create an attribute. Do not call this directly, use the predefined\n     * constants.\n     * @param {string} key - The name of this attribute as if it were a key in\n     *        an Object. Use the camel case version of the upper snake case\n     *        const name.\n     * @param {number} size - The number of components per vertex attribute.\n     *        Must be 1, 2, 3, or 4.\n     * @param {string} type - The data type of each component for this\n     *        attribute. Possible values:<br/>\n     *        "BYTE": signed 8-bit integer, with values in [-128, 127]<br/>\n     *        "SHORT": signed 16-bit integer, with values in\n     *            [-32768, 32767]<br/>\n     *        "UNSIGNED_BYTE": unsigned 8-bit integer, with values in\n     *            [0, 255]<br/>\n     *        "UNSIGNED_SHORT": unsigned 16-bit integer, with values in\n     *            [0, 65535]<br/>\n     *        "FLOAT": 32-bit floating point number\n     * @param {boolean} normalized - Whether integer data values should be\n     *        normalized when being casted to a float.<br/>\n     *        If true, signed integers are normalized to [-1, 1].<br/>\n     *        If true, unsigned integers are normalized to [0, 1].<br/>\n     *        For type "FLOAT", this parameter has no effect.\n     */\n    constructor(key, size, type, normalized = false) {\n        this.key = key;\n        this.size = size;\n        this.type = type;\n        this.normalized = normalized;\n        this.sizeOfType = this.type;\n        this.sizeInBytes = this.sizeOfType * size;\n    }\n}\n/**\n * A class to represent the memory layout for a vertex attribute array. Used by\n * {@link Mesh}\'s TBD(...) method to generate a packed array from mesh data.\n * <p>\n * Layout can sort of be thought of as a C-style struct declaration.\n * {@link Mesh}\'s TBD(...) method will use the {@link Layout} instance to\n * pack an array in the given attribute order.\n * <p>\n * Layout also is very helpful when calling a WebGL context\'s\n * <code>vertexAttribPointer</code> method. If you\'ve created a buffer using\n * a Layout instance, then the same Layout instance can be used to determine\n * the size, type, normalized, stride, and offset parameters for\n * <code>vertexAttribPointer</code>.\n * <p>\n * For example:\n * <pre><code>\n *\n * const index = glctx.getAttribLocation(shaderProgram, "pos");\n * glctx.vertexAttribPointer(\n *   layout.position.size,\n *   glctx[layout.position.type],\n *   layout.position.normalized,\n *   layout.position.stride,\n *   layout.position.offset);\n * </code></pre>\n * @see {@link Mesh}\n */\nclass Layout {\n    /**\n     * Create a Layout object. This constructor will throw if any duplicate\n     * attributes are given.\n     * @param {Array} ...attributes - An ordered list of attributes that\n     *        describe the desired memory layout for each vertex attribute.\n     *        <p>\n     *\n     * @see {@link Mesh}\n     */\n    constructor(...attributes) {\n        this.attributes = attributes;\n        this.attributeMap = {};\n        let offset = 0;\n        let maxStrideMultiple = 0;\n        for (const attribute of attributes) {\n            if (this.attributeMap[attribute.key]) {\n                throw new DuplicateAttributeException(attribute);\n            }\n            // Add padding to satisfy WebGL\'s requirement that all\n            // vertexAttribPointer calls have an offset that is a multiple of\n            // the type size.\n            if (offset % attribute.sizeOfType !== 0) {\n                offset += attribute.sizeOfType - (offset % attribute.sizeOfType);\n                console.warn("Layout requires padding before " + attribute.key + " attribute");\n            }\n            this.attributeMap[attribute.key] = {\n                attribute: attribute,\n                size: attribute.size,\n                type: attribute.type,\n                normalized: attribute.normalized,\n                offset: offset,\n            };\n            offset += attribute.sizeInBytes;\n            maxStrideMultiple = Math.max(maxStrideMultiple, attribute.sizeOfType);\n        }\n        // Add padding to the end to satisfy WebGL\'s requirement that all\n        // vertexAttribPointer calls have a stride that is a multiple of the\n        // type size. Because we\'re putting differently sized attributes into\n        // the same buffer, it must be padded to a multiple of the largest\n        // type size.\n        if (offset % maxStrideMultiple !== 0) {\n            offset += maxStrideMultiple - (offset % maxStrideMultiple);\n            console.warn("Layout requires padding at the back");\n        }\n        this.stride = offset;\n        for (const attribute of attributes) {\n            this.attributeMap[attribute.key].stride = this.stride;\n        }\n    }\n}\n// Geometry attributes\n/**\n * Attribute layout to pack a vertex\'s x, y, & z as floats\n *\n * @see {@link Layout}\n */\nLayout.POSITION = new Attribute("position", 3, TYPES.FLOAT);\n/**\n * Attribute layout to pack a vertex\'s normal\'s x, y, & z as floats\n *\n * @see {@link Layout}\n */\nLayout.NORMAL = new Attribute("normal", 3, TYPES.FLOAT);\n/**\n * Attribute layout to pack a vertex\'s normal\'s x, y, & z as floats.\n * <p>\n * This value will be computed on-the-fly based on the texture coordinates.\n * If no texture coordinates are available, the generated value will default to\n * 0, 0, 0.\n *\n * @see {@link Layout}\n */\nLayout.TANGENT = new Attribute("tangent", 3, TYPES.FLOAT);\n/**\n * Attribute layout to pack a vertex\'s normal\'s bitangent x, y, & z as floats.\n * <p>\n * This value will be computed on-the-fly based on the texture coordinates.\n * If no texture coordinates are available, the generated value will default to\n * 0, 0, 0.\n * @see {@link Layout}\n */\nLayout.BITANGENT = new Attribute("bitangent", 3, TYPES.FLOAT);\n/**\n * Attribute layout to pack a vertex\'s texture coordinates\' u & v as floats\n *\n * @see {@link Layout}\n */\nLayout.UV = new Attribute("uv", 2, TYPES.FLOAT);\n// Material attributes\n/**\n * Attribute layout to pack an unsigned short to be interpreted as a the index\n * into a {@link Mesh}\'s materials list.\n * <p>\n * The intention of this value is to send all of the {@link Mesh}\'s materials\n * into multiple shader uniforms and then reference the current one by this\n * vertex attribute.\n * <p>\n * example glsl code:\n *\n * <pre><code>\n *  // this is bound using MATERIAL_INDEX\n *  attribute int materialIndex;\n *\n *  struct Material {\n *    vec3 diffuse;\n *    vec3 specular;\n *    vec3 specularExponent;\n *  };\n *\n *  uniform Material materials[MAX_MATERIALS];\n *\n *  // ...\n *\n *  vec3 diffuse = materials[materialIndex];\n *\n * </code></pre>\n * TODO: More description & test to make sure subscripting by attributes even\n * works for webgl\n *\n * @see {@link Layout}\n */\nLayout.MATERIAL_INDEX = new Attribute("materialIndex", 1, TYPES.SHORT);\nLayout.MATERIAL_ENABLED = new Attribute("materialEnabled", 1, TYPES.UNSIGNED_SHORT);\nLayout.AMBIENT = new Attribute("ambient", 3, TYPES.FLOAT);\nLayout.DIFFUSE = new Attribute("diffuse", 3, TYPES.FLOAT);\nLayout.SPECULAR = new Attribute("specular", 3, TYPES.FLOAT);\nLayout.SPECULAR_EXPONENT = new Attribute("specularExponent", 3, TYPES.FLOAT);\nLayout.EMISSIVE = new Attribute("emissive", 3, TYPES.FLOAT);\nLayout.TRANSMISSION_FILTER = new Attribute("transmissionFilter", 3, TYPES.FLOAT);\nLayout.DISSOLVE = new Attribute("dissolve", 1, TYPES.FLOAT);\nLayout.ILLUMINATION = new Attribute("illumination", 1, TYPES.UNSIGNED_SHORT);\nLayout.REFRACTION_INDEX = new Attribute("refractionIndex", 1, TYPES.FLOAT);\nLayout.SHARPNESS = new Attribute("sharpness", 1, TYPES.FLOAT);\nLayout.MAP_DIFFUSE = new Attribute("mapDiffuse", 1, TYPES.SHORT);\nLayout.MAP_AMBIENT = new Attribute("mapAmbient", 1, TYPES.SHORT);\nLayout.MAP_SPECULAR = new Attribute("mapSpecular", 1, TYPES.SHORT);\nLayout.MAP_SPECULAR_EXPONENT = new Attribute("mapSpecularExponent", 1, TYPES.SHORT);\nLayout.MAP_DISSOLVE = new Attribute("mapDissolve", 1, TYPES.SHORT);\nLayout.ANTI_ALIASING = new Attribute("antiAliasing", 1, TYPES.UNSIGNED_SHORT);\nLayout.MAP_BUMP = new Attribute("mapBump", 1, TYPES.SHORT);\nLayout.MAP_DISPLACEMENT = new Attribute("mapDisplacement", 1, TYPES.SHORT);\nLayout.MAP_DECAL = new Attribute("mapDecal", 1, TYPES.SHORT);\nLayout.MAP_EMISSIVE = new Attribute("mapEmissive", 1, TYPES.SHORT);\n\n\n//# sourceURL=webpack://OBJ/./src/layout.ts?')},"./src/material.ts":
+/*!*************************!*\
+  !*** ./src/material.ts ***!
+  \*************************/
+/*! exports provided: Material, MaterialLibrary */function(module,__webpack_exports__,__webpack_require__){"use strict";eval('__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Material", function() { return Material; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "MaterialLibrary", function() { return MaterialLibrary; });\n/**\n * The Material class.\n */\nclass Material {\n    constructor(name) {\n        this.name = name;\n        /**\n         * Constructor\n         * @param {String} name the unique name of the material\n         */\n        // The values for the following attibutes\n        // are an array of R, G, B normalized values.\n        // Ka - Ambient Reflectivity\n        this.ambient = [0, 0, 0];\n        // Kd - Defuse Reflectivity\n        this.diffuse = [0, 0, 0];\n        // Ks\n        this.specular = [0, 0, 0];\n        // Ke\n        this.emissive = [0, 0, 0];\n        // Tf\n        this.transmissionFilter = [0, 0, 0];\n        // d\n        this.dissolve = 0;\n        // valid range is between 0 and 1000\n        this.specularExponent = 0;\n        // either d or Tr; valid values are normalized\n        this.transparency = 0;\n        // illum - the enum of the illumination model to use\n        this.illumination = 0;\n        // Ni - Set to "normal" (air).\n        this.refractionIndex = 1;\n        // sharpness\n        this.sharpness = 0;\n        // map_Kd\n        this.mapDiffuse = emptyTextureOptions();\n        // map_Ka\n        this.mapAmbient = emptyTextureOptions();\n        // map_Ks\n        this.mapSpecular = emptyTextureOptions();\n        // map_Ns\n        this.mapSpecularExponent = emptyTextureOptions();\n        // map_d\n        this.mapDissolve = emptyTextureOptions();\n        // map_aat\n        this.antiAliasing = false;\n        // map_bump or bump\n        this.mapBump = emptyTextureOptions();\n        // disp\n        this.mapDisplacement = emptyTextureOptions();\n        // decal\n        this.mapDecal = emptyTextureOptions();\n        // map_Ke\n        this.mapEmissive = emptyTextureOptions();\n        // refl - when the reflection type is a cube, there will be multiple refl\n        //        statements for each side of the cube. If it\'s a spherical\n        //        reflection, there should only ever be one.\n        this.mapReflections = [];\n    }\n}\nconst SENTINEL_MATERIAL = new Material("sentinel");\n/**\n * https://en.wikipedia.org/wiki/Wavefront_.obj_file\n * http://paulbourke.net/dataformats/mtl/\n */\nclass MaterialLibrary {\n    constructor(data) {\n        this.data = data;\n        /**\n         * Constructs the Material Parser\n         * @param mtlData the MTL file contents\n         */\n        this.currentMaterial = SENTINEL_MATERIAL;\n        this.materials = {};\n        this.parse();\n    }\n    /* eslint-disable camelcase */\n    /* the function names here disobey camelCase conventions\n     to make parsing/routing easier. see the parse function\n     documentation for more information. */\n    /**\n     * Creates a new Material object and adds to the registry.\n     * @param tokens the tokens associated with the directive\n     */\n    parse_newmtl(tokens) {\n        const name = tokens[0];\n        // console.info(\'Parsing new Material:\', name);\n        this.currentMaterial = new Material(name);\n        this.materials[name] = this.currentMaterial;\n    }\n    /**\n     * See the documenation for parse_Ka below for a better understanding.\n     *\n     * Given a list of possible color tokens, returns an array of R, G, and B\n     * color values.\n     *\n     * @param tokens the tokens associated with the directive\n     * @return {*} a 3 element array containing the R, G, and B values\n     * of the color.\n     */\n    parseColor(tokens) {\n        if (tokens[0] == "spectral") {\n            throw new Error("The MTL parser does not support spectral curve files. You will " +\n                "need to convert the MTL colors to either RGB or CIEXYZ.");\n        }\n        if (tokens[0] == "xyz") {\n            throw new Error("The MTL parser does not currently support XYZ colors. Either convert the " +\n                "XYZ values to RGB or create an issue to add support for XYZ");\n        }\n        // from my understanding of the spec, RGB values at this point\n        // will either be 3 floats or exactly 1 float, so that\'s the check\n        // that i\'m going to perform here\n        if (tokens.length == 3) {\n            const [x, y, z] = tokens;\n            return [parseFloat(x), parseFloat(y), parseFloat(z)];\n        }\n        // Since tokens at this point has a length of 3, we\'re going to assume\n        // it\'s exactly 1, skipping the check for 2.\n        const value = parseFloat(tokens[0]);\n        // in this case, all values are equivalent\n        return [value, value, value];\n    }\n    /**\n     * Parse the ambient reflectivity\n     *\n     * A Ka directive can take one of three forms:\n     *   - Ka r g b\n     *   - Ka spectral file.rfl\n     *   - Ka xyz x y z\n     * These three forms are mutually exclusive in that only one\n     * declaration can exist per material. It is considered a syntax\n     * error otherwise.\n     *\n     * The "Ka" form specifies the ambient reflectivity using RGB values.\n     * The "g" and "b" values are optional. If only the "r" value is\n     * specified, then the "g" and "b" values are assigned the value of\n     * "r". Values are normally in the range 0.0 to 1.0. Values outside\n     * of this range increase or decrease the reflectivity accordingly.\n     *\n     * The "Ka spectral" form specifies the ambient reflectivity using a\n     * spectral curve. "file.rfl" is the name of the ".rfl" file containing\n     * the curve data. "factor" is an optional argument which is a multiplier\n     * for the values in the .rfl file and defaults to 1.0 if not specified.\n     *\n     * The "Ka xyz" form specifies the ambient reflectivity using CIEXYZ values.\n     * "x y z" are the values of the CIEXYZ color space. The "y" and "z" arguments\n     * are optional and take on the value of the "x" component if only "x" is\n     * specified. The "x y z" values are normally in the range of 0.0 to 1.0 and\n     * increase or decrease ambient reflectivity accordingly outside of that\n     * range.\n     *\n     * @param tokens the tokens associated with the directive\n     */\n    parse_Ka(tokens) {\n        this.currentMaterial.ambient = this.parseColor(tokens);\n    }\n    /**\n     * Diffuse Reflectivity\n     *\n     * Similar to the Ka directive. Simply replace "Ka" with "Kd" and the rules\n     * are the same\n     *\n     * @param tokens the tokens associated with the directive\n     */\n    parse_Kd(tokens) {\n        this.currentMaterial.diffuse = this.parseColor(tokens);\n    }\n    /**\n     * Spectral Reflectivity\n     *\n     * Similar to the Ka directive. Simply replace "Ks" with "Kd" and the rules\n     * are the same\n     *\n     * @param tokens the tokens associated with the directive\n     */\n    parse_Ks(tokens) {\n        this.currentMaterial.specular = this.parseColor(tokens);\n    }\n    /**\n     * Emissive\n     *\n     * The amount and color of light emitted by the object.\n     *\n     * @param tokens the tokens associated with the directive\n     */\n    parse_Ke(tokens) {\n        this.currentMaterial.emissive = this.parseColor(tokens);\n    }\n    /**\n     * Transmission Filter\n     *\n     * Any light passing through the object is filtered by the transmission\n     * filter, which only allows specific colors to pass through. For example, Tf\n     * 0 1 0 allows all of the green to pass through and filters out all of the\n     * red and blue.\n     *\n     * Similar to the Ka directive. Simply replace "Ks" with "Tf" and the rules\n     * are the same\n     *\n     * @param tokens the tokens associated with the directive\n     */\n    parse_Tf(tokens) {\n        this.currentMaterial.transmissionFilter = this.parseColor(tokens);\n    }\n    /**\n     * Specifies the dissolve for the current material.\n     *\n     * Statement: d [-halo] `factor`\n     *\n     * Example: "d 0.5"\n     *\n     * The factor is the amount this material dissolves into the background. A\n     * factor of 1.0 is fully opaque. This is the default when a new material is\n     * created. A factor of 0.0 is fully dissolved (completely transparent).\n     *\n     * Unlike a real transparent material, the dissolve does not depend upon\n     * material thickness nor does it have any spectral character. Dissolve works\n     * on all illumination models.\n     *\n     * The dissolve statement allows for an optional "-halo" flag which indicates\n     * that a dissolve is dependent on the surface orientation relative to the\n     * viewer. For example, a sphere with the following dissolve, "d -halo 0.0",\n     * will be fully dissolved at its center and will appear gradually more opaque\n     * toward its edge.\n     *\n     * "factor" is the minimum amount of dissolve applied to the material. The\n     * amount of dissolve will vary between 1.0 (fully opaque) and the specified\n     * "factor". The formula is:\n     *\n     *    dissolve = 1.0 - (N*v)(1.0-factor)\n     *\n     * @param tokens the tokens associated with the directive\n     */\n    parse_d(tokens) {\n        // this ignores the -halo option as I can\'t find any documentation on what\n        // it\'s supposed to be.\n        this.currentMaterial.dissolve = parseFloat(tokens.pop() || "0");\n    }\n    /**\n     * The "illum" statement specifies the illumination model to use in the\n     * material. Illumination models are mathematical equations that represent\n     * various material lighting and shading effects.\n     *\n     * The illumination number can be a number from 0 to 10. The following are\n     * the list of illumination enumerations and their summaries:\n     * 0. Color on and Ambient off\n     * 1. Color on and Ambient on\n     * 2. Highlight on\n     * 3. Reflection on and Ray trace on\n     * 4. Transparency: Glass on, Reflection: Ray trace on\n     * 5. Reflection: Fresnel on and Ray trace on\n     * 6. Transparency: Refraction on, Reflection: Fresnel off and Ray trace on\n     * 7. Transparency: Refraction on, Reflection: Fresnel on and Ray trace on\n     * 8. Reflection on and Ray trace off\n     * 9. Transparency: Glass on, Reflection: Ray trace off\n     * 10. Casts shadows onto invisible surfaces\n     *\n     * Example: "illum 2" to specify the "Highlight on" model\n     *\n     * @param tokens the tokens associated with the directive\n     */\n    parse_illum(tokens) {\n        this.currentMaterial.illumination = parseInt(tokens[0]);\n    }\n    /**\n     * Optical Density (AKA Index of Refraction)\n     *\n     * Statement: Ni `index`\n     *\n     * Example: Ni 1.0\n     *\n     * Specifies the optical density for the surface. `index` is the value\n     * for the optical density. The values can range from 0.001 to 10.  A value of\n     * 1.0 means that light does not bend as it passes through an object.\n     * Increasing the optical_density increases the amount of bending. Glass has\n     * an index of refraction of about 1.5. Values of less than 1.0 produce\n     * bizarre results and are not recommended\n     *\n     * @param tokens the tokens associated with the directive\n     */\n    parse_Ni(tokens) {\n        this.currentMaterial.refractionIndex = parseFloat(tokens[0]);\n    }\n    /**\n     * Specifies the specular exponent for the current material. This defines the\n     * focus of the specular highlight.\n     *\n     * Statement: Ns `exponent`\n     *\n     * Example: "Ns 250"\n     *\n     * `exponent` is the value for the specular exponent. A high exponent results\n     * in a tight, concentrated highlight. Ns Values normally range from 0 to\n     * 1000.\n     *\n     * @param tokens the tokens associated with the directive\n     */\n    parse_Ns(tokens) {\n        this.currentMaterial.specularExponent = parseInt(tokens[0]);\n    }\n    /**\n     * Specifies the sharpness of the reflections from the local reflection map.\n     *\n     * Statement: sharpness `value`\n     *\n     * Example: "sharpness 100"\n     *\n     * If a material does not have a local reflection map defined in its material\n     * defintions, sharpness will apply to the global reflection map defined in\n     * PreView.\n     *\n     * `value` can be a number from 0 to 1000. The default is 60. A high value\n     * results in a clear reflection of objects in the reflection map.\n     *\n     * Tip: sharpness values greater than 100 introduce aliasing effects in\n     * flat surfaces that are viewed at a sharp angle.\n     *\n     * @param tokens the tokens associated with the directive\n     */\n    parse_sharpness(tokens) {\n        this.currentMaterial.sharpness = parseInt(tokens[0]);\n    }\n    /**\n     * Parses the -cc flag and updates the options object with the values.\n     *\n     * @param values the values passed to the -cc flag\n     * @param options the Object of all image options\n     */\n    parse_cc(values, options) {\n        options.colorCorrection = values[0] == "on";\n    }\n    /**\n     * Parses the -blendu flag and updates the options object with the values.\n     *\n     * @param values the values passed to the -blendu flag\n     * @param options the Object of all image options\n     */\n    parse_blendu(values, options) {\n        options.horizontalBlending = values[0] == "on";\n    }\n    /**\n     * Parses the -blendv flag and updates the options object with the values.\n     *\n     * @param values the values passed to the -blendv flag\n     * @param options the Object of all image options\n     */\n    parse_blendv(values, options) {\n        options.verticalBlending = values[0] == "on";\n    }\n    /**\n     * Parses the -boost flag and updates the options object with the values.\n     *\n     * @param values the values passed to the -boost flag\n     * @param options the Object of all image options\n     */\n    parse_boost(values, options) {\n        options.boostMipMapSharpness = parseFloat(values[0]);\n    }\n    /**\n     * Parses the -mm flag and updates the options object with the values.\n     *\n     * @param values the values passed to the -mm flag\n     * @param options the Object of all image options\n     */\n    parse_mm(values, options) {\n        options.modifyTextureMap.brightness = parseFloat(values[0]);\n        options.modifyTextureMap.contrast = parseFloat(values[1]);\n    }\n    /**\n     * Parses and sets the -o, -s, and -t  u, v, and w values\n     *\n     * @param values the values passed to the -o, -s, -t flag\n     * @param {Object} option the Object of either the -o, -s, -t option\n     * @param {Integer} defaultValue the Object of all image options\n     */\n    parse_ost(values, option, defaultValue) {\n        while (values.length < 3) {\n            values.push(defaultValue.toString());\n        }\n        option.u = parseFloat(values[0]);\n        option.v = parseFloat(values[1]);\n        option.w = parseFloat(values[2]);\n    }\n    /**\n     * Parses the -o flag and updates the options object with the values.\n     *\n     * @param values the values passed to the -o flag\n     * @param options the Object of all image options\n     */\n    parse_o(values, options) {\n        this.parse_ost(values, options.offset, 0);\n    }\n    /**\n     * Parses the -s flag and updates the options object with the values.\n     *\n     * @param values the values passed to the -s flag\n     * @param options the Object of all image options\n     */\n    parse_s(values, options) {\n        this.parse_ost(values, options.scale, 1);\n    }\n    /**\n     * Parses the -t flag and updates the options object with the values.\n     *\n     * @param values the values passed to the -t flag\n     * @param options the Object of all image options\n     */\n    parse_t(values, options) {\n        this.parse_ost(values, options.turbulence, 0);\n    }\n    /**\n     * Parses the -texres flag and updates the options object with the values.\n     *\n     * @param values the values passed to the -texres flag\n     * @param options the Object of all image options\n     */\n    parse_texres(values, options) {\n        options.textureResolution = parseFloat(values[0]);\n    }\n    /**\n     * Parses the -clamp flag and updates the options object with the values.\n     *\n     * @param values the values passed to the -clamp flag\n     * @param options the Object of all image options\n     */\n    parse_clamp(values, options) {\n        options.clamp = values[0] == "on";\n    }\n    /**\n     * Parses the -bm flag and updates the options object with the values.\n     *\n     * @param values the values passed to the -bm flag\n     * @param options the Object of all image options\n     */\n    parse_bm(values, options) {\n        options.bumpMultiplier = parseFloat(values[0]);\n    }\n    /**\n     * Parses the -imfchan flag and updates the options object with the values.\n     *\n     * @param values the values passed to the -imfchan flag\n     * @param options the Object of all image options\n     */\n    parse_imfchan(values, options) {\n        options.imfChan = values[0];\n    }\n    /**\n     * This only exists for relection maps and denotes the type of reflection.\n     *\n     * @param values the values passed to the -type flag\n     * @param options the Object of all image options\n     */\n    parse_type(values, options) {\n        options.reflectionType = values[0];\n    }\n    /**\n     * Parses the texture\'s options and returns an options object with the info\n     *\n     * @param tokens all of the option tokens to pass to the texture\n     * @return {Object} a complete object of objects to apply to the texture\n     */\n    parseOptions(tokens) {\n        const options = emptyTextureOptions();\n        let option;\n        let values;\n        const optionsToValues = {};\n        tokens.reverse();\n        while (tokens.length) {\n            // token is guaranteed to exists here, hence the explicit "as"\n            const token = tokens.pop();\n            if (token.startsWith("-")) {\n                option = token.substr(1);\n                optionsToValues[option] = [];\n            }\n            else if (option) {\n                optionsToValues[option].push(token);\n            }\n        }\n        for (option in optionsToValues) {\n            if (!optionsToValues.hasOwnProperty(option)) {\n                continue;\n            }\n            values = optionsToValues[option];\n            const optionMethod = this[`parse_${option}`];\n            if (optionMethod) {\n                optionMethod.bind(this)(values, options);\n            }\n        }\n        return options;\n    }\n    /**\n     * Parses the given texture map line.\n     *\n     * @param tokens all of the tokens representing the texture\n     * @return a complete object of objects to apply to the texture\n     */\n    parseMap(tokens) {\n        // according to wikipedia:\n        // (https://en.wikipedia.org/wiki/Wavefront_.obj_file#Vendor_specific_alterations)\n        // there is at least one vendor that places the filename before the options\n        // rather than after (which is to spec). All options start with a \'-\'\n        // so if the first token doesn\'t start with a \'-\', we\'re going to assume\n        // it\'s the name of the map file.\n        let optionsString;\n        let filename = "";\n        if (!tokens[0].startsWith("-")) {\n            [filename, ...optionsString] = tokens;\n        }\n        else {\n            filename = tokens.pop();\n            optionsString = tokens;\n        }\n        const options = this.parseOptions(optionsString);\n        options.filename = filename;\n        return options;\n    }\n    /**\n     * Parses the ambient map.\n     *\n     * @param tokens list of tokens for the map_Ka direcive\n     */\n    parse_map_Ka(tokens) {\n        this.currentMaterial.mapAmbient = this.parseMap(tokens);\n    }\n    /**\n     * Parses the diffuse map.\n     *\n     * @param tokens list of tokens for the map_Kd direcive\n     */\n    parse_map_Kd(tokens) {\n        this.currentMaterial.mapDiffuse = this.parseMap(tokens);\n    }\n    /**\n     * Parses the specular map.\n     *\n     * @param tokens list of tokens for the map_Ks direcive\n     */\n    parse_map_Ks(tokens) {\n        this.currentMaterial.mapSpecular = this.parseMap(tokens);\n    }\n    /**\n     * Parses the emissive map.\n     *\n     * @param tokens list of tokens for the map_Ke direcive\n     */\n    parse_map_Ke(tokens) {\n        this.currentMaterial.mapEmissive = this.parseMap(tokens);\n    }\n    /**\n     * Parses the specular exponent map.\n     *\n     * @param tokens list of tokens for the map_Ns direcive\n     */\n    parse_map_Ns(tokens) {\n        this.currentMaterial.mapSpecularExponent = this.parseMap(tokens);\n    }\n    /**\n     * Parses the dissolve map.\n     *\n     * @param tokens list of tokens for the map_d direcive\n     */\n    parse_map_d(tokens) {\n        this.currentMaterial.mapDissolve = this.parseMap(tokens);\n    }\n    /**\n     * Parses the anti-aliasing option.\n     *\n     * @param tokens list of tokens for the map_aat direcive\n     */\n    parse_map_aat(tokens) {\n        this.currentMaterial.antiAliasing = tokens[0] == "on";\n    }\n    /**\n     * Parses the bump map.\n     *\n     * @param tokens list of tokens for the map_bump direcive\n     */\n    parse_map_bump(tokens) {\n        this.currentMaterial.mapBump = this.parseMap(tokens);\n    }\n    /**\n     * Parses the bump map.\n     *\n     * @param tokens list of tokens for the bump direcive\n     */\n    parse_bump(tokens) {\n        this.parse_map_bump(tokens);\n    }\n    /**\n     * Parses the disp map.\n     *\n     * @param tokens list of tokens for the disp direcive\n     */\n    parse_disp(tokens) {\n        this.currentMaterial.mapDisplacement = this.parseMap(tokens);\n    }\n    /**\n     * Parses the decal map.\n     *\n     * @param tokens list of tokens for the map_decal direcive\n     */\n    parse_decal(tokens) {\n        this.currentMaterial.mapDecal = this.parseMap(tokens);\n    }\n    /**\n     * Parses the refl map.\n     *\n     * @param tokens list of tokens for the refl direcive\n     */\n    parse_refl(tokens) {\n        this.currentMaterial.mapReflections.push(this.parseMap(tokens));\n    }\n    /**\n     * Parses the MTL file.\n     *\n     * Iterates line by line parsing each MTL directive.\n     *\n     * This function expects the first token in the line\n     * to be a valid MTL directive. That token is then used\n     * to try and run a method on this class. parse_[directive]\n     * E.g., the `newmtl` directive would try to call the method\n     * parse_newmtl. Each parsing function takes in the remaining\n     * list of tokens and updates the currentMaterial class with\n     * the attributes provided.\n     */\n    parse() {\n        const lines = this.data.split(/\\r?\\n/);\n        for (let line of lines) {\n            line = line.trim();\n            if (!line || line.startsWith("#")) {\n                continue;\n            }\n            const [directive, ...tokens] = line.split(/\\s/);\n            const parseMethod = this[`parse_${directive}`];\n            if (!parseMethod) {\n                console.warn(`Don\'t know how to parse the directive: "${directive}"`);\n                continue;\n            }\n            // console.log(`Parsing "${directive}" with tokens: ${tokens}`);\n            parseMethod.bind(this)(tokens);\n        }\n        // some cleanup. These don\'t need to be exposed as public data.\n        delete this.data;\n        this.currentMaterial = SENTINEL_MATERIAL;\n    }\n}\nfunction emptyTextureOptions() {\n    return {\n        colorCorrection: false,\n        horizontalBlending: true,\n        verticalBlending: true,\n        boostMipMapSharpness: 0,\n        modifyTextureMap: {\n            brightness: 0,\n            contrast: 1,\n        },\n        offset: { u: 0, v: 0, w: 0 },\n        scale: { u: 1, v: 1, w: 1 },\n        turbulence: { u: 0, v: 0, w: 0 },\n        clamp: false,\n        textureResolution: null,\n        bumpMultiplier: 1,\n        imfChan: null,\n        filename: "",\n    };\n}\n\n\n//# sourceURL=webpack://OBJ/./src/material.ts?')},"./src/mesh.ts":
+/*!*********************!*\
+  !*** ./src/mesh.ts ***!
+  \*********************/
+/*! exports provided: default */function(module,__webpack_exports__,__webpack_require__){"use strict";eval('__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return Mesh; });\n/* harmony import */ var _layout__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./layout */ "./src/layout.ts");\n\n/**\n * The main Mesh class. The constructor will parse through the OBJ file data\n * and collect the vertex, vertex normal, texture, and face information. This\n * information can then be used later on when creating your VBOs. See\n * OBJ.initMeshBuffers for an example of how to use the newly created Mesh\n */\nclass Mesh {\n    /**\n     * Create a Mesh\n     * @param {String} objectData - a string representation of an OBJ file with\n     *     newlines preserved.\n     * @param {Object} options - a JS object containing valid options. See class\n     *     documentation for options.\n     * @param {bool} options.enableWTextureCoord - Texture coordinates can have\n     *     an optional "w" coordinate after the u and v coordinates. This extra\n     *     value can be used in order to perform fancy transformations on the\n     *     textures themselves. Default is to truncate to only the u an v\n     *     coordinates. Passing true will provide a default value of 0 in the\n     *     event that any or all texture coordinates don\'t provide a w value.\n     *     Always use the textureStride attribute in order to determine the\n     *     stride length of the texture coordinates when rendering the element\n     *     array.\n     * @param {bool} options.calcTangentsAndBitangents - Calculate the tangents\n     *     and bitangents when loading of the OBJ is completed. This adds two new\n     *     attributes to the Mesh instance: `tangents` and `bitangents`.\n     */\n    constructor(objectData, options) {\n        this.name = "";\n        this.indicesPerMaterial = [];\n        this.materialsByIndex = {};\n        this.tangents = [];\n        this.bitangents = [];\n        options = options || {};\n        options.materials = options.materials || {};\n        options.enableWTextureCoord = !!options.enableWTextureCoord;\n        // the list of unique vertex, normal, texture, attributes\n        this.vertexNormals = [];\n        this.textures = [];\n        // the indicies to draw the faces\n        this.indices = [];\n        this.textureStride = options.enableWTextureCoord ? 3 : 2;\n        /*\n        The OBJ file format does a sort of compression when saving a model in a\n        program like Blender. There are at least 3 sections (4 including textures)\n        within the file. Each line in a section begins with the same string:\n          * \'v\': indicates vertex section\n          * \'vn\': indicates vertex normal section\n          * \'f\': indicates the faces section\n          * \'vt\': indicates vertex texture section (if textures were used on the model)\n        Each of the above sections (except for the faces section) is a list/set of\n        unique vertices.\n\n        Each line of the faces section contains a list of\n        (vertex, [texture], normal) groups.\n\n        **Note:** The following documentation will use a capital "V" Vertex to\n        denote the above (vertex, [texture], normal) groups whereas a lowercase\n        "v" vertex is used to denote an X, Y, Z coordinate.\n\n        Some examples:\n            // the texture index is optional, both formats are possible for models\n            // without a texture applied\n            f 1/25 18/46 12/31\n            f 1//25 18//46 12//31\n\n            // A 3 vertex face with texture indices\n            f 16/92/11 14/101/22 1/69/1\n\n            // A 4 vertex face\n            f 16/92/11 40/109/40 38/114/38 14/101/22\n\n        The first two lines are examples of a 3 vertex face without a texture applied.\n        The second is an example of a 3 vertex face with a texture applied.\n        The third is an example of a 4 vertex face. Note: a face can contain N\n        number of vertices.\n\n        Each number that appears in one of the groups is a 1-based index\n        corresponding to an item from the other sections (meaning that indexing\n        starts at one and *not* zero).\n\n        For example:\n            `f 16/92/11` is saying to\n              - take the 16th element from the [v] vertex array\n              - take the 92nd element from the [vt] texture array\n              - take the 11th element from the [vn] normal array\n            and together they make a unique vertex.\n        Using all 3+ unique Vertices from the face line will produce a polygon.\n\n        Now, you could just go through the OBJ file and create a new vertex for\n        each face line and WebGL will draw what appears to be the same model.\n        However, vertices will be overlapped and duplicated all over the place.\n\n        Consider a cube in 3D space centered about the origin and each side is\n        2 units long. The front face (with the positive Z-axis pointing towards\n        you) would have a Top Right vertex (looking orthogonal to its normal)\n        mapped at (1,1,1) The right face would have a Top Left vertex (looking\n        orthogonal to its normal) at (1,1,1) and the top face would have a Bottom\n        Right vertex (looking orthogonal to its normal) at (1,1,1). Each face\n        has a vertex at the same coordinates, however, three distinct vertices\n        will be drawn at the same spot.\n\n        To solve the issue of duplicate Vertices (the `(vertex, [texture], normal)`\n        groups), while iterating through the face lines, when a group is encountered\n        the whole group string (\'16/92/11\') is checked to see if it exists in the\n        packed.hashindices object, and if it doesn\'t, the indices it specifies\n        are used to look up each attribute in the corresponding attribute arrays\n        already created. The values are then copied to the corresponding unpacked\n        array (flattened to play nice with WebGL\'s ELEMENT_ARRAY_BUFFER indexing),\n        the group string is added to the hashindices set and the current unpacked\n        index is used as this hashindices value so that the group of elements can\n        be reused. The unpacked index is incremented. If the group string already\n        exists in the hashindices object, its corresponding value is the index of\n        that group and is appended to the unpacked indices array.\n       */\n        const verts = [];\n        const vertNormals = [];\n        const textures = [];\n        const materialNamesByIndex = [];\n        const materialIndicesByName = {};\n        // keep track of what material we\'ve seen last\n        let currentMaterialIndex = -1;\n        let currentObjectByMaterialIndex = 0;\n        // unpacking stuff\n        const unpacked = {\n            verts: [],\n            norms: [],\n            textures: [],\n            hashindices: {},\n            indices: [[]],\n            materialIndices: [],\n            index: 0,\n        };\n        const VERTEX_RE = /^v\\s/;\n        const NORMAL_RE = /^vn\\s/;\n        const TEXTURE_RE = /^vt\\s/;\n        const FACE_RE = /^f\\s/;\n        const WHITESPACE_RE = /\\s+/;\n        const USE_MATERIAL_RE = /^usemtl/;\n        // array of lines separated by the newline\n        const lines = objectData.split("\\n");\n        for (let line of lines) {\n            line = line.trim();\n            if (!line || line.startsWith("#")) {\n                continue;\n            }\n            const elements = line.split(WHITESPACE_RE);\n            elements.shift();\n            if (VERTEX_RE.test(line)) {\n                // if this is a vertex\n                verts.push(...elements);\n            }\n            else if (NORMAL_RE.test(line)) {\n                // if this is a vertex normal\n                vertNormals.push(...elements);\n            }\n            else if (TEXTURE_RE.test(line)) {\n                let coords = elements;\n                // by default, the loader will only look at the U and V\n                // coordinates of the vt declaration. So, this truncates the\n                // elements to only those 2 values. If W texture coordinate\n                // support is enabled, then the texture coordinate is\n                // expected to have three values in it.\n                if (elements.length > 2 && !options.enableWTextureCoord) {\n                    coords = elements.slice(0, 2);\n                }\n                else if (elements.length === 2 && options.enableWTextureCoord) {\n                    // If for some reason W texture coordinate support is enabled\n                    // and only the U and V coordinates are given, then we supply\n                    // the default value of 0 so that the stride length is correct\n                    // when the textures are unpacked below.\n                    coords.push("0");\n                }\n                textures.push(...coords);\n            }\n            else if (USE_MATERIAL_RE.test(line)) {\n                const materialName = elements[0];\n                // check to see if we\'ve ever seen it before\n                if (!(materialName in materialIndicesByName)) {\n                    // new material we\'ve never seen\n                    materialNamesByIndex.push(materialName);\n                    materialIndicesByName[materialName] = materialNamesByIndex.length - 1;\n                    // push new array into indices\n                    // already contains an array at index zero, don\'t add\n                    if (materialIndicesByName[materialName] > 0) {\n                        unpacked.indices.push([]);\n                    }\n                }\n                // keep track of the current material index\n                currentMaterialIndex = materialIndicesByName[materialName];\n                // update current index array\n                currentObjectByMaterialIndex = currentMaterialIndex;\n            }\n            else if (FACE_RE.test(line)) {\n                // if this is a face\n                /*\n                split this face into an array of Vertex groups\n                for example:\n                   f 16/92/11 14/101/22 1/69/1\n                becomes:\n                  [\'16/92/11\', \'14/101/22\', \'1/69/1\'];\n                */\n                let quad = false;\n                for (let j = 0, eleLen = elements.length; j < eleLen; j++) {\n                    // Triangulating quads\n                    // quad: \'f v0/t0/vn0 v1/t1/vn1 v2/t2/vn2 v3/t3/vn3/\'\n                    // corresponding triangles:\n                    //      \'f v0/t0/vn0 v1/t1/vn1 v2/t2/vn2\'\n                    //      \'f v2/t2/vn2 v3/t3/vn3 v0/t0/vn0\'\n                    if (j === 3 && !quad) {\n                        // add v2/t2/vn2 in again before continuing to 3\n                        j = 2;\n                        quad = true;\n                    }\n                    const hash0 = elements[0] + "," + currentMaterialIndex;\n                    const hash = elements[j] + "," + currentMaterialIndex;\n                    if (hash in unpacked.hashindices) {\n                        unpacked.indices[currentObjectByMaterialIndex].push(unpacked.hashindices[hash]);\n                    }\n                    else {\n                        /*\n                        Each element of the face line array is a Vertex which has its\n                        attributes delimited by a forward slash. This will separate\n                        each attribute into another array:\n                            \'19/92/11\'\n                        becomes:\n                            Vertex = [\'19\', \'92\', \'11\'];\n                        where\n                            Vertex[0] is the vertex index\n                            Vertex[1] is the texture index\n                            Vertex[2] is the normal index\n                         Think of faces having Vertices which are comprised of the\n                         attributes location (v), texture (vt), and normal (vn).\n                         */\n                        const vertex = elements[j].split("/");\n                        // it\'s possible for faces to only specify the vertex\n                        // and the normal. In this case, vertex will only have\n                        // a length of 2 and not 3 and the normal will be the\n                        // second item in the list with an index of 1.\n                        const normalIndex = vertex.length - 1;\n                        /*\n                         The verts, textures, and vertNormals arrays each contain a\n                         flattend array of coordinates.\n\n                         Because it gets confusing by referring to Vertex and then\n                         vertex (both are different in my descriptions) I will explain\n                         what\'s going on using the vertexNormals array:\n\n                         vertex[2] will contain the one-based index of the vertexNormals\n                         section (vn). One is subtracted from this index number to play\n                         nice with javascript\'s zero-based array indexing.\n\n                         Because vertexNormal is a flattened array of x, y, z values,\n                         simple pointer arithmetic is used to skip to the start of the\n                         vertexNormal, then the offset is added to get the correct\n                         component: +0 is x, +1 is y, +2 is z.\n\n                         This same process is repeated for verts and textures.\n                         */\n                        // Vertex position\n                        unpacked.verts.push(+verts[(+vertex[0] - 1) * 3 + 0]);\n                        unpacked.verts.push(+verts[(+vertex[0] - 1) * 3 + 1]);\n                        unpacked.verts.push(+verts[(+vertex[0] - 1) * 3 + 2]);\n                        // Vertex textures\n                        if (textures.length) {\n                            const stride = options.enableWTextureCoord ? 3 : 2;\n                            unpacked.textures.push(+textures[(+vertex[1] - 1) * stride + 0]);\n                            unpacked.textures.push(+textures[(+vertex[1] - 1) * stride + 1]);\n                            if (options.enableWTextureCoord) {\n                                unpacked.textures.push(+textures[(+vertex[1] - 1) * stride + 2]);\n                            }\n                        }\n                        // Vertex normals\n                        unpacked.norms.push(+vertNormals[(+vertex[normalIndex] - 1) * 3 + 0]);\n                        unpacked.norms.push(+vertNormals[(+vertex[normalIndex] - 1) * 3 + 1]);\n                        unpacked.norms.push(+vertNormals[(+vertex[normalIndex] - 1) * 3 + 2]);\n                        // Vertex material indices\n                        unpacked.materialIndices.push(currentMaterialIndex);\n                        // add the newly created Vertex to the list of indices\n                        unpacked.hashindices[hash] = unpacked.index;\n                        unpacked.indices[currentObjectByMaterialIndex].push(unpacked.hashindices[hash]);\n                        // increment the counter\n                        unpacked.index += 1;\n                    }\n                    if (j === 3 && quad) {\n                        // add v0/t0/vn0 onto the second triangle\n                        unpacked.indices[currentObjectByMaterialIndex].push(unpacked.hashindices[hash0]);\n                    }\n                }\n            }\n        }\n        this.vertices = unpacked.verts;\n        this.vertexNormals = unpacked.norms;\n        this.textures = unpacked.textures;\n        this.vertexMaterialIndices = unpacked.materialIndices;\n        this.indices = unpacked.indices[currentObjectByMaterialIndex];\n        this.indicesPerMaterial = unpacked.indices;\n        this.materialNames = materialNamesByIndex;\n        this.materialIndices = materialIndicesByName;\n        this.materialsByIndex = {};\n        if (options.calcTangentsAndBitangents) {\n            this.calculateTangentsAndBitangents();\n        }\n    }\n    /**\n     * Calculates the tangents and bitangents of the mesh that forms an orthogonal basis together with the\n     * normal in the direction of the texture coordinates. These are useful for setting up the TBN matrix\n     * when distorting the normals through normal maps.\n     * Method derived from: http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-13-normal-mapping/\n     *\n     * This method requires the normals and texture coordinates to be parsed and set up correctly.\n     * Adds the tangents and bitangents as members of the class instance.\n     */\n    calculateTangentsAndBitangents() {\n        console.assert(!!(this.vertices &&\n            this.vertices.length &&\n            this.vertexNormals &&\n            this.vertexNormals.length &&\n            this.textures &&\n            this.textures.length), "Missing attributes for calculating tangents and bitangents");\n        const unpacked = {\n            tangents: [...new Array(this.vertices.length)].map(_ => 0),\n            bitangents: [...new Array(this.vertices.length)].map(_ => 0),\n        };\n        // Loop through all faces in the whole mesh\n        const indices = this.indices;\n        const vertices = this.vertices;\n        const normals = this.vertexNormals;\n        const uvs = this.textures;\n        for (let i = 0; i < indices.length; i += 3) {\n            const i0 = indices[i + 0];\n            const i1 = indices[i + 1];\n            const i2 = indices[i + 2];\n            const x_v0 = vertices[i0 * 3 + 0];\n            const y_v0 = vertices[i0 * 3 + 1];\n            const z_v0 = vertices[i0 * 3 + 2];\n            const x_uv0 = uvs[i0 * 2 + 0];\n            const y_uv0 = uvs[i0 * 2 + 1];\n            const x_v1 = vertices[i1 * 3 + 0];\n            const y_v1 = vertices[i1 * 3 + 1];\n            const z_v1 = vertices[i1 * 3 + 2];\n            const x_uv1 = uvs[i1 * 2 + 0];\n            const y_uv1 = uvs[i1 * 2 + 1];\n            const x_v2 = vertices[i2 * 3 + 0];\n            const y_v2 = vertices[i2 * 3 + 1];\n            const z_v2 = vertices[i2 * 3 + 2];\n            const x_uv2 = uvs[i2 * 2 + 0];\n            const y_uv2 = uvs[i2 * 2 + 1];\n            const x_deltaPos1 = x_v1 - x_v0;\n            const y_deltaPos1 = y_v1 - y_v0;\n            const z_deltaPos1 = z_v1 - z_v0;\n            const x_deltaPos2 = x_v2 - x_v0;\n            const y_deltaPos2 = y_v2 - y_v0;\n            const z_deltaPos2 = z_v2 - z_v0;\n            const x_uvDeltaPos1 = x_uv1 - x_uv0;\n            const y_uvDeltaPos1 = y_uv1 - y_uv0;\n            const x_uvDeltaPos2 = x_uv2 - x_uv0;\n            const y_uvDeltaPos2 = y_uv2 - y_uv0;\n            const rInv = x_uvDeltaPos1 * y_uvDeltaPos2 - y_uvDeltaPos1 * x_uvDeltaPos2;\n            const r = 1.0 / Math.abs(rInv < 0.0001 ? 1.0 : rInv);\n            // Tangent\n            const x_tangent = (x_deltaPos1 * y_uvDeltaPos2 - x_deltaPos2 * y_uvDeltaPos1) * r;\n            const y_tangent = (y_deltaPos1 * y_uvDeltaPos2 - y_deltaPos2 * y_uvDeltaPos1) * r;\n            const z_tangent = (z_deltaPos1 * y_uvDeltaPos2 - z_deltaPos2 * y_uvDeltaPos1) * r;\n            // Bitangent\n            const x_bitangent = (x_deltaPos2 * x_uvDeltaPos1 - x_deltaPos1 * x_uvDeltaPos2) * r;\n            const y_bitangent = (y_deltaPos2 * x_uvDeltaPos1 - y_deltaPos1 * x_uvDeltaPos2) * r;\n            const z_bitangent = (z_deltaPos2 * x_uvDeltaPos1 - z_deltaPos1 * x_uvDeltaPos2) * r;\n            // Gram-Schmidt orthogonalize\n            //t = glm::normalize(t - n * glm:: dot(n, t));\n            const x_n0 = normals[i0 * 3 + 0];\n            const y_n0 = normals[i0 * 3 + 1];\n            const z_n0 = normals[i0 * 3 + 2];\n            const x_n1 = normals[i1 * 3 + 0];\n            const y_n1 = normals[i1 * 3 + 1];\n            const z_n1 = normals[i1 * 3 + 2];\n            const x_n2 = normals[i2 * 3 + 0];\n            const y_n2 = normals[i2 * 3 + 1];\n            const z_n2 = normals[i2 * 3 + 2];\n            // Tangent\n            const n0_dot_t = x_tangent * x_n0 + y_tangent * y_n0 + z_tangent * z_n0;\n            const n1_dot_t = x_tangent * x_n1 + y_tangent * y_n1 + z_tangent * z_n1;\n            const n2_dot_t = x_tangent * x_n2 + y_tangent * y_n2 + z_tangent * z_n2;\n            const x_resTangent0 = x_tangent - x_n0 * n0_dot_t;\n            const y_resTangent0 = y_tangent - y_n0 * n0_dot_t;\n            const z_resTangent0 = z_tangent - z_n0 * n0_dot_t;\n            const x_resTangent1 = x_tangent - x_n1 * n1_dot_t;\n            const y_resTangent1 = y_tangent - y_n1 * n1_dot_t;\n            const z_resTangent1 = z_tangent - z_n1 * n1_dot_t;\n            const x_resTangent2 = x_tangent - x_n2 * n2_dot_t;\n            const y_resTangent2 = y_tangent - y_n2 * n2_dot_t;\n            const z_resTangent2 = z_tangent - z_n2 * n2_dot_t;\n            const magTangent0 = Math.sqrt(x_resTangent0 * x_resTangent0 + y_resTangent0 * y_resTangent0 + z_resTangent0 * z_resTangent0);\n            const magTangent1 = Math.sqrt(x_resTangent1 * x_resTangent1 + y_resTangent1 * y_resTangent1 + z_resTangent1 * z_resTangent1);\n            const magTangent2 = Math.sqrt(x_resTangent2 * x_resTangent2 + y_resTangent2 * y_resTangent2 + z_resTangent2 * z_resTangent2);\n            // Bitangent\n            const n0_dot_bt = x_bitangent * x_n0 + y_bitangent * y_n0 + z_bitangent * z_n0;\n            const n1_dot_bt = x_bitangent * x_n1 + y_bitangent * y_n1 + z_bitangent * z_n1;\n            const n2_dot_bt = x_bitangent * x_n2 + y_bitangent * y_n2 + z_bitangent * z_n2;\n            const x_resBitangent0 = x_bitangent - x_n0 * n0_dot_bt;\n            const y_resBitangent0 = y_bitangent - y_n0 * n0_dot_bt;\n            const z_resBitangent0 = z_bitangent - z_n0 * n0_dot_bt;\n            const x_resBitangent1 = x_bitangent - x_n1 * n1_dot_bt;\n            const y_resBitangent1 = y_bitangent - y_n1 * n1_dot_bt;\n            const z_resBitangent1 = z_bitangent - z_n1 * n1_dot_bt;\n            const x_resBitangent2 = x_bitangent - x_n2 * n2_dot_bt;\n            const y_resBitangent2 = y_bitangent - y_n2 * n2_dot_bt;\n            const z_resBitangent2 = z_bitangent - z_n2 * n2_dot_bt;\n            const magBitangent0 = Math.sqrt(x_resBitangent0 * x_resBitangent0 +\n                y_resBitangent0 * y_resBitangent0 +\n                z_resBitangent0 * z_resBitangent0);\n            const magBitangent1 = Math.sqrt(x_resBitangent1 * x_resBitangent1 +\n                y_resBitangent1 * y_resBitangent1 +\n                z_resBitangent1 * z_resBitangent1);\n            const magBitangent2 = Math.sqrt(x_resBitangent2 * x_resBitangent2 +\n                y_resBitangent2 * y_resBitangent2 +\n                z_resBitangent2 * z_resBitangent2);\n            unpacked.tangents[i0 * 3 + 0] += x_resTangent0 / magTangent0;\n            unpacked.tangents[i0 * 3 + 1] += y_resTangent0 / magTangent0;\n            unpacked.tangents[i0 * 3 + 2] += z_resTangent0 / magTangent0;\n            unpacked.tangents[i1 * 3 + 0] += x_resTangent1 / magTangent1;\n            unpacked.tangents[i1 * 3 + 1] += y_resTangent1 / magTangent1;\n            unpacked.tangents[i1 * 3 + 2] += z_resTangent1 / magTangent1;\n            unpacked.tangents[i2 * 3 + 0] += x_resTangent2 / magTangent2;\n            unpacked.tangents[i2 * 3 + 1] += y_resTangent2 / magTangent2;\n            unpacked.tangents[i2 * 3 + 2] += z_resTangent2 / magTangent2;\n            unpacked.bitangents[i0 * 3 + 0] += x_resBitangent0 / magBitangent0;\n            unpacked.bitangents[i0 * 3 + 1] += y_resBitangent0 / magBitangent0;\n            unpacked.bitangents[i0 * 3 + 2] += z_resBitangent0 / magBitangent0;\n            unpacked.bitangents[i1 * 3 + 0] += x_resBitangent1 / magBitangent1;\n            unpacked.bitangents[i1 * 3 + 1] += y_resBitangent1 / magBitangent1;\n            unpacked.bitangents[i1 * 3 + 2] += z_resBitangent1 / magBitangent1;\n            unpacked.bitangents[i2 * 3 + 0] += x_resBitangent2 / magBitangent2;\n            unpacked.bitangents[i2 * 3 + 1] += y_resBitangent2 / magBitangent2;\n            unpacked.bitangents[i2 * 3 + 2] += z_resBitangent2 / magBitangent2;\n            // TODO: check handedness\n        }\n        this.tangents = unpacked.tangents;\n        this.bitangents = unpacked.bitangents;\n    }\n    /**\n     * @param layout - A {@link Layout} object that describes the\n     * desired memory layout of the generated buffer\n     * @return The packed array in the ... TODO\n     */\n    makeBufferData(layout) {\n        const numItems = this.vertices.length / 3;\n        const buffer = new ArrayBuffer(layout.stride * numItems);\n        buffer.numItems = numItems;\n        const dataView = new DataView(buffer);\n        for (let i = 0, vertexOffset = 0; i < numItems; i++) {\n            vertexOffset = i * layout.stride;\n            // copy in the vertex data in the order and format given by the\n            // layout param\n            for (const attribute of layout.attributes) {\n                const offset = vertexOffset + layout.attributeMap[attribute.key].offset;\n                switch (attribute.key) {\n                    case _layout__WEBPACK_IMPORTED_MODULE_0__["Layout"].POSITION.key:\n                        dataView.setFloat32(offset, this.vertices[i * 3], true);\n                        dataView.setFloat32(offset + 4, this.vertices[i * 3 + 1], true);\n                        dataView.setFloat32(offset + 8, this.vertices[i * 3 + 2], true);\n                        break;\n                    case _layout__WEBPACK_IMPORTED_MODULE_0__["Layout"].UV.key:\n                        dataView.setFloat32(offset, this.textures[i * 2], true);\n                        dataView.setFloat32(offset + 4, this.textures[i * 2 + 1], true);\n                        break;\n                    case _layout__WEBPACK_IMPORTED_MODULE_0__["Layout"].NORMAL.key:\n                        dataView.setFloat32(offset, this.vertexNormals[i * 3], true);\n                        dataView.setFloat32(offset + 4, this.vertexNormals[i * 3 + 1], true);\n                        dataView.setFloat32(offset + 8, this.vertexNormals[i * 3 + 2], true);\n                        break;\n                    case _layout__WEBPACK_IMPORTED_MODULE_0__["Layout"].MATERIAL_INDEX.key:\n                        dataView.setInt16(offset, this.vertexMaterialIndices[i], true);\n                        break;\n                    case _layout__WEBPACK_IMPORTED_MODULE_0__["Layout"].AMBIENT.key: {\n                        const materialIndex = this.vertexMaterialIndices[i];\n                        const material = this.materialsByIndex[materialIndex];\n                        if (!material) {\n                            console.warn(\'Material "\' +\n                                this.materialNames[materialIndex] +\n                                \'" not found in mesh. Did you forget to call addMaterialLibrary(...)?"\');\n                            break;\n                        }\n                        dataView.setFloat32(offset, material.ambient[0], true);\n                        dataView.setFloat32(offset + 4, material.ambient[1], true);\n                        dataView.setFloat32(offset + 8, material.ambient[2], true);\n                        break;\n                    }\n                    case _layout__WEBPACK_IMPORTED_MODULE_0__["Layout"].DIFFUSE.key: {\n                        const materialIndex = this.vertexMaterialIndices[i];\n                        const material = this.materialsByIndex[materialIndex];\n                        if (!material) {\n                            console.warn(\'Material "\' +\n                                this.materialNames[materialIndex] +\n                                \'" not found in mesh. Did you forget to call addMaterialLibrary(...)?"\');\n                            break;\n                        }\n                        dataView.setFloat32(offset, material.diffuse[0], true);\n                        dataView.setFloat32(offset + 4, material.diffuse[1], true);\n                        dataView.setFloat32(offset + 8, material.diffuse[2], true);\n                        break;\n                    }\n                    case _layout__WEBPACK_IMPORTED_MODULE_0__["Layout"].SPECULAR.key: {\n                        const materialIndex = this.vertexMaterialIndices[i];\n                        const material = this.materialsByIndex[materialIndex];\n                        if (!material) {\n                            console.warn(\'Material "\' +\n                                this.materialNames[materialIndex] +\n                                \'" not found in mesh. Did you forget to call addMaterialLibrary(...)?"\');\n                            break;\n                        }\n                        dataView.setFloat32(offset, material.specular[0], true);\n                        dataView.setFloat32(offset + 4, material.specular[1], true);\n                        dataView.setFloat32(offset + 8, material.specular[2], true);\n                        break;\n                    }\n                    case _layout__WEBPACK_IMPORTED_MODULE_0__["Layout"].SPECULAR_EXPONENT.key: {\n                        const materialIndex = this.vertexMaterialIndices[i];\n                        const material = this.materialsByIndex[materialIndex];\n                        if (!material) {\n                            console.warn(\'Material "\' +\n                                this.materialNames[materialIndex] +\n                                \'" not found in mesh. Did you forget to call addMaterialLibrary(...)?"\');\n                            break;\n                        }\n                        dataView.setFloat32(offset, material.specularExponent, true);\n                        break;\n                    }\n                    case _layout__WEBPACK_IMPORTED_MODULE_0__["Layout"].EMISSIVE.key: {\n                        const materialIndex = this.vertexMaterialIndices[i];\n                        const material = this.materialsByIndex[materialIndex];\n                        if (!material) {\n                            console.warn(\'Material "\' +\n                                this.materialNames[materialIndex] +\n                                \'" not found in mesh. Did you forget to call addMaterialLibrary(...)?"\');\n                            break;\n                        }\n                        dataView.setFloat32(offset, material.emissive[0], true);\n                        dataView.setFloat32(offset + 4, material.emissive[1], true);\n                        dataView.setFloat32(offset + 8, material.emissive[2], true);\n                        break;\n                    }\n                    case _layout__WEBPACK_IMPORTED_MODULE_0__["Layout"].TRANSMISSION_FILTER.key: {\n                        const materialIndex = this.vertexMaterialIndices[i];\n                        const material = this.materialsByIndex[materialIndex];\n                        if (!material) {\n                            console.warn(\'Material "\' +\n                                this.materialNames[materialIndex] +\n                                \'" not found in mesh. Did you forget to call addMaterialLibrary(...)?"\');\n                            break;\n                        }\n                        dataView.setFloat32(offset, material.transmissionFilter[0], true);\n                        dataView.setFloat32(offset + 4, material.transmissionFilter[1], true);\n                        dataView.setFloat32(offset + 8, material.transmissionFilter[2], true);\n                        break;\n                    }\n                    case _layout__WEBPACK_IMPORTED_MODULE_0__["Layout"].DISSOLVE.key: {\n                        const materialIndex = this.vertexMaterialIndices[i];\n                        const material = this.materialsByIndex[materialIndex];\n                        if (!material) {\n                            console.warn(\'Material "\' +\n                                this.materialNames[materialIndex] +\n                                \'" not found in mesh. Did you forget to call addMaterialLibrary(...)?"\');\n                            break;\n                        }\n                        dataView.setFloat32(offset, material.dissolve, true);\n                        break;\n                    }\n                    case _layout__WEBPACK_IMPORTED_MODULE_0__["Layout"].ILLUMINATION.key: {\n                        const materialIndex = this.vertexMaterialIndices[i];\n                        const material = this.materialsByIndex[materialIndex];\n                        if (!material) {\n                            console.warn(\'Material "\' +\n                                this.materialNames[materialIndex] +\n                                \'" not found in mesh. Did you forget to call addMaterialLibrary(...)?"\');\n                            break;\n                        }\n                        dataView.setInt16(offset, material.illumination, true);\n                        break;\n                    }\n                    case _layout__WEBPACK_IMPORTED_MODULE_0__["Layout"].REFRACTION_INDEX.key: {\n                        const materialIndex = this.vertexMaterialIndices[i];\n                        const material = this.materialsByIndex[materialIndex];\n                        if (!material) {\n                            console.warn(\'Material "\' +\n                                this.materialNames[materialIndex] +\n                                \'" not found in mesh. Did you forget to call addMaterialLibrary(...)?"\');\n                            break;\n                        }\n                        dataView.setFloat32(offset, material.refractionIndex, true);\n                        break;\n                    }\n                    case _layout__WEBPACK_IMPORTED_MODULE_0__["Layout"].SHARPNESS.key: {\n                        const materialIndex = this.vertexMaterialIndices[i];\n                        const material = this.materialsByIndex[materialIndex];\n                        if (!material) {\n                            console.warn(\'Material "\' +\n                                this.materialNames[materialIndex] +\n                                \'" not found in mesh. Did you forget to call addMaterialLibrary(...)?"\');\n                            break;\n                        }\n                        dataView.setFloat32(offset, material.sharpness, true);\n                        break;\n                    }\n                    case _layout__WEBPACK_IMPORTED_MODULE_0__["Layout"].ANTI_ALIASING.key: {\n                        const materialIndex = this.vertexMaterialIndices[i];\n                        const material = this.materialsByIndex[materialIndex];\n                        if (!material) {\n                            console.warn(\'Material "\' +\n                                this.materialNames[materialIndex] +\n                                \'" not found in mesh. Did you forget to call addMaterialLibrary(...)?"\');\n                            break;\n                        }\n                        dataView.setInt16(offset, material.antiAliasing ? 1 : 0, true);\n                        break;\n                    }\n                }\n            }\n        }\n        return buffer;\n    }\n    makeIndexBufferData() {\n        const buffer = new Uint16Array(this.indices);\n        buffer.numItems = this.indices.length;\n        return buffer;\n    }\n    addMaterialLibrary(mtl) {\n        for (const name in mtl.materials) {\n            if (!(name in this.materialIndices)) {\n                // This material is not referenced by the mesh\n                continue;\n            }\n            const material = mtl.materials[name];\n            // Find the material index for this material\n            const materialIndex = this.materialIndices[material.name];\n            // Put the material into the materialsByIndex object at the right\n            // spot as determined when the obj file was parsed\n            this.materialsByIndex[materialIndex] = material;\n        }\n    }\n}\n\n\n//# sourceURL=webpack://OBJ/./src/mesh.ts?')},"./src/utils.ts":
+/*!**********************!*\
+  !*** ./src/utils.ts ***!
+  \**********************/
+/*! exports provided: downloadModels, downloadMeshes, initMeshBuffers, deleteMeshBuffers */function(module,__webpack_exports__,__webpack_require__){"use strict";eval('__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "downloadModels", function() { return downloadModels; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "downloadMeshes", function() { return downloadMeshes; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "initMeshBuffers", function() { return initMeshBuffers; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "deleteMeshBuffers", function() { return deleteMeshBuffers; });\n/* harmony import */ var _mesh__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./mesh */ "./src/mesh.ts");\n/* harmony import */ var _material__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./material */ "./src/material.ts");\n\n\nfunction downloadMtlTextures(mtl, root) {\n    const mapAttributes = [\n        "mapDiffuse",\n        "mapAmbient",\n        "mapSpecular",\n        "mapDissolve",\n        "mapBump",\n        "mapDisplacement",\n        "mapDecal",\n        "mapEmissive",\n    ];\n    if (!root.endsWith("/")) {\n        root += "/";\n    }\n    const textures = [];\n    for (const materialName in mtl.materials) {\n        if (!mtl.materials.hasOwnProperty(materialName)) {\n            continue;\n        }\n        const material = mtl.materials[materialName];\n        for (const attr of mapAttributes) {\n            const mapData = material[attr];\n            if (!mapData) {\n                continue;\n            }\n            const url = root + mapData.filename;\n            textures.push(fetch(url)\n                .then(response => {\n                if (!response.ok) {\n                    throw new Error();\n                }\n                return response.blob();\n            })\n                .then(function (data) {\n                const image = new Image();\n                image.src = URL.createObjectURL(data);\n                mapData.texture = image;\n                return new Promise(resolve => (image.onload = resolve));\n            })\n                .catch(() => {\n                console.error(`Unable to download texture: ${url}`);\n            }));\n        }\n    }\n    return Promise.all(textures);\n}\nfunction getMtl(modelOptions) {\n    if (!(typeof modelOptions.mtl === "string")) {\n        return modelOptions.obj.replace(/\\.obj$/, ".mtl");\n    }\n    return modelOptions.mtl;\n}\n/**\n * Accepts a list of model request objects and returns a Promise that\n * resolves when all models have been downloaded and parsed.\n *\n * The list of model objects follow this interface:\n * {\n *  obj: \'path/to/model.obj\',\n *  mtl: true | \'path/to/model.mtl\',\n *  downloadMtlTextures: true | false\n *  mtlTextureRoot: \'/models/suzanne/maps\'\n *  name: \'suzanne\'\n * }\n *\n * The `obj` attribute is required and should be the path to the\n * model\'s .obj file relative to the current repo (absolute URLs are\n * suggested).\n *\n * The `mtl` attribute is optional and can either be a boolean or\n * a path to the model\'s .mtl file relative to the current URL. If\n * the value is `true`, then the path and basename given for the `obj`\n * attribute is used replacing the .obj suffix for .mtl\n * E.g.: {obj: \'models/foo.obj\', mtl: true} would search for \'models/foo.mtl\'\n *\n * The `name` attribute is optional and is a human friendly name to be\n * included with the parsed OBJ and MTL files. If not given, the base .obj\n * filename will be used.\n *\n * The `downloadMtlTextures` attribute is a flag for automatically downloading\n * any images found in the MTL file and attaching them to each Material\n * created from that file. For example, if material.mapDiffuse is set (there\n * was data in the MTL file), then material.mapDiffuse.texture will contain\n * the downloaded image. This option defaults to `true`. By default, the MTL\'s\n * URL will be used to determine the location of the images.\n *\n * The `mtlTextureRoot` attribute is optional and should point to the location\n * on the server that this MTL\'s texture files are located. The default is to\n * use the MTL file\'s location.\n *\n * @returns {Promise} the result of downloading the given list of models. The\n * promise will resolve with an object whose keys are the names of the models\n * and the value is its Mesh object. Each Mesh object will automatically\n * have its addMaterialLibrary() method called to set the given MTL data (if given).\n */\nfunction downloadModels(models) {\n    const finished = [];\n    for (const model of models) {\n        if (!model.obj) {\n            throw new Error(\'"obj" attribute of model object not set. The .obj file is required to be set \' +\n                "in order to use downloadModels()");\n        }\n        const options = {\n            indicesPerMaterial: !!model.indicesPerMaterial,\n            calcTangentsAndBitangents: !!model.calcTangentsAndBitangents,\n        };\n        // if the name is not provided, dervive it from the given OBJ\n        let name = model.name;\n        if (!name) {\n            const parts = model.obj.split("/");\n            name = parts[parts.length - 1].replace(".obj", "");\n        }\n        const namePromise = Promise.resolve(name);\n        const meshPromise = fetch(model.obj)\n            .then(response => response.text())\n            .then(data => {\n            return new _mesh__WEBPACK_IMPORTED_MODULE_0__["default"](data, options);\n        });\n        let mtlPromise;\n        // Download MaterialLibrary file?\n        if (model.mtl) {\n            const mtl = getMtl(model);\n            mtlPromise = fetch(mtl)\n                .then(response => response.text())\n                .then((data) => {\n                const material = new _material__WEBPACK_IMPORTED_MODULE_1__["MaterialLibrary"](data);\n                if (model.downloadMtlTextures !== false) {\n                    let root = model.mtlTextureRoot;\n                    if (!root) {\n                        // get the directory of the MTL file as default\n                        root = mtl.substr(0, mtl.lastIndexOf("/"));\n                    }\n                    // downloadMtlTextures returns a Promise that\n                    // is resolved once all of the images it\n                    // contains are downloaded. These are then\n                    // attached to the map data objects\n                    return Promise.all([Promise.resolve(material), downloadMtlTextures(material, root)]);\n                }\n                return Promise.all([Promise.resolve(material), undefined]);\n            })\n                .then((value) => {\n                return value[0];\n            });\n        }\n        const parsed = [namePromise, meshPromise, mtlPromise];\n        finished.push(Promise.all(parsed));\n    }\n    return Promise.all(finished).then(ms => {\n        // the "finished" promise is a list of name, Mesh instance,\n        // and MaterialLibary instance. This unpacks and returns an\n        // object mapping name to Mesh (Mesh points to MTL).\n        const models = {};\n        for (const model of ms) {\n            const [name, mesh, mtl] = model;\n            mesh.name = name;\n            if (mtl) {\n                mesh.addMaterialLibrary(mtl);\n            }\n            models[name] = mesh;\n        }\n        return models;\n    });\n}\n/**\n * Takes in an object of `mesh_name`, `\'/url/to/OBJ/file\'` pairs and a callback\n * function. Each OBJ file will be ajaxed in and automatically converted to\n * an OBJ.Mesh. When all files have successfully downloaded the callback\n * function provided will be called and passed in an object containing\n * the newly created meshes.\n *\n * **Note:** In order to use this function as a way to download meshes, a\n * webserver of some sort must be used.\n *\n * @param {Object} nameAndAttrs an object where the key is the name of the mesh and the value is the url to that mesh\'s OBJ file\n *\n * @param {Function} completionCallback should contain a function that will take one parameter: an object array where the keys will be the unique object name and the value will be a Mesh object\n *\n * @param {Object} meshes In case other meshes are loaded separately or if a previously declared variable is desired to be used, pass in a (possibly empty) json object of the pattern: { \'<mesh_name>\': OBJ.Mesh }\n *\n */\nfunction downloadMeshes(nameAndURLs, completionCallback, meshes) {\n    if (meshes === undefined) {\n        meshes = {};\n    }\n    const completed = [];\n    for (const mesh_name in nameAndURLs) {\n        if (!nameAndURLs.hasOwnProperty(mesh_name)) {\n            continue;\n        }\n        const url = nameAndURLs[mesh_name];\n        completed.push(fetch(url)\n            .then(response => response.text())\n            .then(data => {\n            return [mesh_name, new _mesh__WEBPACK_IMPORTED_MODULE_0__["default"](data)];\n        }));\n    }\n    Promise.all(completed).then(ms => {\n        for (const [name, mesh] of ms) {\n            meshes[name] = mesh;\n        }\n        return completionCallback(meshes);\n    });\n}\nfunction _buildBuffer(gl, type, data, itemSize) {\n    const buffer = gl.createBuffer();\n    const arrayView = type === gl.ARRAY_BUFFER ? Float32Array : Uint16Array;\n    gl.bindBuffer(type, buffer);\n    gl.bufferData(type, new arrayView(data), gl.STATIC_DRAW);\n    buffer.itemSize = itemSize;\n    buffer.numItems = data.length / itemSize;\n    return buffer;\n}\n/**\n * Takes in the WebGL context and a Mesh, then creates and appends the buffers\n * to the mesh object as attributes.\n *\n * @param {WebGLRenderingContext} gl the `canvas.getContext(\'webgl\')` context instance\n * @param {Mesh} mesh a single `OBJ.Mesh` instance\n *\n * The newly created mesh attributes are:\n *\n * Attrbute | Description\n * :--- | ---\n * **normalBuffer**       |contains the model&#39;s Vertex Normals\n * normalBuffer.itemSize  |set to 3 items\n * normalBuffer.numItems  |the total number of vertex normals\n * |\n * **textureBuffer**      |contains the model&#39;s Texture Coordinates\n * textureBuffer.itemSize |set to 2 items\n * textureBuffer.numItems |the number of texture coordinates\n * |\n * **vertexBuffer**       |contains the model&#39;s Vertex Position Coordinates (does not include w)\n * vertexBuffer.itemSize  |set to 3 items\n * vertexBuffer.numItems  |the total number of vertices\n * |\n * **indexBuffer**        |contains the indices of the faces\n * indexBuffer.itemSize   |is set to 1\n * indexBuffer.numItems   |the total number of indices\n *\n * A simple example (a lot of steps are missing, so don\'t copy and paste):\n *\n *     const gl   = canvas.getContext(\'webgl\'),\n *         mesh = OBJ.Mesh(obj_file_data);\n *     // compile the shaders and create a shader program\n *     const shaderProgram = gl.createProgram();\n *     // compilation stuff here\n *     ...\n *     // make sure you have vertex, vertex normal, and texture coordinate\n *     // attributes located in your shaders and attach them to the shader program\n *     shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");\n *     gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);\n *\n *     shaderProgram.vertexNormalAttribute = gl.getAttribLocation(shaderProgram, "aVertexNormal");\n *     gl.enableVertexAttribArray(shaderProgram.vertexNormalAttribute);\n *\n *     shaderProgram.textureCoordAttribute = gl.getAttribLocation(shaderProgram, "aTextureCoord");\n *     gl.enableVertexAttribArray(shaderProgram.textureCoordAttribute);\n *\n *     // create and initialize the vertex, vertex normal, and texture coordinate buffers\n *     // and save on to the mesh object\n *     OBJ.initMeshBuffers(gl, mesh);\n *\n *     // now to render the mesh\n *     gl.bindBuffer(gl.ARRAY_BUFFER, mesh.vertexBuffer);\n *     gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, mesh.vertexBuffer.itemSize, gl.FLOAT, false, 0, 0);\n *     // it\'s possible that the mesh doesn\'t contain\n *     // any texture coordinates (e.g. suzanne.obj in the development branch).\n *     // in this case, the texture vertexAttribArray will need to be disabled\n *     // before the call to drawElements\n *     if(!mesh.textures.length){\n *       gl.disableVertexAttribArray(shaderProgram.textureCoordAttribute);\n *     }\n *     else{\n *       // if the texture vertexAttribArray has been previously\n *       // disabled, then it needs to be re-enabled\n *       gl.enableVertexAttribArray(shaderProgram.textureCoordAttribute);\n *       gl.bindBuffer(gl.ARRAY_BUFFER, mesh.textureBuffer);\n *       gl.vertexAttribPointer(shaderProgram.textureCoordAttribute, mesh.textureBuffer.itemSize, gl.FLOAT, false, 0, 0);\n *     }\n *\n *     gl.bindBuffer(gl.ARRAY_BUFFER, mesh.normalBuffer);\n *     gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, mesh.normalBuffer.itemSize, gl.FLOAT, false, 0, 0);\n *\n *     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, model.mesh.indexBuffer);\n *     gl.drawElements(gl.TRIANGLES, model.mesh.indexBuffer.numItems, gl.UNSIGNED_SHORT, 0);\n */\nfunction initMeshBuffers(gl, mesh) {\n    mesh.normalBuffer = _buildBuffer(gl, gl.ARRAY_BUFFER, mesh.vertexNormals, 3);\n    mesh.textureBuffer = _buildBuffer(gl, gl.ARRAY_BUFFER, mesh.textures, mesh.textureStride);\n    mesh.vertexBuffer = _buildBuffer(gl, gl.ARRAY_BUFFER, mesh.vertices, 3);\n    mesh.indexBuffer = _buildBuffer(gl, gl.ELEMENT_ARRAY_BUFFER, mesh.indices, 1);\n    return mesh;\n}\nfunction deleteMeshBuffers(gl, mesh) {\n    gl.deleteBuffer(mesh.normalBuffer);\n    gl.deleteBuffer(mesh.textureBuffer);\n    gl.deleteBuffer(mesh.vertexBuffer);\n    gl.deleteBuffer(mesh.indexBuffer);\n}\n\n\n//# sourceURL=webpack://OBJ/./src/utils.ts?')},0:
+/*!****************************!*\
+  !*** multi ./src/index.ts ***!
+  \****************************/
+/*! no static exports found */function(module,exports,__webpack_require__){eval('module.exports = __webpack_require__(/*! /home/aaron/google_drive/projects/webgl-obj-loader/src/index.ts */"./src/index.ts");\n\n\n//# sourceURL=webpack://OBJ/multi_./src/index.ts?')}})});
 
 /***/ }),
 /* 77 */
 /***/ (function(module, exports) {
 
-module.exports = "# version 300 es\nprecision highp float;\n\nuniform mat4 u_Model;       // The matrix that defines the transformation of the\n                            // object we're rendering. \n\nuniform mat4 u_ModelInvTr;  // The inverse transpose of the model matrix.\n                            // This allows us to transform the object's normals properly\n                            // if the object has been non-uniformly scaled.\n\nuniform mat4 u_ViewProj;    // The matrix that defines the camera's transformation.\n\nuniform mat4 u_LightSpaceMatrix;\n\nin vec4 vs_Pos;             // The array of vertex positions passed to the shader\nin vec4 vs_Nor;             // The array of vertex normals passed to the shader\nin vec4 vs_Col;             // The array of vertex colors passed to the shader.\nin vec2 vs_UV;\nin uint vs_Biome;\n\nout vec4 fs_Pos;\nout vec4 fs_Nor;            // The array of normals that has been transformed by u_ModelInvTr. This is implicitly passed to the fragment shader.\nout vec4 fs_LightVec;       // The direction in which our virtual light lies, relative to each vertex. This is implicitly passed to the fragment shader.\nout vec4 fs_Col;            // The color of each vertex. This is implicitly passed to the fragment shader.\nout vec2 fs_UV;\nout vec4 fs_LightSpacePos;\nflat out uint fs_Biome;\n\nconst vec4 lightPos = vec4(0.0, 0.0, 10000000.0, 1.0);\n\n\nvoid main()\n{\n    fs_Col = vs_Col;\n    fs_UV = vs_UV;\n    fs_Biome = vs_Biome;\n\n    mat3 invTranspose = mat3(u_ModelInvTr);\n    fs_Nor = vec4(invTranspose * vec3(vs_Nor), 0.0);          // Pass the vertex normals to the fragment shader for interpolation.\n                                                            // Transform the geometry's normals by the inverse transpose of the\n                                                            // model matrix. This is necessary to ensure the normals remain\n                                                            // perpendicular to the surface after the surface is transformed by\n                                                            // the model matrix.\n\n\n    vec4 modelposition = u_Model * vs_Pos;   // Temporarily store the transformed vertex positions for use below\n\n    fs_LightSpacePos = u_LightSpaceMatrix * vs_Pos;\n\n    gl_Position = u_ViewProj * modelposition;// gl_Position is a built-in variable of OpenGL which is\n                                             // used to render the final positions of the geometry's vertices\n}\n"
+module.exports = "# version 300 es\nprecision highp float;\n\nuniform mat4 u_Model;       // The matrix that defines the transformation of the\n                            // object we're rendering. \n\nuniform mat4 u_ModelInvTr;  // The inverse transpose of the model matrix.\n                            // This allows us to transform the object's normals properly\n                            // if the object has been non-uniformly scaled.\n\nuniform mat4 u_ViewProj;    // The matrix that defines the camera's transformation.\n\nuniform mat4 u_LightSpaceMatrix;\n\nin vec4 vs_Pos;             // The array of vertex positions passed to the shader\n\n\nvoid main()\n{\n    gl_Position = u_LightSpaceMatrix * u_Model * vs_Pos;\n}\n"
 
 /***/ }),
 /* 78 */
 /***/ (function(module, exports) {
 
-module.exports = "# version 300 es\nprecision highp float;\n\n// This is a fragment shader. If you've opened this file first, please\n// open and read lambert.vert.glsl before reading on.\n// Unlike the vertex shader, the fragment shader actually does compute\n// the shading of geometry. For every pixel in your program's output\n// screen, the fragment shader is run for every bit of geometry that\n// particular pixel overlaps. By implicitly interpolating the position\n// data passed into the fragment shader by the vertex shader, the fragment shader\n// can compute what color to apply to its pixel based on things like vertex\n// position, light position, and vertex color.\n\nuniform vec4 u_Color; // The color with which to render this instance of geometry.\nuniform sampler2D depthMap;\nuniform mat4 u_ViewProj;\n\n// These are the interpolated values out of the rasterizer, so you can't know\n// their specific values without knowing the vertices that contributed to them\nin vec4 fs_Pos;\nin vec4 fs_Nor;\nin vec4 fs_LightVec;\nin vec4 fs_Col;\nin vec2 fs_UV;\nin vec4 fs_LightSpacePos;\nflat in uint fs_Biome;\n\nout vec4 out_Col; // This is the final output color that you will see on your\n                  // screen for the pixel that is currently being processed.\n\nconst float PI = 3.14159265359;\nconst float TWO_PI = 6.28318530718;\nconst float FOUR_PI = 12.5663706144;\nconst float EIGHT_PI = 25.1327412287;\n\nconst vec3 lightPos = vec3(0.0, 0.0, 1.5);\n\nvec4 getColorFromBiome()\n{\n    switch (fs_Biome)\n    {\n        case uint(0):   // Snow Mountain\n            if (sin(fs_UV.x * TWO_PI) * 0.05 + sin(fs_UV.x * FOUR_PI) * 0.05 + fs_UV.y > 0.7) \n                return fs_Col;\n            return vec4(0.4, 0.35, 0.3, 1.0);\n        case uint(1):   // Rocky Mountain\n            if (sin(fs_UV.x * TWO_PI) * 0.05 + sin(fs_UV.x * FOUR_PI) * 0.05 + sin(fs_UV.x * EIGHT_PI) * 0.05 + fs_UV.y > 0.7) \n                return fs_Col;\n            return vec4(0.4, 0.35, 0.3, 1.0);\n        case uint(2):   // Desert\n            return vec4(0.95, 0.85, 0.25, 1.0);\n        case uint(4):   // Grassland\n            if (sin(fs_UV.x * TWO_PI) * 0.05 + fs_UV.y > 0.6) \n                return fs_Col;\n            return vec4(0.5, 0.35, 0.1, 1.0);\n        case uint(5):   // Jungle\n            if (sin(fs_UV.x * TWO_PI) * 0.05 + fs_UV.y > 0.6) \n                return fs_Col;\n            return vec4(0.5, 0.35, 0.1, 1.0);\n        case uint(6):   // Forest\n            if (sin(fs_UV.x * TWO_PI) * 0.05 + fs_UV.y > 0.6) \n                return fs_Col;\n            return vec4(0.5, 0.35, 0.1, 1.0);\n    }\n    return fs_Col;\n}\n\nfloat shadowCalculation(vec4 lightSpacePos, vec3 normal, vec3 lightDir)\n{\n    vec3 projCoords = lightSpacePos.xyz / lightSpacePos.w;\n    projCoords = projCoords * 0.5 + 0.5; \n    if(projCoords.z > 1.0)\n        return 0.0;\n    float closestDepth = texture(depthMap, projCoords.xy).r; \n    float currentDepth = projCoords.z; \n    float bias = max(0.005 * (1.0 - dot(normal, lightDir)), 0.0005);  \n    if (dot(normal, lightDir) < 0.1) return 0.0;\n    float shadow = 0.0;\n    vec2 texelSize = vec2(1.0 / float(textureSize(depthMap, 0).x), 1.0 / float(textureSize(depthMap, 0).y));\n    for(int x = -1; x <= 1; ++x)\n    {\n        for(int y = -1; y <= 1; ++y)\n        {\n            float pcfDepth = texture(depthMap, projCoords.xy + vec2(float(x), float(y)) * texelSize).r; \n            shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0;        \n        }    \n    }\n    shadow /= 9.0;\n    return shadow;\n}\n\n\nvoid main()\n{\n    vec3 color = vec3(getColorFromBiome());\n    vec3 normal = normalize(vec3(fs_Nor));\n    vec3 lightColor = vec3(1.0);\n    // ambient\n    vec3 ambient = 0.15 * color;\n    // diffuse\n    vec3 lightDir = normalize(lightPos - vec3(fs_Pos));\n    float diff = max(dot(lightDir, normal), 0.0);\n    vec3 diffuse = diff * lightColor;\n    // specular\n    vec3 viewDir = normalize(u_ViewProj[3].xyz - vec3(fs_Pos));\n    float spec = 0.0;\n    vec3 halfwayDir = normalize(lightDir + viewDir);  \n    spec = pow(max(dot(normal, halfwayDir), 0.0), 64.0);\n    vec3 specular = spec * lightColor;    \n    // calculate shadow\n    float shadow = shadowCalculation(fs_LightSpacePos, normal, lightDir);       \n    vec3 lighting = clamp((ambient + (1.0 - shadow) * (diffuse + specular)) * color, vec3(0.0), vec3(1.0));   \n \n    // out_Col = vec4(1.0 - shadow, 1.0 - shadow, 1.0 - shadow, 1.0);\n    // float alpha = 1.0;\n    // if (fs_Biome == uint(7) || fs_Biome == uint(8)) alpha = 0.8;\n    out_Col = vec4(lighting, 1.0);\n    // Compute final shaded color\n    // out_Col = vec4(diffuseColor.rgb * lightIntensity, diffuseColor.a);\n}\n"
+module.exports = "# version 300 es\n\nvoid main()\n{             \n    // gl_FragDepth = gl_FragCoord.z;\n}  "
+
+/***/ }),
+/* 79 */
+/***/ (function(module, exports) {
+
+module.exports = "# version 300 es\nprecision highp float;\n\nuniform mat4 u_Model;       // The matrix that defines the transformation of the\n                            // object we're rendering. \n\nuniform mat4 u_ModelInvTr;  // The inverse transpose of the model matrix.\n                            // This allows us to transform the object's normals properly\n                            // if the object has been non-uniformly scaled.\n\nuniform mat4 u_ViewProj;    // The matrix that defines the camera's transformation.\n\nuniform mat4 u_LightSpaceMatrix;\n\nin vec4 vs_Pos;             // The array of vertex positions passed to the shader\nin vec4 vs_Col1;\nin vec4 vs_Col2;\nin vec4 vs_Col3;\nin vec4 vs_Col4;\n\n\nvoid main()\n{\n    mat4 T = mat4(vs_Col1, vs_Col2, vs_Col3, vs_Col4);\n    vec4 modelposition = T * u_Model * vs_Pos;   // Temporarily store the transformed vertex positions for use below\n    gl_Position = u_LightSpaceMatrix * modelposition;\n}"
+
+/***/ }),
+/* 80 */
+/***/ (function(module, exports) {
+
+module.exports = "# version 300 es\n\nvoid main()\n{             \n    // gl_FragDepth = gl_FragCoord.z;\n}  "
+
+/***/ }),
+/* 81 */
+/***/ (function(module, exports) {
+
+module.exports = "# version 300 es\nprecision highp float;\n\nuniform mat4 u_Model;       // The matrix that defines the transformation of the\n                            // object we're rendering. \n\nuniform mat4 u_ModelInvTr;  // The inverse transpose of the model matrix.\n                            // This allows us to transform the object's normals properly\n                            // if the object has been non-uniformly scaled.\n\nuniform mat4 u_ViewProj;    // The matrix that defines the camera's transformation.\n\nuniform mat4 u_LightSpaceMatrix;\n\nin vec4 vs_Pos;             // The array of vertex positions passed to the shader\nin vec4 vs_Nor;             // The array of vertex normals passed to the shader\nin vec4 vs_Col;             // The array of vertex colors passed to the shader.\nin vec2 vs_UV;\nin uint vs_Biome;\n\nout vec4 fs_Pos;\nout vec4 fs_Nor;            // The array of normals that has been transformed by u_ModelInvTr. This is implicitly passed to the fragment shader.\nout vec4 fs_LightVec;       // The direction in which our virtual light lies, relative to each vertex. This is implicitly passed to the fragment shader.\nout vec4 fs_Col;            // The color of each vertex. This is implicitly passed to the fragment shader.\nout vec2 fs_UV;\nout vec4 fs_LightSpacePos;\nflat out uint fs_Biome;\n\nconst vec4 lightPos = vec4(0.0, 0.0, 10000000.0, 1.0);\n\n\nvoid main()\n{\n    fs_Col = vs_Col;\n    fs_UV = vs_UV;\n    fs_Pos = vs_Pos;\n    fs_Biome = vs_Biome;\n    mat3 invTranspose = mat3(u_ModelInvTr);\n    fs_Nor = vec4(invTranspose * vec3(vs_Nor), 0.0);          // Pass the vertex normals to the fragment shader for interpolation.\n                                                            // Transform the geometry's normals by the inverse transpose of the\n                                                            // model matrix. This is necessary to ensure the normals remain\n                                                            // perpendicular to the surface after the surface is transformed by\n                                                            // the model matrix.\n\n\n    vec4 modelposition = u_Model * vs_Pos;   // Temporarily store the transformed vertex positions for use below\n\n    fs_LightSpacePos = u_LightSpaceMatrix * vs_Pos;\n\n    gl_Position = u_ViewProj * modelposition;// gl_Position is a built-in variable of OpenGL which is\n                                             // used to render the final positions of the geometry's vertices\n}\n"
+
+/***/ }),
+/* 82 */
+/***/ (function(module, exports) {
+
+module.exports = "# version 300 es\nprecision highp float;\n\nuniform vec4 u_Color;\nuniform sampler2D depthMap;\nuniform sampler2D depthMapInstanced;\nuniform mat4 u_ViewProj;\nuniform vec3 u_LightPos;\nuniform vec3 u_CameraPosition;\nuniform int u_TileType;\nuniform int u_LightingEnabled;\n\n// These are the interpolated values out of the rasterizer, so you can't know\n// their specific values without knowing the vertices that contributed to them\nin vec4 fs_Pos;\nin vec4 fs_Nor;\nin vec4 fs_LightVec;\nin vec4 fs_Col;\nin vec2 fs_UV;\nin vec4 fs_LightSpacePos;\nflat in uint fs_Biome;\n\nout vec4 out_Col; // This is the final output color that you will see on your\n                  // screen for the pixel that is currently being processed.\n\nconst float PI = 3.14159265359;\nconst float TWO_PI = 6.28318530718;\nconst float FOUR_PI = 12.5663706144;\nconst float EIGHT_PI = 25.1327412287;\n\nvec4 getColorFromBiome()\n{\n    switch (fs_Biome)\n    {\n        case uint(0):   // Snow Mountain\n            if (sin(fs_UV.x * TWO_PI) * 0.05 + sin(fs_UV.x * FOUR_PI) * 0.05 + fs_UV.y > 0.85) \n                return fs_Col;\n            return vec4(0.4, 0.35, 0.3, 1.0);\n        case uint(1):   // Rocky Mountain\n            if (sin(fs_UV.x * TWO_PI) * 0.05 + sin(fs_UV.x * FOUR_PI) * 0.05 + sin(fs_UV.x * EIGHT_PI) * 0.05 + fs_UV.y > 0.85) \n                return fs_Col;\n            return vec4(0.4, 0.35, 0.3, 1.0);\n        case uint(2):   // Desert\n            return vec4(0.95, 0.85, 0.25, 1.0);\n        case uint(4):   // Grassland\n            if (sin(fs_UV.x * TWO_PI) * 0.05 + fs_UV.y > 0.85) \n                return fs_Col;\n            return vec4(0.5, 0.35, 0.1, 1.0);\n        case uint(5):   // Jungle\n            if (sin(fs_UV.x * TWO_PI) * 0.05 + fs_UV.y > 0.85) \n                return fs_Col;\n            return vec4(0.5, 0.35, 0.1, 1.0);\n        case uint(6):   // Forest\n            if (sin(fs_UV.x * TWO_PI) * 0.05 + fs_UV.y > 0.85) \n                return fs_Col;\n            return vec4(0.5, 0.35, 0.1, 1.0);\n        case uint(7):   // lake\n        case uint(8):   // ocean\n        case uint(10):  // surface\n            return vec4(0.0, 0.1, 0.8, 0.8);\n\n    }\n    return fs_Col;\n}\n\nfloat shadowCalculation(vec4 lightSpacePos, vec3 normal, vec3 lightDir)\n{\n    vec3 projCoords = lightSpacePos.xyz / lightSpacePos.w;\n    projCoords = projCoords * 0.5 + 0.5; \n    if(projCoords.z > 1.0)\n        return 0.0;\n    float closestDepth = min(texture(depthMap, projCoords.xy).r, texture(depthMapInstanced, projCoords.xy).r); \n    float currentDepth = projCoords.z; \n    float bias = max(0.005 * (1.0 - dot(normal, lightDir)), 0.0007);  \n    float shadow = 0.0;\n    vec2 texelSize = vec2(1.0 / float(textureSize(depthMap, 0).x), 1.0 / float(textureSize(depthMap, 0).y));\n    for(int x = -1; x <= 1; ++x)\n    {\n        for(int y = -1; y <= 1; ++y)\n        {\n            float pcfDepth = texture(depthMap, projCoords.xy + vec2(float(x), float(y)) * texelSize).r; \n            shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0;        \n        }    \n    }\n    shadow /= 9.0;\n    return shadow;\n}\n\n\n\nvoid main()\n{\n    vec3 color = u_TileType == 0 ? vec3(getColorFromBiome()) : vec3(fs_Col);\n    if (u_LightingEnabled == 1)\n    {\n        vec3 normal = normalize(vec3(fs_Nor));\n        vec3 lightColor = vec3(1.0);\n        // ambient\n        vec3 ambient = 0.15 * color;\n        // diffuse\n        vec3 lightDir = normalize(u_LightPos - vec3(fs_Pos));\n        float diff = max(dot(lightDir, normal), 0.0);\n        vec3 diffuse = diff * lightColor;\n        // specular\n        vec3 viewDir = normalize(vec3(fs_Pos));\n        float spec = 0.0;\n        vec3 halfwayDir = normalize(lightDir + viewDir);  \n        spec = pow(max(dot(normal, halfwayDir), 0.0), 64.0);\n        vec3 specular = spec * lightColor;    \n        // calculate shadow\n        float shadow = shadowCalculation(fs_LightSpacePos, normal, lightDir); \n        if (fs_Biome == uint(10) && shadow != 0.0) shadow *= 0.25;      \n        vec3 lighting = clamp((ambient + (1.0 - shadow) * (diffuse + specular)) * color, vec3(0.0), vec3(1.0));\n        out_Col = vec4(lighting, 1.0);\n    }\n    else\n    {\n        vec3 normal = normalize(vec3(fs_Nor));\n        vec3 lightColor = vec3(1.0);\n        // ambient\n        vec3 ambient = 0.15 * color;\n        // diffuse\n        vec3 lightDir = normalize(vec3(fs_Pos));\n        float diff = max(dot(lightDir, normal), 0.0);\n        vec3 diffuse = diff * lightColor;\n        // specular\n        vec3 lighting = clamp(ambient + diffuse * color, vec3(0.0), vec3(1.0));\n        out_Col = vec4(lighting, 1.0);\n    }\n}\n"
+
+/***/ }),
+/* 83 */
+/***/ (function(module, exports) {
+
+module.exports = "# version 300 es\nprecision highp float;\n\nuniform mat4 u_Model;       // The matrix that defines the transformation of the\n                            // object we're rendering. \n\nuniform mat4 u_ModelInvTr;  // The inverse transpose of the model matrix.\n                            // This allows us to transform the object's normals properly\n                            // if the object has been non-uniformly scaled.\n\nuniform mat4 u_ViewProj;    // The matrix that defines the camera's transformation.\nuniform mat4 u_LightSpaceMatrix;\n\n\nin vec4 vs_Pos;             // The array of vertex positions passed to the shader\nin vec4 vs_Nor;             // The array of vertex normals passed to the shader\nin vec4 vs_Col;             // The array of vertex colors passed to the shader.\n\nin vec4 vs_Col1;\nin vec4 vs_Col2;\nin vec4 vs_Col3;\nin vec4 vs_Col4;\n\n\nout vec4 fs_Pos;\nout vec4 fs_Col;            // The color of each vertex. This is implicitly passed to the fragment shader.\nout vec4 fs_Nor;\nout vec4 fs_LightSpacePos;\n\nvoid main()\n{\n    mat4 T = mat4(vs_Col1, vs_Col2, vs_Col3, vs_Col4);\n    fs_Col = vs_Col;\n    mat3 invTranspose = mat3(u_ModelInvTr);\n    fs_Nor = vec4(invTranspose * vec3(vs_Nor), 0.0);          // Pass the vertex normals to the fragment shader for interpolation.\n                                                            // Transform the geometry's normals by the inverse transpose of the\n                                                            // model matrix. This is necessary to ensure the normals remain\n                                                            // perpendicular to the surface after the surface is transformed by\n                                                            // the model matrix.\n\n\n    vec4 modelposition = T * u_Model * vs_Pos;   // Temporarily store the transformed vertex positions for use below\n    fs_Pos = modelposition;\n    fs_LightSpacePos = u_LightSpaceMatrix * modelposition;\n\n    gl_Position = u_ViewProj * modelposition;// gl_Position is a built-in variable of OpenGL which is\n                                             // used to render the final positions of the geometry's vertices\n}\n"
+
+/***/ }),
+/* 84 */
+/***/ (function(module, exports) {
+
+module.exports = "# version 300 es\nprecision highp float;\n\nuniform vec4 u_Color;\nuniform sampler2D depthMap;\nuniform sampler2D depthMapInstanced;\nuniform mat4 u_ViewProj;\nuniform vec3 u_LightPos;\nuniform vec3 u_CameraPos;\nuniform int u_LightingEnabled;\n\n// These are the interpolated values out of the rasterizer, so you can't know\n// their specific values without knowing the vertices that contributed to them\nin vec4 fs_Pos;\nin vec4 fs_Nor;\nin vec4 fs_LightVec;\nin vec4 fs_Col;\nin vec2 fs_UV;\nin vec4 fs_LightSpacePos;\n\nout vec4 out_Col; // This is the final output color that you will see on your\n                  // screen for the pixel that is currently being processed.\n\n\nfloat shadowCalculation(vec4 lightSpacePos, vec3 normal, vec3 lightDir)\n{\n    vec3 projCoords = lightSpacePos.xyz / lightSpacePos.w;\n    projCoords = projCoords * 0.5 + 0.5; \n    if(projCoords.z > 1.0)\n        return 0.0;\n    float closestDepth = texture(depthMap, projCoords.xy).r; \n    float currentDepth = projCoords.z; \n    float bias = max(0.005 * (1.0 - dot(normal, lightDir)), 0.0005);  \n    float shadow = 0.0;\n    vec2 texelSize = vec2(1.0 / float(textureSize(depthMap, 0).x), 1.0 / float(textureSize(depthMap, 0).y));\n    for(int x = -1; x <= 1; ++x)\n    {\n        for(int y = -1; y <= 1; ++y)\n        {\n            float pcfDepth = texture(depthMap, projCoords.xy + vec2(float(x), float(y)) * texelSize).r; \n            shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0;        \n        }    \n    }\n    shadow /= 9.0;\n    return shadow;\n}\n\nvoid main()\n{\n    vec3 color = vec3(fs_Col);\n    if (u_LightingEnabled == 1)\n    {\n        vec3 normal = normalize(vec3(fs_Nor));\n        vec3 lightColor = vec3(1.0);\n        // ambient\n        vec3 ambient = 0.25 * color;\n        // diffuse\n        vec3 lightDir = normalize(u_LightPos - vec3(fs_Pos));\n        float diff = max(dot(lightDir, normal), 0.0);\n        vec3 diffuse = diff * lightColor;\n        // specular\n        vec3 viewDir = normalize(vec3(fs_Pos));\n        float spec = 0.0;\n        vec3 halfwayDir = normalize(lightDir + viewDir);  \n        spec = pow(max(dot(normal, halfwayDir), 0.0), 64.0);\n        vec3 specular = spec * lightColor;    \n        // calculate shadow\n        float shadow = shadowCalculation(fs_LightSpacePos, normal, lightDir); \n        vec3 lighting = clamp((ambient + (1.0 - shadow) * (diffuse + specular)) * color, vec3(0.0), vec3(1.0));\n        out_Col = vec4(lighting, 1.0);\n    }\n    else\n    {\n        vec3 normal = normalize(vec3(fs_Nor));\n        vec3 lightColor = vec3(1.0);\n        // ambient\n        vec3 ambient = 0.15 * color;\n        // diffuse\n        vec3 lightDir = normalize(vec3(fs_Pos));\n        float diff = max(dot(lightDir, normal), 0.0);\n        vec3 diffuse = diff * lightColor;\n        // specular\n        vec3 lighting = clamp(ambient + diffuse * color, vec3(0.0), vec3(1.0));\n        out_Col = vec4(lighting, 1.0);\n    }\n}\n"
 
 /***/ })
 /******/ ]);

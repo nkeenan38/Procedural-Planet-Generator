@@ -72,31 +72,31 @@ function createPlanet()
 
 function addAssets()
 {
-  let obj: string = readTextFile('src/palm-tree.obj');
+  let obj: string = readTextFile('src/objs/palm-tree.obj');
   palmTreeLeaves = new Mesh(obj, vec3.create());
   palmTreeLeaves.create(vec4.fromValues(0.1, 0.8, 0.1, 1.0));
 
-  obj = readTextFile('src/palm-tree-trunk.obj');
+  obj = readTextFile('src/objs/palm-tree-trunk.obj');
   palmTreeTrunk = new Mesh(obj, vec3.create());
   palmTreeTrunk.create(vec4.fromValues(0.5, 0.3, 0.05, 1.0));
 
-  obj = readTextFile('src/fir-tree.obj');
+  obj = readTextFile('src/objs/fir-tree.obj');
   firTreeLeaves = new Mesh(obj, vec3.create());
   firTreeLeaves.create(vec4.fromValues(0.1, 0.8, 0.1, 1.0));
 
-  obj = readTextFile('src/fir-tree-trunk.obj');
+  obj = readTextFile('src/objs/fir-tree-trunk.obj');
   firTreeTrunk = new Mesh(obj, vec3.create());
   firTreeTrunk.create(vec4.fromValues(0.5, 0.3, 0.05, 1.0));
 
-  obj = readTextFile('src/fir-tree.obj');
+  obj = readTextFile('src/objs/fir-tree.obj');
   snowTreeLeaves = new Mesh(obj, vec3.create());
   snowTreeLeaves.create(vec4.fromValues(0.9, 0.9, 0.9, 1.0));
 
-  obj = readTextFile('src/fir-tree-trunk.obj');
+  obj = readTextFile('src/objs/fir-tree-trunk.obj');
   snowTreeTrunk = new Mesh(obj, vec3.create());
   snowTreeTrunk.create(vec4.fromValues(0.5, 0.3, 0.05, 1.0));
 
-  obj = readTextFile('src/cow.obj');
+  obj = readTextFile('src/objs/cow.obj');
   cow = new Mesh(obj, vec3.create());
   cow.create(vec4.fromValues(0.78, 0.66, 0.4, 1.0));
 
