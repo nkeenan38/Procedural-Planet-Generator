@@ -50,8 +50,14 @@ The biomes are determined by using tectonic plate type, boundary event, elevatio
 * **Coast:** Occurs at the divergent and sliding boundaries between continental and oceanic plates
 
 ![Biome Example](./img/biome.png)
+![Biome Example](./img/details.png)
 
 ### Shadows ###
 I've added shadows to my scene by creating a virtual sun  as the light source. I do an inital render from my sun's perspective to create a depth map. I then use this depth map in my regular shader to determine if a point lies in a shadow or not. 
 
 ![Shadow Example](./img/shadows.png)
+
+### Assets ###
+I've added some procedural placed assets in the form of trees and a cow. You'll find palm trees in tropical biomes (on beachy coasts or islands). Fir trees populate the forest biomes. Snowy fir trees are found on snowy mountain peaks. And finally, cows can be found roaming the grasslands. 
+
+![Assests Example](./img/assets.png)
