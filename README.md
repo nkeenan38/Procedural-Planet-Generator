@@ -9,7 +9,7 @@ To create the tiled sphere, I started with an icosahedron. The plan was to subdi
 
 ![Subdivided Icosahedrons and their Duals](./img/icosahedrons.png)
 
-The number of tiles on the planet increases with each subdivsion. This is the result of subdividing four times and getting the dual polyhedron.
+The number of tiles on the planet increases with each subdivsion. This is the result of subdividing three times and getting the dual polyhedron.
 
 ![Dual of Subdivided Icosahedron](./img/dual-3.png)
 
