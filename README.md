@@ -1,6 +1,9 @@
 # Procedural Planet Generator #
 Demo Link: https://nkeenan38.github.io/Procedural-Planet-Generator/
 
+![Project Example](./img/final1.png)
+![Project Example](./img/final2.png)
+
 ### Planet Geometry ###
 To create the tiled sphere, I started with an icosahedron. The plan was to subdivide this icosahedron and get the dual polyhedron from that. A dual of a polyhedron is one where the vertices of one correspond to the faces of the other and the edges between pairs of vertices of one correspond to the edges between pairs of faces of the other. The dual of an icosahedron is a dodecahedron, but the dual of higher subdivisions create tiled spheres that consist mostly of hexagons.
 ![Dual of Subdivided Icosahedron](./img/dual-3.png)
@@ -50,14 +53,17 @@ The biomes are determined by using tectonic plate type, boundary event, elevatio
 * **Coast:** Occurs at the divergent and sliding boundaries between continental and oceanic plates
 
 ![Biome Example](./img/biome.png)
+
+I then added some more details and colors to the sides of the tiles to enhance the landscape.
+
 ![Biome Example](./img/details.png)
 
 ### Shadows ###
-I've added shadows to my scene by creating a virtual sun  as the light source. I do an inital render from my sun's perspective to create a depth map. I then use this depth map in my regular shader to determine if a point lies in a shadow or not. 
+To add the shadows, I add a virtual sun as the light source. I first do an inital render of my scene from the sun's perspective instead of the camera. I only use this render to create a depth map (nothing is drawn to the screen at this point). During the second render from the camera's point of view, I use this depth map to determine if a point lies in a shadow or not. I do this by calculating the distance from that point to the sun. If the distance is larger than what is found in the depth map, then there is an object between that point and the sun, so it must be in a shadow. 
 
 ![Shadow Example](./img/shadows.png)
 
 ### Assets ###
-I've added some procedural placed assets in the form of trees and a cow. You'll find palm trees in tropical biomes (on beachy coasts or islands). Fir trees populate the forest biomes. Snowy fir trees are found on snowy mountain peaks. And finally, cows can be found roaming the grasslands. 
+I've added some procedural placed assets in the form of trees and cows. You'll find palm trees in tropical biomes (on beachy coasts or islands). Fir trees populate the forest biomes. Snowy fir trees are found on snowy mountain peaks. And finally, cows can be found roaming the grasslands. 
 
 ![Assests Example](./img/assets.png)
